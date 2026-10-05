@@ -1,0 +1,294 @@
+{
+  "menuItems": [
+    {
+      "category": "Entrées",
+      "name": "Burrata crémeuse",
+      "description": "Marmelade de tomates, pickles de gingembre, crème citronnée et basilic frais.",
+      "priceDt": 27,
+      "active": true,
+      "sortOrder": 1,
+      "id": 1
+    },
+    {
+      "category": "Entrées",
+      "name": "Carpaccio de Bœuf Truffé",
+      "description": "Fines tranches de filet de bœuf, copeaux de grana padano, roquette et huile de truffe.",
+      "priceDt": 32,
+      "active": true,
+      "sortOrder": 2,
+      "id": 2
+    },
+    {
+      "category": "Entrées",
+      "name": "Bruschetta Gourmande Saumon",
+      "description": "Pain de campagne grillé, saumon gravlax, ricotta aux herbes et câpres croquantes.",
+      "priceDt": 24,
+      "active": true,
+      "sortOrder": 3,
+      "id": 3
+    },
+    {
+      "category": "Entrées",
+      "name": "Salade Caprese Di Bufala",
+      "description": "Tomates savoureuses, mozzarella di bufala, réduction balsamique et basilic.",
+      "priceDt": 26,
+      "active": true,
+      "sortOrder": 4,
+      "id": 4
+    },
+    {
+      "category": "Entrées",
+      "name": "Fritto Misto de la Mer",
+      "description": "Calamars, crevettes et seiches croustillants, mayonnaise citronnée maison.",
+      "priceDt": 34,
+      "active": true,
+      "sortOrder": 5,
+      "id": 5
+    },
+    {
+      "category": "Pâtes",
+      "name": "Rigatoni Effiloché de Bœuf",
+      "description": "Sauce tomates mijotée, tomates séchées, bœuf fondant et crème de parmesan.",
+      "priceDt": 36,
+      "active": true,
+      "sortOrder": 6,
+      "id": 6
+    },
+    {
+      "category": "Pâtes",
+      "name": "Rigatoni Poivrons Fumés et Crevettes",
+      "description": "Crevettes sautées, crème de poivrons fumés, miel, noisettes et figues séchées.",
+      "priceDt": 42,
+      "active": true,
+      "sortOrder": 7,
+      "id": 7
+    },
+    {
+      "category": "Pâtes",
+      "name": "Tagliatelles aux Fruits de Mer",
+      "description": "Crevettes, moules, seiches, bisque maison, tomates cerises et persil plat.",
+      "priceDt": 46,
+      "active": true,
+      "sortOrder": 8,
+      "id": 8
+    },
+    {
+      "category": "Pâtes",
+      "name": "Raviolis Ricotta & Épinards",
+      "description": "Pâtes fraîches maison farcies, beurre de sauge parfumé et crème de parmesan.",
+      "priceDt": 34,
+      "active": true,
+      "sortOrder": 9,
+      "id": 9
+    },
+    {
+      "category": "Pâtes",
+      "name": "Penne au Poulet et Champignons",
+      "description": "Émincé de poulet fermier, champignons de Paris, crème fraîche et parmesan.",
+      "priceDt": 32,
+      "active": true,
+      "sortOrder": 10,
+      "id": 10
+    },
+    {
+      "category": "Pâtes",
+      "name": "Spaghetti Al Pomodoro & Burrata",
+      "description": "Sauce tomate napolitaine au basilic frais, couronnée d'une burrata entière.",
+      "priceDt": 35,
+      "active": true,
+      "sortOrder": 11,
+      "id": 11
+    },
+    {
+      "category": "Pâtes",
+      "name": "Risotto aux Crevettes & Safran",
+      "description": "Riz carnaroli crémeux, bouillon de crustacés, crevettes fraîches et parmesan.",
+      "priceDt": 44,
+      "active": true,
+      "sortOrder": 12,
+      "id": 12
+    },
+    {
+      "category": "Pizzas",
+      "name": "La Margherita",
+      "description": "Sauce tomate italienne, mozzarella fior di latte, grana padano et basilic frais.",
+      "priceDt": 22,
+      "active": true,
+      "sortOrder": 13,
+      "id": 13
+    },
+    {
+      "category": "Pizzas",
+      "name": "Quattro Formaggi",
+      "description": "Mozzarella, gorgonzola, grana padano, ricotta crémeuse et touche de miel.",
+      "priceDt": 28,
+      "active": true,
+      "sortOrder": 14,
+      "id": 14
+    },
+    {
+      "category": "Pizzas",
+      "name": "Pizza Diavola",
+      "description": "Sauce tomate, mozzarella fior di latte, salami piquant italien et piments doux.",
+      "priceDt": 29,
+      "active": true,
+      "sortOrder": 15,
+      "id": 15
+    },
+    {
+      "category": "Pizzas",
+      "name": "Pizza Per Voi Truffe",
+      "description": "Crème de truffe blanche, mozzarella, champignons sautés, parmesan et roquette.",
+      "priceDt": 38,
+      "active": true,
+      "sortOrder": 16,
+      "id": 16
+    },
+    {
+      "category": "Pizzas",
+      "name": "Pizza Frutti di Mare",
+      "description": "Sauce tomate, mozzarella, fruits de mer frais de Sousse, ail confit et persil.",
+      "priceDt": 39,
+      "active": true,
+      "sortOrder": 17,
+      "id": 17
+    },
+    {
+      "category": "Pizzas",
+      "name": "Pizza Végétarienne Grillée",
+      "description": "Courgettes, aubergines marinées, poivrons rôtis, mozzarella et origan.",
+      "priceDt": 25,
+      "active": true,
+      "sortOrder": 18,
+      "id": 18
+    },
+    {
+      "category": "Terre & mer",
+      "name": "Filet de Bœuf au Poivre Vert",
+      "description": "Filet de bœuf tendre, sauce au poivre vert et crème, légumes sautés du jour.",
+      "priceDt": 54,
+      "active": true,
+      "sortOrder": 19,
+      "id": 19
+    },
+    {
+      "category": "Terre & mer",
+      "name": "Daurade Royale Grillée",
+      "description": "Filet de daurade fraîche, écrasé de pommes de terre à l'huile d'olive et caviar d'aubergines.",
+      "priceDt": 48,
+      "active": true,
+      "sortOrder": 20,
+      "id": 20
+    },
+    {
+      "category": "Terre & mer",
+      "name": "Escalope Milanaise Croustillante",
+      "description": "Escalope de veau panée dorée au beurre clarifié, servie avec spaghettis al pomodoro.",
+      "priceDt": 38,
+      "active": true,
+      "sortOrder": 21,
+      "id": 21
+    },
+    {
+      "category": "Terre & mer",
+      "name": "Saumon Poêlé aux Agrumes",
+      "description": "Pavé de saumon croustillant, réduction d'agrumes, fenouil croquant et riz safrané.",
+      "priceDt": 52,
+      "active": true,
+      "sortOrder": 22,
+      "id": 22
+    },
+    {
+      "category": "Desserts",
+      "name": "Tiramisu Classico",
+      "description": "Café espresso italien, mascarpone onctueux, biscuits savoiardi et pur cacao amer.",
+      "priceDt": 23,
+      "active": true,
+      "sortOrder": 23,
+      "id": 23
+    },
+    {
+      "category": "Desserts",
+      "name": "Panna Cotta Vanille & Fruits Rouges",
+      "description": "Crème cuite à la vanille bourbon de Madagascar, coulis acidulé de framboises.",
+      "priceDt": 18,
+      "active": true,
+      "sortOrder": 24,
+      "id": 24
+    },
+    {
+      "category": "Desserts",
+      "name": "Pizza Nutella & Pistaches",
+      "description": "Pâte fine et croustillante au four, Nutella fondant et éclats de pistaches grillées.",
+      "priceDt": 24,
+      "active": true,
+      "sortOrder": 25,
+      "id": 25
+    },
+    {
+      "category": "Desserts",
+      "name": "Fondant au Chocolat Coeur Coulant",
+      "description": "Chocolat noir 70%, cœur coulant intense, servi avec glace vanille.",
+      "priceDt": 22,
+      "active": true,
+      "sortOrder": 26,
+      "id": 26
+    },
+    {
+      "category": "Boissons",
+      "name": "Mocktail Signature Per Voi",
+      "description": "Jus d'agrumes frais de Tunisie, menthe pilée, purée de passion et eau pétillante.",
+      "priceDt": 14,
+      "active": true,
+      "sortOrder": 27,
+      "id": 27
+    },
+    {
+      "category": "Boissons",
+      "name": "Mojito Frais Maison",
+      "description": "Citron vert pressé, feuilles de menthe fraîche, sucre de canne et soda.",
+      "priceDt": 12,
+      "active": true,
+      "sortOrder": 28,
+      "id": 28
+    },
+    {
+      "category": "Boissons",
+      "name": "Limonade Artisanale Menthe",
+      "description": "Citrons frais pressés minute, sirop de menthe maison et glace pilée.",
+      "priceDt": 10,
+      "active": true,
+      "sortOrder": 29,
+      "id": 29
+    },
+    {
+      "category": "Boissons",
+      "name": "Espresso Italien",
+      "description": "Sélection de café italien torréfié artisanalement.",
+      "priceDt": 5,
+      "active": true,
+      "sortOrder": 30,
+      "id": 30
+    },
+    {
+      "category": "Boissons",
+      "name": "Eau Minérale / Gazeuse 1L",
+      "description": "Bouteille en verre servie bien fraîche.",
+      "priceDt": 4,
+      "active": true,
+      "sortOrder": 31,
+      "id": 31
+    }
+  ],
+  "reservations": [],
+  "orders": [],
+  "orderItems": [],
+  "slotControls": [],
+  "nextId": {
+    "menu": 32,
+    "reservation": 1,
+    "order": 1,
+    "orderItem": 1,
+    "slot": 1
+  }
+}
