@@ -281,7 +281,7 @@ form label { display: flex; flex-direction: column; gap: 9px; margin-bottom: 20p
 @media (max-width: 900px) { .language-switcher { margin-left: 6px; } .language-switcher button { padding: 0 6px; height: 26px; } }
 
 .language-transition { animation: languagePageIn .42s cubic-bezier(.23,1,.32,1) both; transform-origin: top center; }
-@keyframes languagePageIn { from { opacity: .35; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes languagePageIn { 0% { opacity: .35; transform: translateY(8px); } 99% { transform: translateY(0); } 100% { opacity: 1; transform: none; } }
 .menu-layout { display: block; }
 .menu-list-wrap { width: 100%; }
 @media (prefers-reduced-motion: reduce) { .language-transition { animation: none; } }
