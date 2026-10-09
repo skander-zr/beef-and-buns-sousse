@@ -2518,15 +2518,15 @@ export default function Home() {
                 </button>
               </div>
             ) : (
-              <form onSubmit={handleOrder} noValidate={true}>
+              <form onSubmit={handleOrder}>
                 <div className="order-lines">
                   {cartLines.map(line => (
                     <div className="order-line" key={line.item.id}>
                       <div>
-                        <strong>
+                        <strong style={{ color: "black" }}>
                           {translateMenuText(language, line.item.name)}
                         </strong>
-                        <span>
+                        <span style={{ color: "gray" }}>
                           {line.item.priceDt} DT {t.unit}
                         </span>
                       </div>
@@ -2536,25 +2536,25 @@ export default function Home() {
                           onClick={() => changeQuantity(line.item.id, -1)}
                           aria-label="Diminuer"
                         >
-                          <Minus size={13} />
+                          <Minus size={13} color="black" />
                         </button>
-                        <span>{line.quantity}</span>
+                        <span style={{ color: "black" }}>{line.quantity}</span>
                         <button
                           type="button"
                           onClick={() => changeQuantity(line.item.id, 1)}
                           aria-label="Augmenter"
                         >
-                          <Plus size={13} />
+                          <Plus size={13} color="black" />
                         </button>
                       </div>
                     </div>
                   ))}
                 </div>
                 <div className="order-total">
-                  <span>{formLabels[language].total}</span>
-                  <strong>{cartTotal} DT</strong>
+                  <span style={{ color: "black" }}>{formLabels[language].total}</span>
+                  <strong style={{ color: "black" }}>{cartTotal} DT</strong>
                 </div>
-                <label>
+                <label style={{ color: "black" }}>
                   {formLabels[language].name}
                   <input
                     value={customerName}
@@ -2562,7 +2562,7 @@ export default function Home() {
                     placeholder={t.namePlaceholder}
                   />
                 </label>
-                <label>
+                <label style={{ color: "black" }}>
                   {formLabels[language].phone}
                   <input
                     value={phone}
@@ -2571,7 +2571,7 @@ export default function Home() {
                   />
                 </label>
                 <div className="form-row">
-                  <label>
+                  <label style={{ color: "black" }}>
                     {formLabels[language].order}
                     <select
                       value={orderType}
@@ -2589,7 +2589,7 @@ export default function Home() {
                       </option>
                     </select>
                   </label>
-                  <label>
+                  <label style={{ color: "black" }}>
                     {formLabels[language].address}
                     {orderType === "delivery" ? (
                       <input
@@ -2602,7 +2602,7 @@ export default function Home() {
                     )}
                   </label>
                 </div>
-                <label>
+                <label style={{ color: "black" }}>
                   {formLabels[language].note}
                   <input
                     value={orderNotes}
@@ -2620,14 +2620,14 @@ export default function Home() {
                     : formLabels[language].order}{" "}
                   <ArrowRight size={16} />
                 </button>
-                <p className="form-disclaimer">
-                  {siteCopy[language].orderNote}
+                <p className="form-disclaimer" style={{ color: "gray" }}>
+                  Pour toute commande, nous vous rappellerons pour confirmer.
                 </p>
               </form>
             )}
           </div>
         </div>
       )}
-    </main>
+    </>
   );
 }
