@@ -27,15 +27,17 @@ class ErrorBoundary extends Component<Props, State> {
         <div className="flex items-center justify-center min-h-screen p-8 bg-background">
           <div className="flex flex-col items-center w-full max-w-2xl p-8">
             <AlertTriangle
-              size={48}
+              size={64}
               className="text-destructive mb-6 flex-shrink-0"
+              color="red"
             />
 
-            <h2 className="text-xl mb-4">An unexpected error occurred.</h2>
+            <h2 className="text-2xl mb-4 font-bold text-red-600">Oups, une erreur technique est survenue !</h2>
+            <p className="mb-4 text-black font-medium">Veuillez prendre une capture d'écran de cette page et l'envoyer au développeur :</p>
 
-            <div className="p-4 w-full rounded bg-muted overflow-auto mb-6">
-              <pre className="text-sm text-muted-foreground whitespace-break-spaces">
-                {this.state.error?.stack}
+            <div className="p-4 w-full rounded bg-white border-2 border-red-200 overflow-auto mb-6 text-left">
+              <pre className="text-xs text-black whitespace-break-spaces font-mono">
+                {this.state.error?.stack || this.state.error?.message || "Erreur inconnue"}
               </pre>
             </div>
 
