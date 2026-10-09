@@ -1923,7 +1923,6 @@ export default function Home() {
   };
 
   return (
-    <>
     <main
       className={`site-shell language-transition language-${language}`}
       key={language}
@@ -2480,7 +2479,6 @@ export default function Home() {
           <strong>{cartTotal} DT</strong>
         </button>
       )}
-    </main>
       {orderOpen && (
         <div
           className="order-overlay"
