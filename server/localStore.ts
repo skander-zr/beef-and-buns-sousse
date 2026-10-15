@@ -611,19 +611,29 @@ class LocalStore {
     saveState(this.state);
   }
 
-  getVisitStats(): { today: number; thisMonth: number; total: number } {
+  getVisitStats(): { today: number; week: number; month: number; year: number; total: number } {
     const list = this.state.visits || [];
+    const now = Date.now();
+    const sevenDaysAgo = now - 7 * 24 * 60 * 60 * 1000;
     const todayStr = new Date().toISOString().slice(0, 10);
     const monthStr = todayStr.slice(0, 7);
+    const yearStr = todayStr.slice(0, 4);
     let today = 0;
-    let thisMonth = 0;
+    let week = 0;
+    let month = 0;
+    let year = 0;
+
     for (const v of list) {
       if (v.date === todayStr) today++;
-      if (v.date.startsWith(monthStr)) thisMonth++;
+      if (v.timestamp >= sevenDaysAgo) week++;
+      if (v.date.startsWith(monthStr)) month++;
+      if (v.date.startsWith(yearStr)) year++;
     }
     return {
       today,
-      thisMonth,
+      week,
+      month,
+      year,
       total: list.length,
     };
   }
