@@ -1788,7 +1788,6 @@ export default function Home() {
       const waText = `🍽️ *Demande de réservation Per Voi*\n\n👤 *Nom :* ${variables.name}\n📞 *Tél :* ${variables.phone}\n📅 *Date :* ${variables.serviceDate} à ${variables.serviceTime}\n👥 *Couverts :* ${variables.guests} pers.${variables.notes ? `\n📝 *Notes :* ${variables.notes}` : ""}`;
       const waUrl = `https://wa.me/${RESTAURANT_PHONE}?text=${encodeURIComponent(waText)}`;
       setLastResWhatsappLink(waUrl);
-      window.open(waUrl, "_blank");
       setSubmitted(true);
       toast.success(t.resToastSuccess, { description: t.resToastSuccessDesc });
     },
@@ -1811,7 +1810,6 @@ export default function Home() {
       const waText = `🍕 *Nouvelle commande Per Voi (#${result.id})*\n\n👤 *Client :* ${customerName}\n📞 *Tél :* ${phone}\n📦 *Mode :* ${mode}\n\n*Articles :*\n${itemsList}\n\n💰 *Total :* ${total} DT${orderNotes ? `\n📝 *Note :* ${orderNotes}` : ""}`;
       const waUrl = `https://wa.me/${RESTAURANT_PHONE}?text=${encodeURIComponent(waText)}`;
       setLastOrderWhatsappLink(waUrl);
-      window.open(waUrl, "_blank");
 
       setOrderSubmitted(true);
       setCart({});
