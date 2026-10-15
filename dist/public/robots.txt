@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /hote
+
+Sitemap: https://per-voi-sousse-2.onrender.com/sitemap.xml
