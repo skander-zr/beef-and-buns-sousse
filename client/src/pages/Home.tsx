@@ -23,8 +23,8 @@ import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
 
 const mapLink = "https://share.google/l2G73Ea4o4TdpSBVz";
-const RESTAURANT_PHONE = "21626982284";
-const RESTAURANT_PHONE_DISPLAY = "+216 26 982 284";
+const RESTAURANT_PHONE = "21620217090";
+const RESTAURANT_PHONE_DISPLAY = "+216 20 217 090";
 const whatsappLink =
   `https://wa.me/${RESTAURANT_PHONE}?text=Bonjour%20Per%20Voi%2C%20je%20souhaite%20r%C3%A9server%20une%20table%20ou%20poser%20une%20question.`;
 const googleReviewLink =

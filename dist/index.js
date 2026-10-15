@@ -112,7 +112,7 @@ var ENV = {
   forgeApiKey: process.env.BUILT_IN_FORGE_API_KEY ?? "",
   whatsappAccessToken: process.env.WHATSAPP_ACCESS_TOKEN ?? "",
   whatsappPhoneNumberId: process.env.WHATSAPP_PHONE_NUMBER_ID ?? "",
-  whatsappHostPhone: process.env.WHATSAPP_HOST_PHONE ?? "21626982284",
+  whatsappHostPhone: process.env.WHATSAPP_HOST_PHONE ?? "21620217090",
   callmebotApiKey: process.env.CALLMEBOT_API_KEY ?? "",
   whatsappTemplateName: process.env.WHATSAPP_TEMPLATE_NAME ?? "per_voi_new_event",
   telegramBotToken: process.env.TELEGRAM_BOT_TOKEN ?? "8962458398:AAEOGRd4gVH29CY93STH2kfN6F8XuA5oRis",
@@ -1236,7 +1236,7 @@ async function notifyHostOnWhatsApp(notification) {
     return false;
   }
   if (ENV.callmebotApiKey) {
-    const phone = normalizePhone(ENV.whatsappHostPhone || "21626982284");
+    const phone = normalizePhone(ENV.whatsappHostPhone || "21620217090");
     const msg = notification.kind === "reservation" ? `\u{1F37D}\uFE0F *Nouvelle r\xE9servation Per Voi (#${notification.id})*
 \u{1F464} Client: ${notification.name}
 \u{1F4DE} T\xE9l: ${notification.phone}

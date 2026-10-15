@@ -59,7 +59,7 @@ export async function notifyHostOnWhatsApp(notification: WhatsAppNotification): 
 
   // Option 1 : Envoi automatique via CallMeBot (gratuit, sans compte Meta)
   if (ENV.callmebotApiKey) {
-    const phone = normalizePhone(ENV.whatsappHostPhone || "21626982284");
+    const phone = normalizePhone(ENV.whatsappHostPhone || "21620217090");
     const msg =
       notification.kind === "reservation"
         ? `🍽️ *Nouvelle réservation Per Voi (#${notification.id})*\n👤 Client: ${notification.name}\n📞 Tél: ${notification.phone}\n📅 Date: ${notification.date} à ${notification.time}\n👥 Couverts: ${notification.guests} pers.`

@@ -9,7 +9,7 @@ export const ENV = {
   forgeApiKey: process.env.BUILT_IN_FORGE_API_KEY ?? "",
   whatsappAccessToken: process.env.WHATSAPP_ACCESS_TOKEN ?? "",
   whatsappPhoneNumberId: process.env.WHATSAPP_PHONE_NUMBER_ID ?? "",
-  whatsappHostPhone: process.env.WHATSAPP_HOST_PHONE ?? "21626982284",
+  whatsappHostPhone: process.env.WHATSAPP_HOST_PHONE ?? "21620217090",
   callmebotApiKey: process.env.CALLMEBOT_API_KEY ?? "",
   whatsappTemplateName: process.env.WHATSAPP_TEMPLATE_NAME ?? "per_voi_new_event",
   telegramBotToken: process.env.TELEGRAM_BOT_TOKEN ?? "8962458398:AAEOGRd4gVH29CY93STH2kfN6F8XuA5oRis",
