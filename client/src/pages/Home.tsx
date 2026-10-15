@@ -1752,8 +1752,6 @@ export default function Home() {
   const [orderType, setOrderType] = useState<"pickup" | "delivery">("pickup");
   const [address, setAddress] = useState("");
   const [orderNotes, setOrderNotes] = useState("");
-  const [lastOrderWhatsappLink, setLastOrderWhatsappLink] = useState<string | null>(null);
-  const [lastResWhatsappLink, setLastResWhatsappLink] = useState<string | null>(null);
   const [reviewIndex, setReviewIndex] = useState(0);
 
   const currentReviews = customerReviewsByLang[language];
@@ -1784,10 +1782,7 @@ export default function Home() {
     { enabled: reservationDate.length === 10 }
   );
   const reservationMutation = trpc.restaurant.reservations.create.useMutation({
-    onSuccess: (_res, variables) => {
-      const waText = `🍽️ *Demande de réservation Per Voi*\n\n👤 *Nom :* ${variables.name}\n📞 *Tél :* ${variables.phone}\n📅 *Date :* ${variables.serviceDate} à ${variables.serviceTime}\n👥 *Couverts :* ${variables.guests} pers.${variables.notes ? `\n📝 *Notes :* ${variables.notes}` : ""}`;
-      const waUrl = `https://wa.me/${RESTAURANT_PHONE}?text=${encodeURIComponent(waText)}`;
-      setLastResWhatsappLink(waUrl);
+    onSuccess: () => {
       setSubmitted(true);
       toast.success(t.resToastSuccess, { description: t.resToastSuccessDesc });
     },
@@ -1796,21 +1791,6 @@ export default function Home() {
   });
   const orderMutation = trpc.restaurant.orders.create.useMutation({
     onSuccess: result => {
-      const itemsList = Object.values(cart)
-        .map(
-          line =>
-            `• ${line.quantity}x ${translateMenuText(language, line.item.name)} (${line.item.priceDt * line.quantity} DT)`
-        )
-        .join("\n");
-      const mode = orderType === "delivery" ? `Livraison (${address})` : "À emporter";
-      const total = Object.values(cart).reduce(
-        (sum, line) => sum + line.item.priceDt * line.quantity,
-        0
-      );
-      const waText = `🍕 *Nouvelle commande Per Voi (#${result.id})*\n\n👤 *Client :* ${customerName}\n📞 *Tél :* ${phone}\n📦 *Mode :* ${mode}\n\n*Articles :*\n${itemsList}\n\n💰 *Total :* ${total} DT${orderNotes ? `\n📝 *Note :* ${orderNotes}` : ""}`;
-      const waUrl = `https://wa.me/${RESTAURANT_PHONE}?text=${encodeURIComponent(waText)}`;
-      setLastOrderWhatsappLink(waUrl);
-
       setOrderSubmitted(true);
       setCart({});
       toast.success(`${t.orderToastSuccess} #${result.id}`, {
@@ -2301,32 +2281,8 @@ export default function Home() {
                 </div>
                 <h3>{t.thanks}</h3>
                 <p>{siteCopy[language].requestSent}</p>
-                {lastResWhatsappLink && (
-                  <a
-                    href={lastResWhatsappLink}
-                    target="_blank"
-                    rel="noreferrer"
-                    style={{
-                      marginTop: "14px",
-                      display: "inline-flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      gap: "8px",
-                      background: "#25D366",
-                      color: "#fff",
-                      padding: "10px 18px",
-                      borderRadius: "8px",
-                      textDecoration: "none",
-                      fontWeight: 600,
-                      fontSize: "14px",
-                    }}
-                  >
-                    <Phone size={15} /> Confirmer sur WhatsApp
-                  </a>
-                )}
                 <button
                   className="text-link"
-                  style={{ marginTop: "12px" }}
                   onClick={() => setSubmitted(false)}
                 >
                   {siteCopy[language].anotherRequest} <ArrowRight size={16} />
@@ -2555,32 +2511,8 @@ export default function Home() {
                 </div>
                 <h3>{siteCopy[language].orderReceived}</h3>
                 <p>{siteCopy[language].orderReceivedCopy}</p>
-                {lastOrderWhatsappLink && (
-                  <a
-                    href={lastOrderWhatsappLink}
-                    target="_blank"
-                    rel="noreferrer"
-                    style={{
-                      marginTop: "16px",
-                      display: "inline-flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      gap: "8px",
-                      background: "#25D366",
-                      color: "#fff",
-                      padding: "10px 18px",
-                      borderRadius: "8px",
-                      textDecoration: "none",
-                      fontWeight: 600,
-                      fontSize: "14px",
-                    }}
-                  >
-                    <Phone size={15} /> Envoyer le récapitulatif sur WhatsApp
-                  </a>
-                )}
                 <button
                   className="text-link"
-                  style={{ marginTop: "12px" }}
                   onClick={() => {
                     setOrderSubmitted(false);
                     setOrderOpen(false);
