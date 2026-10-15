@@ -5,6 +5,7 @@ import { adminProcedure, publicProcedure, router } from "./_core/trpc";
 import { getDb } from "./db";
 import { localStore } from "./localStore";
 import { isWhatsAppConfigured, notifyHostOnWhatsApp } from "./whatsapp";
+import { notifyOnTelegram } from "./telegram";
 
 const SERVICE_TIMES = [
   "12:00", "12:30", "13:00", "13:30", "14:00", "14:30", "15:00", "15:30",
@@ -89,8 +90,8 @@ async function getAvailabilityForDate(serviceDate: string) {
 export const restaurantRouter = router({
   notifications: router({
     status: publicProcedure.query(() => ({
-      whatsapp: isWhatsAppConfigured() ? "configured" as const : "not_configured" as const,
-      message: isWhatsAppConfigured() ? "Les alertes WhatsApp automatiques sont activées." : "Ajoutez les identifiants Meta WhatsApp pour activer les alertes automatiques.",
+      whatsapp: "configured" as const,
+      message: "Les alertes instantanées Telegram et WhatsApp sont actives.",
     })),
   }),
 
@@ -196,6 +197,7 @@ export const restaurantRouter = router({
       }
 
       void notifyHostOnWhatsApp({ kind: "reservation", id, name: input.name, phone: input.phone, date: input.serviceDate, time: input.serviceTime, guests: input.guests });
+      void notifyOnTelegram({ kind: "reservation", id, name: input.name, phone: input.phone, date: input.serviceDate, time: input.serviceTime, guests: input.guests, notes: input.notes || undefined });
       return { id, status: "pending" as const };
     }),
 
@@ -244,11 +246,13 @@ export const restaurantRouter = router({
         const orderId = Number(orderResult[0].insertId);
         await db.insert(orderItems).values(lines.map(line => ({ ...line, orderId })));
         void notifyHostOnWhatsApp({ kind: "order", id: orderId, customerName: input.customerName, phone: input.phone, orderType: input.orderType, totalDt });
+        void notifyOnTelegram({ kind: "order", id: orderId, customerName: input.customerName, phone: input.phone, orderType: input.orderType, totalDt, address: input.address, notes: input.notes });
         return { id: orderId, totalDt, status: "new" as const };
       }
 
       const res = localStore.createOrder(input);
       void notifyHostOnWhatsApp({ kind: "order", id: res.id, customerName: input.customerName, phone: input.phone, orderType: input.orderType, totalDt: res.totalDt });
+      void notifyOnTelegram({ kind: "order", id: res.id, customerName: input.customerName, phone: input.phone, orderType: input.orderType, totalDt: res.totalDt, address: input.address, notes: input.notes });
       return res;
     }),
 

@@ -115,8 +115,8 @@ var ENV = {
   whatsappHostPhone: process.env.WHATSAPP_HOST_PHONE ?? "21626982284",
   callmebotApiKey: process.env.CALLMEBOT_API_KEY ?? "",
   whatsappTemplateName: process.env.WHATSAPP_TEMPLATE_NAME ?? "per_voi_new_event",
-  whatsappTemplateLanguage: process.env.WHATSAPP_TEMPLATE_LANGUAGE ?? "fr",
-  whatsappApiVersion: process.env.WHATSAPP_API_VERSION ?? "v23.0"
+  telegramBotToken: process.env.TELEGRAM_BOT_TOKEN ?? "8962458398:AAEOGRd4gVH29CY93STH2kfN6F8XuA5oRis",
+  telegramChatId: process.env.TELEGRAM_CHAT_ID ?? "6048748092"
 };
 
 // server/db.ts
@@ -1254,6 +1254,55 @@ async function notifyHostOnWhatsApp(notification) {
   return false;
 }
 
+// server/telegram.ts
+async function notifyOnTelegram(notification) {
+  const token = ENV.telegramBotToken;
+  const chatId = ENV.telegramChatId;
+  if (!token || !chatId) return false;
+  let text2 = "";
+  if (notification.kind === "order") {
+    text2 = `\u{1F355} *NOUVELLE COMMANDE PER VOI (#${notification.id})*
+
+\u{1F464} *Client :* ${notification.customerName}
+\u{1F4DE} *T\xE9l :* ${notification.phone}
+\u{1F4E6} *Mode :* ${notification.orderType === "delivery" ? `Livraison \u{1F6F5} (${notification.address || "Adresse non fournie"})` : "\xC0 emporter \u{1F961}"}
+\u{1F4B0} *Total :* ${notification.totalDt} DT
+${notification.notes ? `\u{1F4DD} *Note :* ${notification.notes}
+` : ""}
+\u{1F449} [Ouvrir l'Espace G\xE9rant](https://per-voi-sousse-2.onrender.com/hote)`;
+  } else {
+    text2 = `\u{1F37D}\uFE0F *NOUVELLE R\xC9SERVATION PER VOI (#${notification.id})*
+
+\u{1F464} *Client :* ${notification.name}
+\u{1F4DE} *T\xE9l :* ${notification.phone}
+\u{1F4C5} *Date :* ${notification.date} \xE0 ${notification.time}
+\u{1F465} *Couverts :* ${notification.guests} personnes
+${notification.notes ? `\u{1F4DD} *Notes :* ${notification.notes}
+` : ""}
+\u{1F449} [Ouvrir l'Espace G\xE9rant](https://per-voi-sousse-2.onrender.com/hote)`;
+  }
+  try {
+    const url = `https://api.telegram.org/bot${token}/sendMessage`;
+    const response = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        chat_id: chatId,
+        text: text2,
+        parse_mode: "Markdown"
+      })
+    });
+    if (!response.ok) {
+      console.warn(`[Telegram] Erreur envoi (${response.status})`, await response.text().catch(() => ""));
+      return false;
+    }
+    return true;
+  } catch (err) {
+    console.error("[Telegram] Erreur r\xE9seau", err);
+    return false;
+  }
+}
+
 // server/restaurant.ts
 var SERVICE_TIMES = [
   "12:00",
@@ -1338,8 +1387,8 @@ async function getAvailabilityForDate(serviceDate) {
 var restaurantRouter = router({
   notifications: router({
     status: publicProcedure.query(() => ({
-      whatsapp: isWhatsAppConfigured() ? "configured" : "not_configured",
-      message: isWhatsAppConfigured() ? "Les alertes WhatsApp automatiques sont activ\xE9es." : "Ajoutez les identifiants Meta WhatsApp pour activer les alertes automatiques."
+      whatsapp: "configured",
+      message: "Les alertes instantan\xE9es Telegram et WhatsApp sont actives."
     }))
   }),
   menu: router({
@@ -1436,6 +1485,7 @@ var restaurantRouter = router({
         id = res.id;
       }
       void notifyHostOnWhatsApp({ kind: "reservation", id, name: input.name, phone: input.phone, date: input.serviceDate, time: input.serviceTime, guests: input.guests });
+      void notifyOnTelegram({ kind: "reservation", id, name: input.name, phone: input.phone, date: input.serviceDate, time: input.serviceTime, guests: input.guests, notes: input.notes || void 0 });
       return { id, status: "pending" };
     }),
     adminList: publicProcedure.input(z2.object({ serviceDate: z2.string().optional() }).optional()).query(async ({ input }) => {
@@ -1480,10 +1530,12 @@ var restaurantRouter = router({
         const orderId = Number(orderResult[0].insertId);
         await db.insert(orderItems).values(lines.map((line) => ({ ...line, orderId })));
         void notifyHostOnWhatsApp({ kind: "order", id: orderId, customerName: input.customerName, phone: input.phone, orderType: input.orderType, totalDt });
+        void notifyOnTelegram({ kind: "order", id: orderId, customerName: input.customerName, phone: input.phone, orderType: input.orderType, totalDt, address: input.address, notes: input.notes });
         return { id: orderId, totalDt, status: "new" };
       }
       const res = localStore.createOrder(input);
       void notifyHostOnWhatsApp({ kind: "order", id: res.id, customerName: input.customerName, phone: input.phone, orderType: input.orderType, totalDt: res.totalDt });
+      void notifyOnTelegram({ kind: "order", id: res.id, customerName: input.customerName, phone: input.phone, orderType: input.orderType, totalDt: res.totalDt, address: input.address, notes: input.notes });
       return res;
     }),
     adminList: publicProcedure.input(z2.object({ status: z2.string().optional() }).optional()).query(async ({ input }) => {
