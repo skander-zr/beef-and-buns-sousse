@@ -18,7 +18,6 @@ class ErrorBoundary extends Component<Props, State> {
   }
 
   static getDerivedStateFromError(error: Error): State {
-    alert("REACT CRASH: " + error.message);
     return { hasError: true, error };
   }
 
