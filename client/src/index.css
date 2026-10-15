@@ -177,13 +177,11 @@ form label { display: flex; flex-direction: column; gap: 9px; margin-bottom: 20p
 .menu-source-link { margin-top: 18px; font-size: 10px; }
 .gallery-section { background: var(--cream); }
 .gallery-heading { display: flex; align-items: end; justify-content: space-between; margin-bottom: 56px; }
-.gallery-grid { display: grid; grid-template-columns: 1.15fr .85fr .85fr; gap: 18px; align-items: start; }
-.gallery-card { position: relative; min-width: 0; margin: 0; overflow: hidden; background: #30251f; color: #fff8ef; }
-.gallery-card-large { margin-top: 44px; }
-.gallery-card-offset { margin-top: 105px; }
-.gallery-card img { display: block; width: 100%; aspect-ratio: 4 / 5; object-fit: cover; opacity: .92; transition: transform .5s cubic-bezier(.23,1,.32,1), opacity .3s ease; }
+.gallery-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; align-items: stretch; }
+.gallery-card { position: relative; min-width: 0; margin: 0; overflow: hidden; background: #30251f; color: #fff8ef; border-radius: 4px; }
+.gallery-card img { display: block; width: 100%; aspect-ratio: 4 / 5; object-fit: cover; object-position: center; opacity: .92; transition: transform .5s cubic-bezier(.23,1,.32,1), opacity .3s ease; }
 .gallery-card:hover img { transform: scale(1.04); opacity: 1; }
-.gallery-card:after { content: ''; position: absolute; inset: 28% 0 0; background: linear-gradient(0deg, rgba(22,16,12,.82), transparent); pointer-events: none; }
+.gallery-card:after { content: ''; position: absolute; inset: 35% 0 0; background: linear-gradient(0deg, rgba(22,16,12,.85), transparent); pointer-events: none; }
 .gallery-card figcaption { position: absolute; z-index: 1; left: 20px; right: 20px; bottom: 19px; display: grid; grid-template-columns: 32px 1fr; align-items: end; column-gap: 8px; }
 .gallery-card figcaption span { grid-row: span 2; color: #e5b768; font-size: 10px; letter-spacing: .12em; }
 .gallery-card figcaption strong { font-family: var(--serif); font-size: 21px; font-weight: 500; }
@@ -195,17 +193,14 @@ form label { display: flex; flex-direction: column; gap: 9px; margin-bottom: 20p
 
 @media (max-width: 900px) {
   .container { width: min(100% - 42px, 700px); }.topline-center { display: none; }.nav-inner { height: 72px; }.nav-cta { display: none; }.mobile-trigger { display: grid; }.main-nav { position: absolute; top: 72px; left: 0; right: 0; display: none; flex-direction: column; align-items: flex-start; gap: 0; padding: 18px 21px 22px; margin: 0; background: rgba(33,31,28,.97); }.main-nav.is-open { display: flex; }.main-nav button { width: 100%; padding: 13px 0; text-align: left; }.nav-mobile-cta { display: block; margin-top: 12px; padding: 13px 16px !important; background: var(--terracotta) !important; color: #fff !important; text-align: center !important; }.hero { min-height: 690px; }.hero-side-note { right: 17px; }.section-padding { padding: 91px 0; }.intro-grid { grid-template-columns: 80px 1fr; gap: 22px; }.intro-image-frame { grid-column: 2; margin: 19px 0 0; max-width: 400px; }.menu-layout { gap: 7%; }.reservation-grid, .visit-grid { gap: 55px; }.quote-grid { grid-template-columns: 60px 1fr; }.quote-meta { grid-column: 2; align-items: flex-start; margin-top: 24px; }.quote-mark { font-size: 80px; }.footer-inner { width: min(100% - 42px, 700px); }
+  .gallery-grid { grid-template-columns: repeat(2, 1fr); gap: 14px; }
 }
 @media (max-width: 620px) {
   .container { width: calc(100% - 36px); }.topline-inner { width: calc(100% - 36px); font-size: 9px; }.rating-mini em { display: none; }.hero { min-height: 700px; }.hero-content { padding-top: 80px; }.hero-title { font-size: clamp(56px, 16vw, 84px); }.hero-copy { max-width: 300px; font-size: 13px; }.hero-actions { align-items: flex-start; flex-direction: column; gap: 20px; }.hero-bottom { width: calc(100% - 36px); bottom: 20px; font-size: 8px; }.hero-price em { display: none; }.section-padding { padding: 77px 0; }.intro-grid { display: block; }.intro-grid .section-eyebrow { margin-bottom: 48px; }.intro-image-frame { margin-top: 49px; max-width: none; }.intro-image-frame img { aspect-ratio: 4 / 4.8; }.menu-heading { display: block; margin-bottom: 43px; }.menu-heading-note { margin-top: 22px; text-align: left; }.menu-layout { display: flex; flex-direction: column; gap: 45px; }.menu-photo-wrap { width: 84%; align-self: flex-start; }.menu-list-wrap { width: 100%; }.category-tabs { gap: 17px; overflow-x: auto; }.category-tabs button { flex: 0 0 auto; font-size: 9px; }.menu-item { grid-template-columns: 25px 1fr auto; gap: 8px; padding: 20px 0; }.menu-item h3 { font-size: 18px; }.menu-item p { font-size: 11px; }.quote-band { padding: 77px 0; }.quote-grid { display: block; }.quote-mark { margin-bottom: 23px; font-size: 80px; }.quote-grid blockquote { font-size: 47px; }.quote-meta { align-items: flex-start; margin-top: 35px; }.reservation-grid, .visit-grid { display: flex; flex-direction: column; gap: 45px; }.reservation-intro, .reservation-card, .visit-copy, .visit-card { width: 100%; }.reservation-card { padding: 25px 20px; }.visit-section { padding: 80px 0; }.visit-copy h2 { font-size: 67px; }.visit-card { padding: 23px 20px; }.visit-hours { gap: 15px; font-size: 9px; }.footer-inner { display: flex; flex-wrap: wrap; justify-content: space-between; height: auto; padding: 26px 0; gap: 20px; }.footer p { order: 3; width: 100%; text-align: left; }.footer-copy { font-size: 8px; }.footer-brand .brand-wordmark { font-size: 19px; }
-}
-
-@media (max-width: 620px) {
   .gallery-heading { display: block; margin-bottom: 35px; }
   .gallery-heading > .text-link { margin-top: 23px; }
-  .gallery-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
-  .gallery-card-large { grid-column: span 2; margin-top: 0; }
-  .gallery-card-offset { margin-top: 35px; }
+  .gallery-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .gallery-card-large, .gallery-card-offset { margin-top: 0; grid-column: auto; }
   .gallery-card figcaption { left: 12px; right: 12px; bottom: 12px; }
   .gallery-card figcaption strong { font-size: 17px; }
   .gallery-card figcaption em { font-size: 8px; }

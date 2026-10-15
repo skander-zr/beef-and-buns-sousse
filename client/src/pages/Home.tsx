@@ -2150,7 +2150,7 @@ export default function Home() {
           <div className="gallery-grid">
             {ownerGallery.map((photo, index) => (
               <figure
-                className={`gallery-card ${index === 0 ? "gallery-card-large" : ""} ${index === 2 ? "gallery-card-offset" : ""}`}
+                className="gallery-card"
                 key={photo.src}
               >
                 <img
