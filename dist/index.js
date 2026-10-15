@@ -113,6 +113,7 @@ var ENV = {
   whatsappAccessToken: process.env.WHATSAPP_ACCESS_TOKEN ?? "",
   whatsappPhoneNumberId: process.env.WHATSAPP_PHONE_NUMBER_ID ?? "",
   whatsappHostPhone: process.env.WHATSAPP_HOST_PHONE ?? "21626982284",
+  callmebotApiKey: process.env.CALLMEBOT_API_KEY ?? "",
   whatsappTemplateName: process.env.WHATSAPP_TEMPLATE_NAME ?? "per_voi_new_event",
   whatsappTemplateLanguage: process.env.WHATSAPP_TEMPLATE_LANGUAGE ?? "fr",
   whatsappApiVersion: process.env.WHATSAPP_API_VERSION ?? "v23.0"
@@ -1171,7 +1172,9 @@ var localStore = new LocalStore();
 // server/whatsapp.ts
 var normalizePhone = (value) => value.replace(/[^\d]/g, "");
 function isWhatsAppConfigured() {
-  return Boolean(ENV.whatsappAccessToken && ENV.whatsappPhoneNumberId && ENV.whatsappHostPhone && ENV.whatsappTemplateName);
+  return Boolean(
+    ENV.callmebotApiKey || ENV.whatsappAccessToken && ENV.whatsappPhoneNumberId && ENV.whatsappHostPhone && ENV.whatsappTemplateName
+  );
 }
 var templateParameters = (notification) => {
   if (notification.kind === "reservation") {
@@ -1196,33 +1199,59 @@ async function notifyHostOnWhatsApp(notification) {
     console.info(`[WhatsApp] Notification ${notification.kind} #${notification.id} non envoy\xE9e : int\xE9gration non configur\xE9e.`);
     return false;
   }
-  const version = ENV.whatsappApiVersion || "v23.0";
-  const endpoint = `https://graph.facebook.com/${version}/${ENV.whatsappPhoneNumberId}/messages`;
-  const body = {
-    messaging_product: "whatsapp",
-    to: normalizePhone(ENV.whatsappHostPhone),
-    type: "template",
-    template: {
-      name: ENV.whatsappTemplateName,
-      language: { code: ENV.whatsappTemplateLanguage || "fr" },
-      components: [{ type: "body", parameters: templateParameters(notification).map((text2) => ({ type: "text", text: text2 })) }]
+  if (ENV.callmebotApiKey) {
+    const phone = normalizePhone(ENV.whatsappHostPhone || "21626982284");
+    const msg = notification.kind === "reservation" ? `\u{1F37D}\uFE0F *Nouvelle r\xE9servation Per Voi (#${notification.id})*
+\u{1F464} Client: ${notification.name}
+\u{1F4DE} T\xE9l: ${notification.phone}
+\u{1F4C5} Date: ${notification.date} \xE0 ${notification.time}
+\u{1F465} Couverts: ${notification.guests} pers.` : `\u{1F355} *Nouvelle commande Per Voi (#${notification.id})*
+\u{1F464} Client: ${notification.customerName}
+\u{1F4DE} T\xE9l: ${notification.phone}
+\u{1F4E6} Type: ${notification.orderType === "delivery" ? "Livraison" : "\xC0 emporter"}
+\u{1F4B0} Total: ${notification.totalDt} DT`;
+    try {
+      const url = `https://api.callmebot.com/whatsapp.php?phone=+${phone}&text=${encodeURIComponent(msg)}&apikey=${ENV.callmebotApiKey}`;
+      const res = await fetch(url);
+      if (res.ok) {
+        console.info(`[WhatsApp CallMeBot] Notification ${notification.kind} #${notification.id} envoy\xE9e avec succ\xE8s.`);
+        return true;
+      }
+      console.warn(`[WhatsApp CallMeBot] \xC9chec HTTP (${res.status})`, await res.text().catch(() => ""));
+    } catch (err) {
+      console.warn("[WhatsApp CallMeBot] Erreur r\xE9seau", err);
     }
-  };
-  try {
-    const response = await fetch(endpoint, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${ENV.whatsappAccessToken}`, "Content-Type": "application/json" },
-      body: JSON.stringify(body)
-    });
-    if (!response.ok) {
-      console.warn(`[WhatsApp] Envoi \xE9chou\xE9 (${response.status})`, await response.text().catch(() => ""));
+  }
+  if (ENV.whatsappAccessToken && ENV.whatsappPhoneNumberId) {
+    const version = ENV.whatsappApiVersion || "v23.0";
+    const endpoint = `https://graph.facebook.com/${version}/${ENV.whatsappPhoneNumberId}/messages`;
+    const body = {
+      messaging_product: "whatsapp",
+      to: normalizePhone(ENV.whatsappHostPhone),
+      type: "template",
+      template: {
+        name: ENV.whatsappTemplateName,
+        language: { code: ENV.whatsappTemplateLanguage || "fr" },
+        components: [{ type: "body", parameters: templateParameters(notification).map((text2) => ({ type: "text", text: text2 })) }]
+      }
+    };
+    try {
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${ENV.whatsappAccessToken}`, "Content-Type": "application/json" },
+        body: JSON.stringify(body)
+      });
+      if (!response.ok) {
+        console.warn(`[WhatsApp Meta] Envoi \xE9chou\xE9 (${response.status})`, await response.text().catch(() => ""));
+        return false;
+      }
+      return true;
+    } catch (error) {
+      console.warn("[WhatsApp Meta] Erreur r\xE9seau lors de l\u2019envoi", error);
       return false;
     }
-    return true;
-  } catch (error) {
-    console.warn("[WhatsApp] Erreur r\xE9seau lors de l\u2019envoi", error);
-    return false;
   }
+  return false;
 }
 
 // server/restaurant.ts
