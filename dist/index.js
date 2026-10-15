@@ -112,7 +112,7 @@ var ENV = {
   forgeApiKey: process.env.BUILT_IN_FORGE_API_KEY ?? "",
   whatsappAccessToken: process.env.WHATSAPP_ACCESS_TOKEN ?? "",
   whatsappPhoneNumberId: process.env.WHATSAPP_PHONE_NUMBER_ID ?? "",
-  whatsappHostPhone: process.env.WHATSAPP_HOST_PHONE ?? "",
+  whatsappHostPhone: process.env.WHATSAPP_HOST_PHONE ?? "21626982284",
   whatsappTemplateName: process.env.WHATSAPP_TEMPLATE_NAME ?? "per_voi_new_event",
   whatsappTemplateLanguage: process.env.WHATSAPP_TEMPLATE_LANGUAGE ?? "fr",
   whatsappApiVersion: process.env.WHATSAPP_API_VERSION ?? "v23.0"
