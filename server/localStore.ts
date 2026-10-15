@@ -321,6 +321,7 @@ type StorageState = {
   orders: LocalOrder[];
   orderItems: LocalOrderItem[];
   slotControls: LocalSlotControl[];
+  visits?: { date: string; timestamp: number }[];
   nextId: {
     menu: number;
     reservation: number;
@@ -596,6 +597,35 @@ class LocalStore {
       order.status = status;
       saveState(this.state);
     }
+  }
+
+  recordVisit(): void {
+    if (!this.state.visits) {
+      this.state.visits = [];
+    }
+    const date = new Date().toISOString().slice(0, 10);
+    this.state.visits.push({ date, timestamp: Date.now() });
+    if (this.state.visits.length > 5000) {
+      this.state.visits = this.state.visits.slice(-5000);
+    }
+    saveState(this.state);
+  }
+
+  getVisitStats(): { today: number; thisMonth: number; total: number } {
+    const list = this.state.visits || [];
+    const todayStr = new Date().toISOString().slice(0, 10);
+    const monthStr = todayStr.slice(0, 7);
+    let today = 0;
+    let thisMonth = 0;
+    for (const v of list) {
+      if (v.date === todayStr) today++;
+      if (v.date.startsWith(monthStr)) thisMonth++;
+    }
+    return {
+      today,
+      thisMonth,
+      total: list.length,
+    };
   }
 }
 

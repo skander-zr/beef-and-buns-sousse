@@ -95,6 +95,16 @@ export const restaurantRouter = router({
     })),
   }),
 
+  visits: router({
+    record: publicProcedure.mutation(() => {
+      localStore.recordVisit();
+      return { success: true };
+    }),
+    stats: publicProcedure.query(() => {
+      return localStore.getVisitStats();
+    }),
+  }),
+
   menu: router({
     list: publicProcedure.query(async () => {
       const db = await getDb();

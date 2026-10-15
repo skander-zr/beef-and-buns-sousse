@@ -1777,6 +1777,15 @@ export default function Home() {
     return () => window.clearInterval(timer);
   }, [currentReviews.length]);
 
+  const recordVisitMutation = trpc.restaurant.visits.record.useMutation();
+  useEffect(() => {
+    const hasVisited = sessionStorage.getItem("per-voi-session-visit");
+    if (!hasVisited) {
+      sessionStorage.setItem("per-voi-session-visit", "true");
+      recordVisitMutation.mutate();
+    }
+  }, []);
+
   const availabilityQuery = trpc.restaurant.availability.forDate.useQuery(
     { serviceDate: reservationDate },
     { enabled: reservationDate.length === 10 }

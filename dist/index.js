@@ -1166,6 +1166,33 @@ var LocalStore = class {
       saveState(this.state);
     }
   }
+  recordVisit() {
+    if (!this.state.visits) {
+      this.state.visits = [];
+    }
+    const date = (/* @__PURE__ */ new Date()).toISOString().slice(0, 10);
+    this.state.visits.push({ date, timestamp: Date.now() });
+    if (this.state.visits.length > 5e3) {
+      this.state.visits = this.state.visits.slice(-5e3);
+    }
+    saveState(this.state);
+  }
+  getVisitStats() {
+    const list = this.state.visits || [];
+    const todayStr = (/* @__PURE__ */ new Date()).toISOString().slice(0, 10);
+    const monthStr = todayStr.slice(0, 7);
+    let today = 0;
+    let thisMonth = 0;
+    for (const v of list) {
+      if (v.date === todayStr) today++;
+      if (v.date.startsWith(monthStr)) thisMonth++;
+    }
+    return {
+      today,
+      thisMonth,
+      total: list.length
+    };
+  }
 };
 var localStore = new LocalStore();
 
@@ -1390,6 +1417,15 @@ var restaurantRouter = router({
       whatsapp: "configured",
       message: "Les alertes instantan\xE9es Telegram et WhatsApp sont actives."
     }))
+  }),
+  visits: router({
+    record: publicProcedure.mutation(() => {
+      localStore.recordVisit();
+      return { success: true };
+    }),
+    stats: publicProcedure.query(() => {
+      return localStore.getVisitStats();
+    })
   }),
   menu: router({
     list: publicProcedure.query(async () => {
