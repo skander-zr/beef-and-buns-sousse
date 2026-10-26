@@ -28,6 +28,52 @@ import {
 } from "lucide-react";
 
 // The 7 Official Burgers from the Drive Menu
+export interface BurgerLayerInfo {
+  num: number;
+  label: string;
+  name: string;
+  description: string;
+  tag: string;
+}
+
+export const DEFAULT_BURGER_LAYERS: BurgerLayerInfo[] = [
+  {
+    num: 1,
+    label: "Bun Supérieur",
+    name: "Brioche Potato Bun Doré",
+    description: "Bun artisanal new-yorkais aérien et toasté au beurre doux sur plaque chaude.",
+    tag: "PAIN ARTISANAL"
+  },
+  {
+    num: 2,
+    label: "Garniture & Sauce",
+    name: "Sauce Signature & Garniture Fraîche",
+    description: "Sauce maison secrète, pickles croquants et oignons caramélisés.",
+    tag: "SIGNATURE"
+  },
+  {
+    num: 3,
+    label: "1er Steak",
+    name: "Steak Pur Bœuf Smashé & Cheddar",
+    description: "Viande bœuf écrasée minute à 240°C avec double fromage américain fondant.",
+    tag: "CROÛTE MAILLARD"
+  },
+  {
+    num: 4,
+    label: "2ème Steak",
+    name: "Deuxième Palet Croûté",
+    description: "Deuxième steak croustillant caramélisé sous la presse d'acier brûlante.",
+    tag: "PUR JUS"
+  },
+  {
+    num: 5,
+    label: "Bun Inférieur",
+    name: "Base Briochée Toastée",
+    description: "Base moelleuse dorée maintenant le jus savoureux et la sauce.",
+    tag: "BASE"
+  }
+];
+
 export interface BurgerItem {
   id: string;
   name: string;
@@ -43,6 +89,7 @@ export interface BurgerItem {
     sauce: string;
     garniture: string;
   };
+  layers: BurgerLayerInfo[];
 }
 
 export const ALL_7_BURGERS: BurgerItem[] = [
@@ -60,7 +107,44 @@ export const ALL_7_BURGERS: BurgerItem[] = [
       cheese: "Double American Cheese affiné fondant",
       sauce: "Mayonnaise artisanale à la truffe noire d'Italie",
       garniture: "Champignons frais sautés à la plancha & roquette croquante"
-    }
+    },
+    layers: [
+      {
+        num: 1,
+        label: "Bun Supérieur",
+        name: "Brioche Potato Bun Doré",
+        description: "Bun artisanal new-yorkais aérien et toasté au beurre doux sur plaque chaude.",
+        tag: "PAIN ARTISANAL"
+      },
+      {
+        num: 2,
+        label: "Garniture & Sauce",
+        name: "Sauce Truffe Noire & Champignons Sautés",
+        description: "Sauce onctueuse à la truffe noire d'Italie, champignons de Paris frais sautés minute et roquette croquante.",
+        tag: "SIGNATURE TRUFFE"
+      },
+      {
+        num: 3,
+        label: "1er Steak Smash",
+        name: "Smash Beef & Double American Cheese",
+        description: "Steak pur bœuf écrasé ultra-fin à 240°C avec double cheddar américain affiné fondant.",
+        tag: "CROÛTE MAILLARD"
+      },
+      {
+        num: 4,
+        label: "2ème Steak Smash",
+        name: "Deuxième Smash Patty Pur Bœuf",
+        description: "Deuxième steak bœuf croustillant caramélisé sous la presse d'acier brûlante.",
+        tag: "100% PUR BŒUF"
+      },
+      {
+        num: 5,
+        label: "Bun Inférieur",
+        name: "Base Briochée Toastée",
+        description: "Base moelleuse dorée absorbant les sucs de cuisson savoureux et la sauce truffe.",
+        tag: "BASE"
+      }
+    ]
   },
   {
     id: "og-smash",
@@ -76,7 +160,44 @@ export const ALL_7_BURGERS: BurgerItem[] = [
       cheese: "Double American cheese fondu",
       sauce: "Sauce secrète OG signature",
       garniture: "Oignons caramélisés & pickles croquants"
-    }
+    },
+    layers: [
+      {
+        num: 1,
+        label: "Bun Supérieur",
+        name: "Potato Bun New-Yorkais",
+        description: "Brioche ultra-moelleuse dorée à cœur au beurre fondu.",
+        tag: "PAIN"
+      },
+      {
+        num: 2,
+        label: "Garniture & Sauce",
+        name: "Sauce Secrète OG & Pickles Croquants",
+        description: "Sauce secrète OG maison, oignons caramélisés fondants et pickles américains croquants.",
+        tag: "RECETTE OG"
+      },
+      {
+        num: 3,
+        label: "1er Steak Smash",
+        name: "Smash Patty & American Cheese Fondu",
+        description: "Bœuf sélectionné écrasé à 240°C sous presse d'acier et double fromage américain fondu.",
+        tag: "CROÛTE CARAMÉLISÉE"
+      },
+      {
+        num: 4,
+        label: "2ème Steak Smash",
+        name: "Deuxième Steak Smash Pur Bœuf",
+        description: "Deuxième palet de bœuf ultra-croustillant aux sucs concentrés.",
+        tag: "100% BŒUF"
+      },
+      {
+        num: 5,
+        label: "Bun Inférieur",
+        name: "Base Potato Bun Toastée",
+        description: "Fond de pain toasté maintenant la structure et tout le fondant.",
+        tag: "BASE"
+      }
+    ]
   },
   {
     id: "og-smash-oklahoma",
@@ -92,7 +213,44 @@ export const ALL_7_BURGERS: BurgerItem[] = [
       cheese: "Double American cheese ultra fondant",
       sauce: "Sauce signature OG relevée",
       garniture: "Oignons caramélisés fusionnés à la viande"
-    }
+    },
+    layers: [
+      {
+        num: 1,
+        label: "Bun Supérieur",
+        name: "Potato Bun Moelleux Aérien",
+        description: "Pain brioché toasté délicatement au beurre doux.",
+        tag: "PAIN"
+      },
+      {
+        num: 2,
+        label: "Garniture & Sauce",
+        name: "Sauce Signature Oklahoma & Pickles",
+        description: "Sauce signature OG relevée et pickles croquants tranchés très fins.",
+        tag: "GARNITURE"
+      },
+      {
+        num: 3,
+        label: "1er Steak Smash",
+        name: "Bœuf & Oignons Incrustés à 240°C",
+        description: "Fines lamelles d'oignons doux écrasées directement DANS le steak sous la presse en acier.",
+        tag: "LÉGENDE 1926"
+      },
+      {
+        num: 4,
+        label: "2ème Steak Smash",
+        name: "Deuxième Patty & Fromage Fondu",
+        description: "Deuxième smash patty infusé aux sucs d'oignons caramélisés et double cheese fondant.",
+        tag: "FUSION UNIQUE"
+      },
+      {
+        num: 5,
+        label: "Bun Inférieur",
+        name: "Base Potato Bun Toastée",
+        description: "Base dorée retenant les sucs caramélisés d'oignons doux.",
+        tag: "BASE"
+      }
+    ]
   },
   {
     id: "hot-smash",
@@ -108,7 +266,44 @@ export const ALL_7_BURGERS: BurgerItem[] = [
       cheese: "Double American cheese fondant",
       sauce: "Hot Sauce artisanale aux piments fumés",
       garniture: "Piments jalapeños marinés & oignons grillés"
-    }
+    },
+    layers: [
+      {
+        num: 1,
+        label: "Bun Supérieur",
+        name: "Potato Bun Artisanal Toasté",
+        description: "Pain brioché toasté au beurre doré parsemé d'épices douces.",
+        tag: "PAIN"
+      },
+      {
+        num: 2,
+        label: "Garniture & Sauce",
+        name: "Hot Sauce & Jalapeños Marinés",
+        description: "Sauce piquante artisanale aux piments fumés, jalapeños croquants et oignons grillés.",
+        tag: "SPICY 🔥"
+      },
+      {
+        num: 3,
+        label: "1er Steak Smash",
+        name: "Smash Patty & Cheddar Épicé",
+        description: "Steak pur bœuf croûte caramélisée et fromage américain fondant.",
+        tag: "VIANDE & FROMAGE"
+      },
+      {
+        num: 4,
+        label: "2ème Steak Smash",
+        name: "Deuxième Smash Patty Croustillant",
+        description: "Deuxième palet de bœuf écrasé minute pour une intensité maximale.",
+        tag: "100% BŒUF"
+      },
+      {
+        num: 5,
+        label: "Bun Inférieur",
+        name: "Base Potato Bun Toastée",
+        description: "Base moelleuse et dorée pour absorber le feu des sauces pimentées.",
+        tag: "BASE"
+      }
+    ]
   },
   {
     id: "og-chicken",
@@ -124,7 +319,44 @@ export const ALL_7_BURGERS: BurgerItem[] = [
       cheese: "Sauce onctueuse signature",
       sauce: "Sauce OG douce, fumée et relevée",
       garniture: "Coleslaw frais maison préparé le matin"
-    }
+    },
+    layers: [
+      {
+        num: 1,
+        label: "Bun Supérieur",
+        name: "Potato Bun Toasté Crousti-Moelleux",
+        description: "Bun brioché moelleux toasté au beurre doux à la plancha.",
+        tag: "PAIN"
+      },
+      {
+        num: 2,
+        label: "Garniture & Sauce",
+        name: "Coleslaw Maison & Sauce OG",
+        description: "Salade coleslaw fraîche crémeuse préparée le matin et sauce signature OG secrète.",
+        tag: "FRAÎCHEUR"
+      },
+      {
+        num: 3,
+        label: "Poulet Croustillant",
+        name: "Suprême de Poulet Extra-Crispy",
+        description: "Filet de poulet mariné 24h aux épices, panure dorée croustillante minute ultra-légère.",
+        tag: "POULET CROUSTILLANT"
+      },
+      {
+        num: 4,
+        label: "Fromage Fondu",
+        name: "Fromage Fondu Fondant",
+        description: "Tranche de fromage américain fondu nappant délicatement le poulet chaud.",
+        tag: "FROMAGE"
+      },
+      {
+        num: 5,
+        label: "Bun Inférieur",
+        name: "Base Potato Bun Toastée",
+        description: "Base briochée crousti-fondante préservant le croustillant de la panure.",
+        tag: "BASE"
+      }
+    ]
   },
   {
     id: "classic-chicken",
@@ -135,12 +367,49 @@ export const ALL_7_BURGERS: BurgerItem[] = [
     image: "/burgers/classic-chicken.png",
     description: "Filet de poulet pané minute doré et juteux, salade croquante, tranches de tomates fraîches, oignons rouges et mayonnaise maison dans son potato bun.",
     specs: {
-      bun: "Potato Bun toasté doré",
+      bun: "Potato Bun classique toasté",
       patty: "Filet de poulet mariné ultra-croustillant",
       cheese: "Fromage doux crémeux",
       sauce: "Mayonnaise maison onctueuse",
       garniture: "Salade croquante, rondelles de tomate & oignons rouges"
-    }
+    },
+    layers: [
+      {
+        num: 1,
+        label: "Bun Supérieur",
+        name: "Potato Bun Classique Toasté",
+        description: "Pain brioché doré toasté au beurre sur plaque chaude.",
+        tag: "PAIN"
+      },
+      {
+        num: 2,
+        label: "Garniture & Sauce",
+        name: "Salade, Tomate & Mayo Maison",
+        description: "Feuilles de salade croquante, rondelles de tomates fraîches, oignons rouges et mayonnaise onctueuse.",
+        tag: "FRAÎCHEUR"
+      },
+      {
+        num: 3,
+        label: "Poulet Croustillant",
+        name: "Filet de Poulet Doré & Juteux",
+        description: "Poulet mariné pané minute aux herbes et épices douces, doré et juteux.",
+        tag: "CRISPY"
+      },
+      {
+        num: 4,
+        label: "Fromage Doux",
+        name: "Cheddar Américain Doux",
+        description: "Fromage américain délicatement fondu sur le poulet croustillant.",
+        tag: "FROMAGE"
+      },
+      {
+        num: 5,
+        label: "Bun Inférieur",
+        name: "Base Potato Bun Moelleuse",
+        description: "Base moelleuse maintenant la fraîcheur des crudités et le croquant.",
+        tag: "BASE"
+      }
+    ]
   },
   {
     id: "hot-chicken",
@@ -156,7 +425,44 @@ export const ALL_7_BURGERS: BurgerItem[] = [
       cheese: "Fromage fondant",
       sauce: "Hot Sauce maison aux piments fumés",
       garniture: "Jalapeños marinés & salade coleslaw crémeuse"
-    }
+    },
+    layers: [
+      {
+        num: 1,
+        label: "Bun Supérieur",
+        name: "Potato Bun Pimenté Toasté",
+        description: "Bun brioché toasté au beurre et relevé d'une touche de paprika fumé.",
+        tag: "PAIN"
+      },
+      {
+        num: 2,
+        label: "Garniture & Sauce",
+        name: "Hot Sauce, Jalapeños & Coleslaw",
+        description: "Sauce hot maison aux piments fumés, rondelles de jalapeños et coleslaw crémeux rafraîchissant.",
+        tag: "SPICY & FRESH 🔥"
+      },
+      {
+        num: 3,
+        label: "Poulet Nashville",
+        name: "Poulet Pané Façon Nashville",
+        description: "Filet de poulet pané croustillant relevé aux piments de Cayenne et épices secrètes.",
+        tag: "NASHVILLE SPICY"
+      },
+      {
+        num: 4,
+        label: "Fromage Fondu",
+        name: "Double Fromage Doux Fondu",
+        description: "Fromage américain fondant pour adoucir parfaitement le feu du piment.",
+        tag: "FROMAGE"
+      },
+      {
+        num: 5,
+        label: "Bun Inférieur",
+        name: "Base Potato Bun Toastée",
+        description: "Base toastée dorée assurant une prise en main parfaite.",
+        tag: "BASE"
+      }
+    ]
   }
 ];
 
@@ -952,7 +1258,7 @@ export default function Home() {
 
                       {/* 5 LAYER BUTTON SELECTORS */}
                       <div className="grid grid-cols-5 gap-1.5">
-                        {activeBurger.layers.map((layer, idx) => {
+                        {(activeBurger?.layers || DEFAULT_BURGER_LAYERS).map((layer, idx) => {
                           const isCurrent = idx === activeLayerIndex;
                           return (
                             <button
@@ -974,19 +1280,19 @@ export default function Home() {
                       {/* ACTIVE LAYER DETAIL CARD (CRISP, NON-BLURRY, SPECIFIC TO THIS BURGER) */}
                       <div className="bg-gradient-to-r from-white/[0.04] to-white/[0.02] p-3 rounded-xl border border-white/10 flex items-start gap-3">
                         <div className="w-7 h-7 rounded-lg bg-[#ff3b30]/20 border border-[#ff3b30]/40 flex items-center justify-center text-xs font-black text-[#ff3b30] shrink-0">
-                          {activeBurger.layers[activeLayerIndex].num}
+                          {(activeBurger?.layers?.[activeLayerIndex] || DEFAULT_BURGER_LAYERS[0]).num}
                         </div>
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-0.5">
                             <span className="text-[9px] font-black px-1.5 py-0.5 rounded bg-[#f59e0b]/20 text-[#f59e0b] uppercase">
-                              {activeBurger.layers[activeLayerIndex].tag}
+                              {(activeBurger?.layers?.[activeLayerIndex] || DEFAULT_BURGER_LAYERS[0]).tag}
                             </span>
                             <h4 className="text-xs font-bold text-white">
-                              {activeBurger.layers[activeLayerIndex].name}
+                              {(activeBurger?.layers?.[activeLayerIndex] || DEFAULT_BURGER_LAYERS[0]).name}
                             </h4>
                           </div>
                           <p className="text-[11px] text-zinc-300 leading-snug">
-                            {activeBurger.layers[activeLayerIndex].description}
+                            {(activeBurger?.layers?.[activeLayerIndex] || DEFAULT_BURGER_LAYERS[0]).description}
                           </p>
                         </div>
                       </div>
