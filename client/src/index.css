@@ -451,3 +451,24 @@ button, a { -webkit-tap-highlight-color: transparent; }
   transform: translateY(-50%) translateZ(60px) scale(1.25);
   box-shadow: 0 0 24px rgba(245, 158, 11, 1), 0 4px 12px rgba(0,0,0,0.6);
 }
+
+
+/* 360 Continuous Rotation Animation (Hardware-Accelerated) */
+@keyframes bb-spin-360 {
+  0% {
+    transform: rotateX(8deg) rotateY(0deg);
+  }
+  100% {
+    transform: rotateX(8deg) rotateY(360deg);
+  }
+}
+
+.burger-spin-360 {
+  animation: bb-spin-360 14s linear infinite;
+  will-change: transform;
+}
+
+.burger-spin-360:hover,
+.burger-spin-360.paused {
+  animation-play-state: paused;
+}
