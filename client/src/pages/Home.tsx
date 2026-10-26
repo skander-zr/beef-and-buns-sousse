@@ -8,6 +8,10 @@ import {
   Clock,
   Sparkles,
   RotateCw,
+  Layers,
+  Eye,
+  Play,
+  Pause,
   Plus,
   Minus,
   Check,
@@ -232,18 +236,42 @@ export interface CartItem {
 export default function Home() {
   // --- 3D INTERACTIVE HERO STATE (Clean pure 3D, all 7 burgers) ---
   const [selectedBurgerIndex, setSelectedBurgerIndex] = useState(0);
-  const [isAutoRotating, setIsAutoRotating] = useState(false);
-  const [tilt, setTilt] = useState({ x: 10, y: -15 });
+  const [isExploded, setIsExploded] = useState(false);
+  const [isAutoRotating, setIsAutoRotating] = useState(true); // Continuous 360 rotation is active by default
+  const [activeLayerIndex, setActiveLayerIndex] = useState(1);
+  const [tilt, setTilt] = useState({ x: 8, y: -15 });
 
   const isDragging = useRef(false);
   const lastMousePos = useRef({ x: 0, y: 0 });
+  const autoResumeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const activeBurger = ALL_7_BURGERS[selectedBurgerIndex];
+
+  // Butter-smooth continuous 360 rotation loop using requestAnimationFrame
+  useEffect(() => {
+    if (!isAutoRotating || isExploded) return;
+    let rafId: number;
+    let lastTime = performance.now();
+
+    const animate = (currentTime: number) => {
+      const delta = Math.min((currentTime - lastTime) / 1000, 0.1);
+      lastTime = currentTime;
+      setTilt(prev => ({
+        ...prev,
+        y: (prev.y + delta * 24) % 360
+      }));
+      rafId = requestAnimationFrame(animate);
+    };
+
+    rafId = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(rafId);
+  }, [isAutoRotating, isExploded]);
 
   // Mouse / Touch handlers for 3D rotation
   const handlePointerDown = (e: React.PointerEvent) => {
     isDragging.current = true;
     lastMousePos.current = { x: e.clientX, y: e.clientY };
     setIsAutoRotating(false);
+    if (autoResumeTimer.current) clearTimeout(autoResumeTimer.current);
   };
 
   const handlePointerMove = (e: React.PointerEvent) => {
@@ -254,25 +282,32 @@ export default function Home() {
 
     setTilt(prev => ({
       x: Math.max(-30, Math.min(35, prev.x - deltaY * 0.3)),
-      y: Math.max(-60, Math.min(60, prev.y + deltaX * 0.35))
+      y: (prev.y + deltaX * 0.35) % 360
     }));
   };
 
   const handlePointerUp = () => {
     isDragging.current = false;
+    // Resume continuous 360 rotation after 1.5s if not exploded
+    if (!isExploded) {
+      if (autoResumeTimer.current) clearTimeout(autoResumeTimer.current);
+      autoResumeTimer.current = setTimeout(() => {
+        setIsAutoRotating(true);
+      }, 1500);
+    }
   };
 
-  // Auto rotation effect
-  useEffect(() => {
-    if (!isAutoRotating) return;
-    const interval = setInterval(() => {
-      setTilt(prev => ({
-        ...prev,
-        y: (prev.y + 0.8) % 360
-      }));
-    }, 30);
-    return () => clearInterval(interval);
-  }, [isAutoRotating]);
+  const toggleExploded = () => {
+    if (isExploded) {
+      setIsExploded(false);
+      setIsAutoRotating(true);
+      setTilt({ x: 8, y: -15 });
+    } else {
+      setIsExploded(true);
+      setIsAutoRotating(false);
+      setTilt({ x: 12, y: -10 });
+    }
+  };
 
   // --- MENU DATA & SEARCH/FILTERS ---
   const [selectedCategory, setSelectedCategory] = useState("Tous");
@@ -579,7 +614,7 @@ export default function Home() {
         </div>
       </header>
 
-      {/* HERO SECTION: CLEAN 3D VIEWER WITH ALL 7 BURGERS */}
+      {/* HERO SECTION: CONTINUOUS 360 BY DEFAULT + 3D EXPLODED VIEW */}
       <section id="experience-3d" className="relative z-10 pt-8 pb-16 overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
@@ -614,15 +649,15 @@ export default function Home() {
                 </a>
 
                 <button
-                  onClick={() => setIsAutoRotating(!isAutoRotating)}
+                  onClick={toggleExploded}
                   className={`w-full sm:w-auto px-5 py-3.5 rounded-xl border text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer ${
-                    isAutoRotating
-                      ? "bg-[#ff3b30] text-white border-[#ff3b30] shadow-md shadow-[#ff3b30]/20"
+                    isExploded
+                      ? "bg-gradient-to-r from-[#ff3b30] to-[#e11d48] text-white border-[#ff3b30] shadow-lg shadow-[#ff3b30]/30"
                       : "bg-white/5 text-white border-white/15 hover:bg-white/10"
                   }`}
                 >
-                  <RotateCw className={`w-4 h-4 ${isAutoRotating ? "animate-spin" : ""}`} />
-                  <span>{isAutoRotating ? "Arrêter la rotation" : "🔄 Faire pivoter 360°"}</span>
+                  <Layers className="w-4 h-4 text-[#f59e0b]" />
+                  <span>{isExploded ? "🍔 Revenir au 360° Continu" : "⚡ Voir en 3D Éclatée"}</span>
                 </button>
               </div>
 
@@ -643,67 +678,297 @@ export default function Home() {
               </div>
             </div>
 
-            {/* HERO RIGHT: PURE 3D BURGER VIEWER */}
+            {/* HERO RIGHT: 3D VIEWER (360 CONTINUOUS BY DEFAULT + 3D EXPLODED VIEW) */}
             <div className="lg:col-span-7 flex flex-col items-center">
               
               {/* 3D STAGE CARD */}
-              <div className="relative w-full max-w-[560px] rounded-3xl bg-gradient-to-b from-[#14141a]/90 to-[#0e0e12]/95 border border-white/10 p-6 flex flex-col items-center justify-between shadow-2xl overflow-hidden group">
+              <div className="relative w-full max-w-[580px] rounded-3xl bg-gradient-to-b from-[#14141a]/95 to-[#0e0e12]/98 border border-white/10 p-5 sm:p-6 flex flex-col items-center justify-between shadow-2xl overflow-hidden group">
                 
                 {/* AMBIENT RADIAL GLOW */}
                 <div
                   className="absolute inset-0 pointer-events-none"
                   style={{
-                    background: "radial-gradient(circle at 50% 45%, rgba(255, 59, 48, 0.2) 0%, rgba(245, 158, 11, 0.08) 40%, transparent 70%)"
+                    background: isExploded
+                      ? "radial-gradient(circle at 50% 50%, rgba(255, 59, 48, 0.25) 0%, rgba(245, 158, 11, 0.12) 45%, transparent 75%)"
+                      : "radial-gradient(circle at 50% 45%, rgba(255, 59, 48, 0.2) 0%, rgba(245, 158, 11, 0.08) 40%, transparent 70%)"
                   }}
                 />
 
-                {/* 3D HEADER WITH BADGE AND ROTATION RESET */}
-                <div className="w-full flex items-center justify-between z-20 mb-2">
+                {/* 3D HEADER WITH MODE TOGGLE & ROTATION CONTROLS */}
+                <div className="w-full flex items-center justify-between z-20 mb-2 gap-2 flex-wrap">
                   <div className="flex items-center gap-2">
                     <span className="flame-badge text-[10px]">
-                      <Sparkles className="w-3 h-3" /> MODÈLE 3D INTERACTIF
-                    </span>
-                    <span className="text-[11px] text-[#a1a1aa] hidden sm:inline">
-                      Glissez pour faire pivoter
+                      <Sparkles className="w-3 h-3 text-[#ff3b30]" />
+                      <span className="font-bold text-white uppercase">{activeBurger.name}</span>
                     </span>
                   </div>
 
-                  <button
-                    onClick={() => setTilt({ x: 10, y: -15 })}
-                    className="px-2.5 py-1 rounded-lg bg-black/40 text-[#a1a1aa] border border-white/10 hover:text-white text-[11px] cursor-pointer"
-                  >
-                    Reset vue
-                  </button>
+                  {/* MODE SWITCHER BUTTONS */}
+                  <div className="flex items-center gap-1.5 bg-black/60 p-1 rounded-xl border border-white/10">
+                    <button
+                      onClick={() => {
+                        if (isExploded) {
+                          setIsExploded(false);
+                          setIsAutoRotating(true);
+                          setTilt({ x: 8, y: -15 });
+                        }
+                      }}
+                      className={`px-2.5 py-1 rounded-lg text-[11px] font-bold uppercase transition-all flex items-center gap-1 cursor-pointer ${
+                        !isExploded
+                          ? "bg-[#ff3b30] text-white shadow-md shadow-[#ff3b30]/30"
+                          : "text-[#a1a1aa] hover:text-white"
+                      }`}
+                    >
+                      <RotateCw className={`w-3 h-3 ${isAutoRotating && !isExploded ? "animate-spin" : ""}`} />
+                      <span>360° Continu</span>
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        if (!isExploded) {
+                          setIsExploded(true);
+                          setIsAutoRotating(false);
+                          setTilt({ x: 12, y: -10 });
+                        }
+                      }}
+                      className={`px-2.5 py-1 rounded-lg text-[11px] font-bold uppercase transition-all flex items-center gap-1 cursor-pointer ${
+                        isExploded
+                          ? "bg-gradient-to-r from-[#ff3b30] to-[#e11d48] text-white shadow-md shadow-[#ff3b30]/30"
+                          : "text-[#a1a1aa] hover:text-white"
+                      }`}
+                    >
+                      <Layers className="w-3 h-3 text-[#f59e0b]" />
+                      <span>Vue 3D Éclatée</span>
+                    </button>
+                  </div>
+
+                  {/* ROTATION PLAY/PAUSE & RESET */}
+                  <div className="flex items-center gap-1">
+                    {!isExploded && (
+                      <button
+                        onClick={() => setIsAutoRotating(!isAutoRotating)}
+                        title={isAutoRotating ? "Mettre la rotation en pause" : "Reprendre la rotation 360°"}
+                        className="p-1.5 rounded-lg bg-black/40 text-[#a1a1aa] border border-white/10 hover:text-white text-xs cursor-pointer transition-all"
+                      >
+                        {isAutoRotating ? <Pause className="w-3 h-3 text-[#f59e0b]" /> : <Play className="w-3 h-3 text-white" />}
+                      </button>
+                    )}
+
+                    <button
+                      onClick={() => setTilt(isExploded ? { x: 12, y: -10 } : { x: 8, y: -15 })}
+                      title="Réinitialiser l'angle"
+                      className="px-2 py-1 rounded-lg bg-black/40 text-[#a1a1aa] border border-white/10 hover:text-white text-[10px] uppercase font-semibold cursor-pointer"
+                    >
+                      Reset
+                    </button>
+                  </div>
                 </div>
 
-                {/* 3D PERSPECTIVE STAGE (CLEAN, NO OVERLAPPING TEXT) */}
+                {/* 3D PERSPECTIVE STAGE */}
                 <div
                   onPointerDown={handlePointerDown}
                   onPointerMove={handlePointerMove}
                   onPointerUp={handlePointerUp}
-                  className="burger-3d-stage relative w-full h-[320px] sm:h-[350px] flex items-center justify-center cursor-grab active:cursor-grabbing select-none"
+                  className={`burger-3d-stage relative w-full flex items-center justify-center cursor-grab active:cursor-grabbing select-none transition-all duration-500 ${
+                    isExploded ? "h-[380px] sm:h-[420px]" : "h-[320px] sm:h-[350px]"
+                  }`}
                 >
                   {/* Dynamic Realistic Contact Shadow */}
-                  <div className="burger-contact-shadow" />
+                  <div className={`burger-contact-shadow ${isExploded ? "exploded" : ""}`} />
 
-                  {/* 3D ROTATING BURGER CONTAINER */}
+                  {/* 3D BURGER MODEL CONTAINER */}
                   <div
-                    className="burger-3d-model relative w-[280px] sm:w-[320px] h-[280px] sm:h-[320px] flex items-center justify-center"
+                    onClick={toggleExploded}
+                    className={`burger-3d-model relative w-[280px] sm:w-[320px] h-[280px] sm:h-[320px] flex items-center justify-center cursor-pointer transition-transform duration-300 ${
+                      isExploded ? "exploded" : ""
+                    }`}
                     style={{
                       transform: `rotateX(${tilt.x}deg) rotateY(${tilt.y}deg)`
                     }}
                   >
-                    <img
-                      src={activeBurger.image}
-                      alt={activeBurger.name}
-                      className="w-full h-full object-contain filter drop-shadow-[0_20px_35px_rgba(0,0,0,0.85)] pointer-events-none transition-all duration-300 scale-105"
-                    />
+                    {!isExploded ? (
+                      /* MODE 1: CONTINUOUS 360 ROTATION OF THE ASSEMBLED BURGER */
+                      <div className="w-full h-full relative flex items-center justify-center group/burger">
+                        <img
+                          src={activeBurger.image}
+                          alt={activeBurger.name}
+                          className="w-full h-full object-contain filter drop-shadow-[0_20px_35px_rgba(0,0,0,0.85)] pointer-events-none transition-all duration-300 scale-105"
+                        />
+                        {/* INSTRUCTION PILL ON HOVER */}
+                        <div className="absolute -bottom-2 px-3 py-1 rounded-full bg-black/80 border border-white/15 text-[10px] text-zinc-300 flex items-center gap-1.5 shadow-lg backdrop-blur-md opacity-90 group-hover/burger:opacity-100 group-hover/burger:border-[#ff3b30]/50 transition-all pointer-events-none">
+                          <Layers className="w-3 h-3 text-[#ff3b30]" />
+                          <span>Cliquez pour éclater en 3D</span>
+                        </div>
+                      </div>
+                    ) : (
+                      /* MODE 2: 3D EXPLODED VIEW WITH 5 SEPARATED LAYERS */
+                      <div className="exploded w-full h-full relative">
+                        {/* Layer 1: Top Bun */}
+                        <div
+                          onClick={(e) => { e.stopPropagation(); setActiveLayerIndex(0); }}
+                          className={`burger-layer layer-top-bun ${activeLayerIndex === 0 ? "active-layer" : ""}`}
+                        >
+                          <img src="/burgers/layers/top-bun.png" alt="Potato Bun Top" />
+                          <button
+                            onClick={(e) => { e.stopPropagation(); setActiveLayerIndex(0); }}
+                            className={`layer-float-pin ${activeLayerIndex === 0 ? "active" : ""}`}
+                            title="Couche 1 : Bun Supérieur"
+                          >
+                            1
+                          </button>
+                        </div>
+
+                        {/* Layer 2: Toppings & Sauce */}
+                        <div
+                          onClick={(e) => { e.stopPropagation(); setActiveLayerIndex(1); }}
+                          className={`burger-layer layer-toppings ${activeLayerIndex === 1 ? "active-layer" : ""}`}
+                        >
+                          <img src="/burgers/layers/toppings.png" alt="Toppings & Sauce" />
+                          <button
+                            onClick={(e) => { e.stopPropagation(); setActiveLayerIndex(1); }}
+                            className={`layer-float-pin ${activeLayerIndex === 1 ? "active" : ""}`}
+                            title="Couche 2 : Garniture & Sauce"
+                          >
+                            2
+                          </button>
+                        </div>
+
+                        {/* Layer 3: Patty 1 + Melted Cheese */}
+                        <div
+                          onClick={(e) => { e.stopPropagation(); setActiveLayerIndex(2); }}
+                          className={`burger-layer layer-patty1 ${activeLayerIndex === 2 ? "active-layer" : ""}`}
+                        >
+                          <img src="/burgers/layers/cheese-patty1.png" alt="Patty 1 & Cheese" />
+                          <button
+                            onClick={(e) => { e.stopPropagation(); setActiveLayerIndex(2); }}
+                            className={`layer-float-pin ${activeLayerIndex === 2 ? "active" : ""}`}
+                            title="Couche 3 : 1er Steak & Fromage"
+                          >
+                            3
+                          </button>
+                        </div>
+
+                        {/* Layer 4: Patty 2 */}
+                        <div
+                          onClick={(e) => { e.stopPropagation(); setActiveLayerIndex(3); }}
+                          className={`burger-layer layer-patty2 ${activeLayerIndex === 3 ? "active-layer" : ""}`}
+                        >
+                          <img src="/burgers/layers/patty2.png" alt="Patty 2" />
+                          <button
+                            onClick={(e) => { e.stopPropagation(); setActiveLayerIndex(3); }}
+                            className={`layer-float-pin ${activeLayerIndex === 3 ? "active" : ""}`}
+                            title="Couche 4 : 2ème Steak"
+                          >
+                            4
+                          </button>
+                        </div>
+
+                        {/* Layer 5: Bottom Bun */}
+                        <div
+                          onClick={(e) => { e.stopPropagation(); setActiveLayerIndex(4); }}
+                          className={`burger-layer layer-bottom-bun ${activeLayerIndex === 4 ? "active-layer" : ""}`}
+                        >
+                          <img src="/burgers/layers/bottom-bun.png" alt="Bottom Bun" />
+                          <button
+                            onClick={(e) => { e.stopPropagation(); setActiveLayerIndex(4); }}
+                            className={`layer-float-pin ${activeLayerIndex === 4 ? "active" : ""}`}
+                            title="Couche 5 : Base Briochée"
+                          >
+                            5
+                          </button>
+                        </div>
+
+                        {/* INSTRUCTION PILL TO REASSEMBLE */}
+                        <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-black/80 border border-white/15 text-[10px] text-zinc-300 flex items-center gap-1.5 shadow-lg backdrop-blur-md opacity-90 transition-all pointer-events-none">
+                          <RotateCw className="w-3 h-3 text-[#f59e0b]" />
+                          <span>Cliquez pour rassembler le burger</span>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
 
-                {/* ACTIVE BURGER SUMMARY INFO & BUTTONS */}
+                {/* BOTTOM SECTION: DEDICATED ANATOMIE 3D PANEL (ZERO OVERLAP, 100% READABLE) */}
                 <div className="w-full pt-4 border-t border-white/10 flex flex-col gap-3 z-20">
-                  <div className="flex items-center justify-between">
+                  
+                  {isExploded ? (
+                    /* DEDICATED ANATOMIE 3D PANEL (5 COUCHES D'INGRÉDIENTS DE CE BURGER) */
+                    <div className="bg-black/50 p-3.5 rounded-2xl border border-white/10 flex flex-col gap-2.5">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] font-black text-[#f59e0b] uppercase tracking-wider flex items-center gap-1.5">
+                          <Layers className="w-3.5 h-3.5" />
+                          Anatomie 3D • 5 Couches ({activeBurger.name})
+                        </span>
+                        <span className="text-[10px] text-[#a1a1aa]">
+                          Cliquez sur une couche pour l'inspecter
+                        </span>
+                      </div>
+
+                      {/* 5 LAYER BUTTON SELECTORS */}
+                      <div className="grid grid-cols-5 gap-1.5">
+                        {activeBurger.layers.map((layer, idx) => {
+                          const isCurrent = idx === activeLayerIndex;
+                          return (
+                            <button
+                              key={layer.num}
+                              onClick={() => setActiveLayerIndex(idx)}
+                              className={`py-1.5 px-1 rounded-lg text-center transition-all cursor-pointer border ${
+                                isCurrent
+                                  ? "bg-gradient-to-r from-[#ff3b30] to-[#e11d48] text-white border-[#ff3b30] shadow-md shadow-[#ff3b30]/30 font-bold"
+                                  : "bg-white/5 text-[#a1a1aa] border-white/5 hover:text-white hover:bg-white/10"
+                              }`}
+                            >
+                              <span className="block text-[11px] font-black">#{layer.num}</span>
+                              <span className="block text-[9px] truncate">{layer.label}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+
+                      {/* ACTIVE LAYER DETAIL CARD (CRISP, NON-BLURRY, SPECIFIC TO THIS BURGER) */}
+                      <div className="bg-gradient-to-r from-white/[0.04] to-white/[0.02] p-3 rounded-xl border border-white/10 flex items-start gap-3">
+                        <div className="w-7 h-7 rounded-lg bg-[#ff3b30]/20 border border-[#ff3b30]/40 flex items-center justify-center text-xs font-black text-[#ff3b30] shrink-0">
+                          {activeBurger.layers[activeLayerIndex].num}
+                        </div>
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-0.5">
+                            <span className="text-[9px] font-black px-1.5 py-0.5 rounded bg-[#f59e0b]/20 text-[#f59e0b] uppercase">
+                              {activeBurger.layers[activeLayerIndex].tag}
+                            </span>
+                            <h4 className="text-xs font-bold text-white">
+                              {activeBurger.layers[activeLayerIndex].name}
+                            </h4>
+                          </div>
+                          <p className="text-[11px] text-zinc-300 leading-snug">
+                            {activeBurger.layers[activeLayerIndex].description}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    /* COMPACT SPECS (WHEN IN 360 CONTINUOUS MODE) */
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[11px] bg-black/40 p-3 rounded-xl border border-white/5">
+                      <div>
+                        <span className="text-[#a1a1aa] block text-[9px] uppercase font-bold">Pain</span>
+                        <span className="text-white font-semibold line-clamp-1">{activeBurger.specs.bun}</span>
+                      </div>
+                      <div>
+                        <span className="text-[#a1a1aa] block text-[9px] uppercase font-bold">Viande</span>
+                        <span className="text-white font-semibold line-clamp-1">{activeBurger.specs.patty}</span>
+                      </div>
+                      <div>
+                        <span className="text-[#a1a1aa] block text-[9px] uppercase font-bold">Fromage</span>
+                        <span className="text-white font-semibold line-clamp-1">{activeBurger.specs.cheese}</span>
+                      </div>
+                      <div>
+                        <span className="text-[#a1a1aa] block text-[9px] uppercase font-bold">Sauce</span>
+                        <span className="text-white font-semibold line-clamp-1">{activeBurger.specs.sauce}</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* ACTIVE BURGER SUMMARY INFO & BUTTONS */}
+                  <div className="flex items-center justify-between pt-1">
                     <div>
                       <span className="text-[10px] font-black text-[#f59e0b] tracking-wider uppercase">
                         {activeBurger.badge}
@@ -728,33 +993,14 @@ export default function Home() {
                     </div>
                   </div>
 
-                  {/* CLEAN SPECS DETAILS (BELOW THE BURGER, NOT ON TOP OF IT) */}
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[11px] bg-black/40 p-3 rounded-xl border border-white/5">
-                    <div>
-                      <span className="text-[#a1a1aa] block text-[9px] uppercase font-bold">Pain</span>
-                      <span className="text-white font-semibold line-clamp-1">{activeBurger.specs.bun}</span>
-                    </div>
-                    <div>
-                      <span className="text-[#a1a1aa] block text-[9px] uppercase font-bold">Viande</span>
-                      <span className="text-white font-semibold line-clamp-1">{activeBurger.specs.patty}</span>
-                    </div>
-                    <div>
-                      <span className="text-[#a1a1aa] block text-[9px] uppercase font-bold">Fromage</span>
-                      <span className="text-white font-semibold line-clamp-1">{activeBurger.specs.cheese}</span>
-                    </div>
-                    <div>
-                      <span className="text-[#a1a1aa] block text-[9px] uppercase font-bold">Sauce</span>
-                      <span className="text-white font-semibold line-clamp-1">{activeBurger.specs.sauce}</span>
-                    </div>
-                  </div>
                 </div>
 
               </div>
 
               {/* ALL 7 BURGERS SWITCHER SELECTOR */}
-              <div className="w-full max-w-[560px] mt-4">
+              <div className="w-full max-w-[580px] mt-4">
                 <p className="text-[11px] font-bold text-[#a1a1aa] uppercase tracking-wider text-center mb-2.5">
-                  Cliquez sur un burger pour l'afficher en 3D (7 Burgers) :
+                  Cliquez sur un burger pour l'afficher en 3D (7 Recettes du Drive) :
                 </p>
                 <div className="flex items-center gap-2 overflow-x-auto pb-2 px-1 no-scrollbar justify-start sm:justify-center">
                   {ALL_7_BURGERS.map((burger, idx) => {

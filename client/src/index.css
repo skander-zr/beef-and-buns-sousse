@@ -401,3 +401,53 @@ button, a { -webkit-tap-highlight-color: transparent; }
   align-items: center;
   gap: 4px;
 }
+
+/* Layer Highlight Effects */
+.exploded .burger-layer.active-layer {
+  filter: drop-shadow(0 0 28px rgba(255, 59, 48, 0.95)) brightness(1.2) !important;
+  z-index: 30 !important;
+}
+.exploded .layer-top-bun.active-layer {
+  transform: translateY(-145px) translateZ(85px) rotateX(12deg) scale(1.05);
+}
+.exploded .layer-toppings.active-layer {
+  transform: translateY(-72px) translateZ(60px) rotateX(8deg) scale(1.05);
+}
+.exploded .layer-patty1.active-layer {
+  transform: translateY(0px) translateZ(40px) scale(1.06);
+}
+.exploded .layer-patty2.active-layer {
+  transform: translateY(74px) translateZ(25px) rotateX(-5deg) scale(1.05);
+}
+.exploded .layer-bottom-bun.active-layer {
+  transform: translateY(148px) translateZ(0px) rotateX(-12deg) scale(1.05);
+}
+
+/* Floating Layer Pin on the Exploded 3D Model */
+.layer-float-pin {
+  position: absolute;
+  top: 50%;
+  left: 10px;
+  transform: translateY(-50%) translateZ(40px);
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ff3b30, #e11d48);
+  border: 2px solid #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 11px;
+  font-weight: 800;
+  box-shadow: 0 0 16px rgba(255, 59, 48, 0.9), 0 4px 10px rgba(0,0,0,0.5);
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 25;
+}
+.layer-float-pin.active {
+  background: #f59e0b;
+  border-color: #fff;
+  transform: translateY(-50%) translateZ(60px) scale(1.25);
+  box-shadow: 0 0 24px rgba(245, 158, 11, 1), 0 4px 12px rgba(0,0,0,0.6);
+}
