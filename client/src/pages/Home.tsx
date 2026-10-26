@@ -133,6 +133,36 @@ interface CustomExtra {
   price: number;
 }
 
+const DEFAULT_BEEF_MENU = [
+  { id: 1, category: Smash Burgers, name: Truffle Mushroom, description: Double smash beef patty, american cheese, grilled mushrooms, truffle mayo, rocket salad, artisanal potato bun., priceDt: 29.5, active: true },
+  { id: 2, category: Smash Burgers, name: The OG Smash, description: Double smash beef patty, american cheese, grilled caramelized onions, signature OG sauce, artisanal potato bun., priceDt: 22.7, active: true },
+  { id: 3, category: Smash Burgers, name: OG Smash Oklahoma, description: Double smash beef patty smash� avec fines lamelles d oignons caram�lis�s, double american cheese, sauce OG, potato bun., priceDt: 22.7, active: true },
+  { id: 4, category: Smash Burgers, name: Hot Smash, description: Double smash beef patty, american cheese, jalape�os �pic�s, sauce hot �pic�e maison, oignons caram�lis�s, potato bun., priceDt: 25.0, active: true },
+  { id: 5, category: Crispy Chicken, name: OG Chicken, description: Filet de poulet croustillant pan� minute, coleslaw frais cr�meux, sauce signature OG, artisanal potato bun., priceDt: 17.5, active: true },
+  { id: 6, category: Crispy Chicken, name: Classic Chicken, description: Filet de poulet pan� croustillant, salade croquante, rondelles de tomate fra�che, oignons rouges, mayonnaise maison, potato bun., priceDt: 17.5, active: true },
+  { id: 7, category: Crispy Chicken, name: Hot Chicken, description: Filet de poulet pan� �pic� croustillant, rondelles de jalape�os marin�s, sauce hot �pic�e, coleslaw cr�meux, potato bun., priceDt: 20.0, active: true },
+  { id: 8, category: Chicken Tenders, name: Chicken Tenders (2 Pi�ces), description: 2 aiguillettes de poulet marin�es ultra-croustillantes dor�es � la perfection avec 1 sauce au choix., priceDt: 6.0, active: true },
+  { id: 9, category: Chicken Tenders, name: Chicken Tenders (4 Pi�ces), description: 4 aiguillettes de poulet marin�es ultra-croustillantes dor�es � la perfection avec 1 sauce au choix., priceDt: 12.0, active: true },
+  { id: 10, category: Chicken Tenders, name: Chicken Tenders (8 Pi�ces), description: 8 aiguillettes de poulet marin�es ultra-croustillantes dor�es � la perfection avec 2 sauces au choix., priceDt: 22.0, active: true },
+  { id: 11, category: Frites & Sides, name: Frites Crinkle Croustillantes, description: Frites ondul�es ultra-croustillantes et dor�es, assaisonn�es au sel d �pices Beef & Buns., priceDt: 3.0, active: true },
+  { id: 12, category: Extras & Sauces, name: Extra Smash Patty (B�uf), description: Steak de b�uf smash� suppl�mentaire 100% pur b�uf., priceDt: 6.0, active: true },
+  { id: 13, category: Extras & Sauces, name: Bacon de B�uf Croustillant, description: Tranches de bacon de b�uf grill�es croustillantes., priceDt: 5.0, active: true },
+  { id: 14, category: Extras & Sauces, name: Pastrami B�uf Artisanal, description: Tranches de pastrami de b�uf artisanal grill� � la plancha., priceDt: 5.0, active: true },
+  { id: 15, category: Extras & Sauces, name: Tranche American Cheese, description: Fromage am�ricain fondant suppl�mentaire., priceDt: 3.0, active: true },
+  { id: 16, category: Extras & Sauces, name: Smoked Cheese (Fum�), description: Tranche de fromage fum� cr�meux., priceDt: 3.0, active: true },
+  { id: 17, category: Extras & Sauces, name: Champignons Saut�s Grill�s, description: Portion de champignons frais revenus au beurre et herbes., priceDt: 3.0, active: true },
+  { id: 18, category: Extras & Sauces, name: Sauce Truffle Mayo Extra, description: Mayonnaise onctueuse infus�e � la truffe noire d Italie., priceDt: 3.0, active: true },
+  { id: 19, category: Extras & Sauces, name: Sauce Hot Spicy Maison, description: Sauce piquante artisanale aux piments fum�s., priceDt: 3.5, active: true },
+  { id: 20, category: Extras & Sauces, name: Sauce OG Signature Extra, description: Notre sauce secr�te culte, douce, relev�e et fum�e., priceDt: 2.5, active: true },
+  { id: 21, category: Extras & Sauces, name: Jalape�os �pic�s, description: Rondelles de piments jalape�os croquants marin�s., priceDt: 2.5, active: true },
+  { id: 22, category: Extras & Sauces, name: Pickles Croquants, description: Cornichons marin�s � l aneth maison., priceDt: 2.0, active: true },
+  { id: 23, category: Boissons, name: Coca-Cola / Zero (33cl), description: Canette fra�che 33cl servie tr�s fra�che., priceDt: 3.0, active: true },
+  { id: 24, category: Boissons, name: Boga Cidre / Boga Lim (33cl), description: Boisson gazeuse tunisienne embl�matique bien fra�che., priceDt: 3.0, active: true },
+  { id: 25, category: Boissons, name: Fanta Orange / Sprite (33cl), description: Canette fra�che 33cl., priceDt: 3.0, active: true },
+  { id: 26, category: Boissons, name: Eau Min�rale 0.5L, description: Bouteille 0.5L servie fra�che., priceDt: 1.5, active: true },
+  { id: 27, category: Boissons, name: Eau Min�rale 1L, description: Bouteille 1L servie fra�che., priceDt: 3.0, active: true },
+];
+
 const AVAILABLE_EXTRAS: CustomExtra[] = [
   { id: "patty", name: "Extra Smash Patty (Bœuf)", price: 6.0 },
   { id: "bacon", name: "Bacon de Bœuf Croustillant", price: 5.0 },
@@ -211,7 +241,9 @@ export default function Home() {
   }, [isAutoRotating]);
 
   // --- MENU DATA & SEARCH/FILTERS ---
-  const { data: menuItemsData, isLoading: isMenuLoading } = trpc.restaurant.menu.list.useQuery();
+  const { data: remoteMenu } = trpc.restaurant.menu.list.useQuery(undefined, { retry: false });
+  const menuItemsData = (remoteMenu && remoteMenu.length > 0) ? remoteMenu : DEFAULT_BEEF_MENU;
+  const isMenuLoading = false;
   const [selectedCategory, setSelectedCategory] = useState("Tous");
   const [searchQuery, setSearchQuery] = useState("");
 
