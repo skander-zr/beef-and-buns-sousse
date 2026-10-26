@@ -17,14 +17,14 @@ const menuItemInput = z.object({
   category: z.string().min(1).max(80),
   name: z.string().min(1).max(160),
   description: z.string().max(1000).optional().nullable(),
-  priceDt: z.number().int().nonnegative(),
+  priceDt: z.number().nonnegative(),
   active: z.boolean().default(true),
   sortOrder: z.number().int().default(0),
 });
 
-export function isClosedDay(serviceDate: string) {
-  const date = new Date(`${serviceDate}T12:00:00Z`);
-  return date.getUTCDay() === 1; // Lundi fermé
+export function isClosedDay(_serviceDate: string) {
+  // Beef & Buns est ouvert 7j/7 (Service continu 12h - 00h)
+  return false;
 }
 
 export function isServiceTime(serviceTime: string) {
@@ -32,7 +32,8 @@ export function isServiceTime(serviceTime: string) {
 }
 
 export function calculateOrderTotal(lines: Array<{ priceDt: number; quantity: number }>) {
-  return lines.reduce((total, line) => total + line.priceDt * line.quantity, 0);
+  const sum = lines.reduce((total, line) => total + line.priceDt * line.quantity, 0);
+  return Math.round(sum * 100) / 100;
 }
 
 async function getAvailabilityForDate(serviceDate: string) {

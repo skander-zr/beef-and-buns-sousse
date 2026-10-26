@@ -1,7 +1,18 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
-  <rect width="64" height="64" rx="16" fill="#b95230" />
-  <path d="M20 44 L32 16 L44 44 Z" fill="#fdfaf7" />
-  <circle cx="32" cy="27" r="3" fill="#e65100" />
-  <circle cx="28" cy="36" r="2.5" fill="#2e7d32" />
-  <circle cx="36" cy="36" r="2.5" fill="#e65100" />
+  <defs>
+    <linearGradient id="bb-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FF3B30"/>
+      <stop offset="100%" stop-color="#F59E0B"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="16" fill="#0c0c0e" />
+  <rect x="2" y="2" width="60" height="60" rx="14" fill="none" stroke="url(#bb-grad)" stroke-width="2" opacity="0.4" />
+  <!-- Burger top bun -->
+  <path d="M16 28 C16 19, 48 19, 48 28 Z" fill="#F59E0B" />
+  <!-- Melted cheese drip -->
+  <path d="M14 30 L50 30 L46 36 L38 33 L32 38 L26 33 L18 36 Z" fill="#FBBF24" />
+  <!-- Smash beef patty -->
+  <rect x="14" y="37" width="36" height="5" rx="2.5" fill="#FF3B30" />
+  <!-- Burger bottom bun -->
+  <path d="M16 45 C16 48, 48 48, 48 45 L48 44 L16 44 Z" fill="#D97706" />
 </svg>

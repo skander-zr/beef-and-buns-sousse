@@ -9,9 +9,11 @@ export const ENV = {
   forgeApiKey: process.env.BUILT_IN_FORGE_API_KEY ?? "",
   whatsappAccessToken: process.env.WHATSAPP_ACCESS_TOKEN ?? "",
   whatsappPhoneNumberId: process.env.WHATSAPP_PHONE_NUMBER_ID ?? "",
-  whatsappHostPhone: process.env.WHATSAPP_HOST_PHONE ?? "21620217090",
+  whatsappHostPhone: process.env.WHATSAPP_HOST_PHONE ?? "21628151503",
   callmebotApiKey: process.env.CALLMEBOT_API_KEY ?? "",
   whatsappTemplateName: process.env.WHATSAPP_TEMPLATE_NAME ?? "per_voi_new_event",
+  whatsappTemplateLanguage: process.env.WHATSAPP_TEMPLATE_LANGUAGE ?? "fr",
+  whatsappApiVersion: process.env.WHATSAPP_API_VERSION ?? "v23.0",
   telegramBotToken: process.env.TELEGRAM_BOT_TOKEN ?? "8962458398:AAEOGRd4gVH29CY93STH2kfN6F8XuA5oRis",
   telegramChatId: process.env.TELEGRAM_CHAT_ID ?? "6048748092",
 };

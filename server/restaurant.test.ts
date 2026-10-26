@@ -10,8 +10,8 @@ describe("Per Voi restaurant rules", () => {
     expect(isServiceTime("23:00")).toBe(false);
   });
 
-  it("keeps Monday closed", () => {
-    expect(isClosedDay("2026-09-07")).toBe(true);
+  it("is open 7 days a week", () => {
+    expect(isClosedDay("2026-09-07")).toBe(false);
     expect(isClosedDay("2026-09-08")).toBe(false);
   });
 

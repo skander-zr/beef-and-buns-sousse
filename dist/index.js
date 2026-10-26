@@ -112,9 +112,11 @@ var ENV = {
   forgeApiKey: process.env.BUILT_IN_FORGE_API_KEY ?? "",
   whatsappAccessToken: process.env.WHATSAPP_ACCESS_TOKEN ?? "",
   whatsappPhoneNumberId: process.env.WHATSAPP_PHONE_NUMBER_ID ?? "",
-  whatsappHostPhone: process.env.WHATSAPP_HOST_PHONE ?? "21620217090",
+  whatsappHostPhone: process.env.WHATSAPP_HOST_PHONE ?? "21628151503",
   callmebotApiKey: process.env.CALLMEBOT_API_KEY ?? "",
   whatsappTemplateName: process.env.WHATSAPP_TEMPLATE_NAME ?? "per_voi_new_event",
+  whatsappTemplateLanguage: process.env.WHATSAPP_TEMPLATE_LANGUAGE ?? "fr",
+  whatsappApiVersion: process.env.WHATSAPP_API_VERSION ?? "v23.0",
   telegramBotToken: process.env.TELEGRAM_BOT_TOKEN ?? "8962458398:AAEOGRd4gVH29CY93STH2kfN6F8XuA5oRis",
   telegramChatId: process.env.TELEGRAM_CHAT_ID ?? "6048748092"
 };
@@ -704,259 +706,227 @@ import { z as z2 } from "zod";
 import fs from "fs";
 import path from "path";
 var INITIAL_MENU_ITEMS = [
-  // --- ENTRÉES ---
+  // --- SMASH BURGERS ---
   {
-    category: "Entr\xE9es",
-    name: "Burrata cr\xE9meuse",
-    description: "Marmelade de tomates, pickles de gingembre, cr\xE8me citronn\xE9e et basilic frais.",
-    priceDt: 27,
+    category: "Smash Burgers",
+    name: "Truffle Mushroom",
+    description: "Double smash beef patty, american cheese, grilled mushrooms, truffle mayo, rocket salad, artisanal potato bun.",
+    priceDt: 29.5,
     active: true,
     sortOrder: 1
   },
   {
-    category: "Entr\xE9es",
-    name: "Carpaccio de B\u0153uf Truff\xE9",
-    description: "Fines tranches de filet de b\u0153uf, copeaux de grana padano, roquette et huile de truffe.",
-    priceDt: 32,
+    category: "Smash Burgers",
+    name: "OG Smash",
+    description: "Double smash beef patty, american cheese, grilled caramelized onions, signature OG sauce, artisanal potato bun.",
+    priceDt: 22.7,
     active: true,
     sortOrder: 2
   },
   {
-    category: "Entr\xE9es",
-    name: "Bruschetta Gourmande Saumon",
-    description: "Pain de campagne grill\xE9, saumon gravlax, ricotta aux herbes et c\xE2pres croquantes.",
-    priceDt: 24,
+    category: "Smash Burgers",
+    name: "OG Smash Oklahoma",
+    description: "Double smash beef patty smash\xE9 avec fines lamelles d'oignons caram\xE9lis\xE9s, double american cheese, sauce OG, potato bun.",
+    priceDt: 22.7,
     active: true,
     sortOrder: 3
   },
   {
-    category: "Entr\xE9es",
-    name: "Salade Caprese Di Bufala",
-    description: "Tomates savoureuses, mozzarella di bufala, r\xE9duction balsamique et basilic.",
-    priceDt: 26,
+    category: "Smash Burgers",
+    name: "Hot Smash",
+    description: "Double smash beef patty, american cheese, jalape\xF1os \xE9pic\xE9s, sauce hot \xE9pic\xE9e maison, oignons caram\xE9lis\xE9s, potato bun.",
+    priceDt: 25,
     active: true,
     sortOrder: 4
   },
+  // --- CRISPY CHICKEN ---
   {
-    category: "Entr\xE9es",
-    name: "Fritto Misto de la Mer",
-    description: "Calamars, crevettes et seiches croustillants, mayonnaise citronn\xE9e maison.",
-    priceDt: 34,
+    category: "Crispy Chicken",
+    name: "OG Chicken",
+    description: "Filet de poulet croustillant pan\xE9 minute, coleslaw frais cr\xE9meux, sauce signature OG, artisanal potato bun.",
+    priceDt: 17.5,
     active: true,
     sortOrder: 5
   },
-  // --- PÂTES FRAÎCHES ---
   {
-    category: "P\xE2tes",
-    name: "Rigatoni Effiloch\xE9 de B\u0153uf",
-    description: "Sauce tomates mijot\xE9e, tomates s\xE9ch\xE9es, b\u0153uf fondant et cr\xE8me de parmesan.",
-    priceDt: 36,
+    category: "Crispy Chicken",
+    name: "Classic Chicken",
+    description: "Filet de poulet pan\xE9 croustillant, salade croquante, rondelles de tomate fra\xEEche, oignons rouges, mayonnaise maison, potato bun.",
+    priceDt: 17.5,
     active: true,
     sortOrder: 6
   },
   {
-    category: "P\xE2tes",
-    name: "Rigatoni Poivrons Fum\xE9s et Crevettes",
-    description: "Crevettes saut\xE9es, cr\xE8me de poivrons fum\xE9s, miel, noisettes et figues s\xE9ch\xE9es.",
-    priceDt: 42,
+    category: "Crispy Chicken",
+    name: "Hot Chicken",
+    description: "Filet de poulet pan\xE9 \xE9pic\xE9 croustillant, rondelles de jalape\xF1os marin\xE9s, sauce hot \xE9pic\xE9e, coleslaw cr\xE9meux, potato bun.",
+    priceDt: 20,
     active: true,
     sortOrder: 7
   },
+  // --- CHICKEN TENDERS ---
   {
-    category: "P\xE2tes",
-    name: "Tagliatelles aux Fruits de Mer",
-    description: "Crevettes, moules, seiches, bisque maison, tomates cerises et persil plat.",
-    priceDt: 46,
+    category: "Chicken Tenders",
+    name: "Chicken Tenders (2 Pi\xE8ces)",
+    description: "2 aiguillettes de poulet marin\xE9es ultra-croustillantes dor\xE9es \xE0 la perfection avec 1 sauce au choix.",
+    priceDt: 6,
     active: true,
     sortOrder: 8
   },
   {
-    category: "P\xE2tes",
-    name: "Raviolis Ricotta & \xC9pinards",
-    description: "P\xE2tes fra\xEEches maison farcies, beurre de sauge parfum\xE9 et cr\xE8me de parmesan.",
-    priceDt: 34,
+    category: "Chicken Tenders",
+    name: "Chicken Tenders (4 Pi\xE8ces)",
+    description: "4 aiguillettes de poulet marin\xE9es ultra-croustillantes dor\xE9es \xE0 la perfection avec 1 sauce au choix.",
+    priceDt: 12,
     active: true,
     sortOrder: 9
   },
   {
-    category: "P\xE2tes",
-    name: "Penne au Poulet et Champignons",
-    description: "\xC9minc\xE9 de poulet fermier, champignons de Paris, cr\xE8me fra\xEEche et parmesan.",
-    priceDt: 32,
+    category: "Chicken Tenders",
+    name: "Chicken Tenders (8 Pi\xE8ces)",
+    description: "8 aiguillettes de poulet marin\xE9es ultra-croustillantes dor\xE9es \xE0 la perfection avec 2 sauces au choix.",
+    priceDt: 22,
     active: true,
     sortOrder: 10
   },
+  // --- FRITES & SIDES ---
   {
-    category: "P\xE2tes",
-    name: "Spaghetti Al Pomodoro & Burrata",
-    description: "Sauce tomate napolitaine au basilic frais, couronn\xE9e d'une burrata enti\xE8re.",
-    priceDt: 35,
+    category: "Frites & Sides",
+    name: "Frites Crinkle Croustillantes",
+    description: "Frites ondul\xE9es ultra-croustillantes et dor\xE9es, assaisonn\xE9es au sel d'\xE9pices Beef & Buns.",
+    priceDt: 3,
     active: true,
     sortOrder: 11
   },
+  // --- EXTRAS & SAUCES ---
   {
-    category: "P\xE2tes",
-    name: "Risotto aux Crevettes & Safran",
-    description: "Riz carnaroli cr\xE9meux, bouillon de crustac\xE9s, crevettes fra\xEEches et parmesan.",
-    priceDt: 44,
+    category: "Extras & Sauces",
+    name: "Extra Smash Patty (B\u0153uf)",
+    description: "Steak de b\u0153uf smash\xE9 suppl\xE9mentaire 100% pur b\u0153uf.",
+    priceDt: 6,
     active: true,
     sortOrder: 12
   },
-  // --- PIZZAS ---
   {
-    category: "Pizzas",
-    name: "La Margherita",
-    description: "Sauce tomate italienne, mozzarella fior di latte, grana padano et basilic frais.",
-    priceDt: 22,
+    category: "Extras & Sauces",
+    name: "Bacon de B\u0153uf Croustillant",
+    description: "Tranches de bacon de b\u0153uf grill\xE9es croustillantes.",
+    priceDt: 5,
     active: true,
     sortOrder: 13
   },
   {
-    category: "Pizzas",
-    name: "Quattro Formaggi",
-    description: "Mozzarella, gorgonzola, grana padano, ricotta cr\xE9meuse et touche de miel.",
-    priceDt: 28,
+    category: "Extras & Sauces",
+    name: "Pastrami B\u0153uf Artisanal",
+    description: "Tranches de pastrami de b\u0153uf artisanal grill\xE9 \xE0 la plancha.",
+    priceDt: 5,
     active: true,
     sortOrder: 14
   },
   {
-    category: "Pizzas",
-    name: "Pizza Diavola",
-    description: "Sauce tomate, mozzarella fior di latte, salami piquant italien et piments doux.",
-    priceDt: 29,
+    category: "Extras & Sauces",
+    name: "Tranche American Cheese",
+    description: "Fromage am\xE9ricain fondant suppl\xE9mentaire.",
+    priceDt: 3,
     active: true,
     sortOrder: 15
   },
   {
-    category: "Pizzas",
-    name: "Pizza Per Voi Truffe",
-    description: "Cr\xE8me de truffe blanche, mozzarella, champignons saut\xE9s, parmesan et roquette.",
-    priceDt: 38,
+    category: "Extras & Sauces",
+    name: "Smoked Cheese (Fum\xE9)",
+    description: "Tranche de fromage fum\xE9 cr\xE9meux.",
+    priceDt: 3,
     active: true,
     sortOrder: 16
   },
   {
-    category: "Pizzas",
-    name: "Pizza Frutti di Mare",
-    description: "Sauce tomate, mozzarella, fruits de mer frais de Sousse, ail confit et persil.",
-    priceDt: 39,
+    category: "Extras & Sauces",
+    name: "Champignons Saut\xE9s Grill\xE9s",
+    description: "Portion de champignons frais revenus au beurre et herbes.",
+    priceDt: 3,
     active: true,
     sortOrder: 17
   },
   {
-    category: "Pizzas",
-    name: "Pizza V\xE9g\xE9tarienne Grill\xE9e",
-    description: "Courgettes, aubergines marin\xE9es, poivrons r\xF4tis, mozzarella et origan.",
-    priceDt: 25,
+    category: "Extras & Sauces",
+    name: "Sauce Truffle Mayo",
+    description: "Mayonnaise onctueuse infus\xE9e \xE0 la truffe noire d'Italie.",
+    priceDt: 3,
     active: true,
     sortOrder: 18
   },
-  // --- TERRE & MER ---
   {
-    category: "Terre & mer",
-    name: "Filet de B\u0153uf au Poivre Vert",
-    description: "Filet de b\u0153uf tendre, sauce au poivre vert et cr\xE8me, l\xE9gumes saut\xE9s du jour.",
-    priceDt: 54,
+    category: "Extras & Sauces",
+    name: "Sauce Hot Spicy Maison",
+    description: "Sauce piquante artisanale aux piments fum\xE9s.",
+    priceDt: 3.5,
     active: true,
     sortOrder: 19
   },
   {
-    category: "Terre & mer",
-    name: "Daurade Royale Grill\xE9e",
-    description: "Filet de daurade fra\xEEche, \xE9cras\xE9 de pommes de terre \xE0 l'huile d'olive et caviar d'aubergines.",
-    priceDt: 48,
+    category: "Extras & Sauces",
+    name: "Sauce OG Signature",
+    description: "Notre sauce secr\xE8te culte, douce, relev\xE9e et fum\xE9e.",
+    priceDt: 2.5,
     active: true,
     sortOrder: 20
   },
   {
-    category: "Terre & mer",
-    name: "Escalope Milanaise Croustillante",
-    description: "Escalope de veau pan\xE9e dor\xE9e au beurre clarifi\xE9, servie avec spaghettis al pomodoro.",
-    priceDt: 38,
+    category: "Extras & Sauces",
+    name: "Jalape\xF1os \xC9pic\xE9s",
+    description: "Rondelles de piments jalape\xF1os croquants marin\xE9s.",
+    priceDt: 2.5,
     active: true,
     sortOrder: 21
   },
   {
-    category: "Terre & mer",
-    name: "Saumon Po\xEAl\xE9 aux Agrumes",
-    description: "Pav\xE9 de saumon croustillant, r\xE9duction d'agrumes, fenouil croquant et riz safran\xE9.",
-    priceDt: 52,
+    category: "Extras & Sauces",
+    name: "Pickles Croquants",
+    description: "Rondelles de cornichons marin\xE9s \xE0 l'aneth maison.",
+    priceDt: 2,
     active: true,
     sortOrder: 22
-  },
-  // --- DESSERTS ---
-  {
-    category: "Desserts",
-    name: "Tiramisu Classico",
-    description: "Caf\xE9 espresso italien, mascarpone onctueux, biscuits savoiardi et pur cacao amer.",
-    priceDt: 23,
-    active: true,
-    sortOrder: 23
-  },
-  {
-    category: "Desserts",
-    name: "Panna Cotta Vanille & Fruits Rouges",
-    description: "Cr\xE8me cuite \xE0 la vanille bourbon de Madagascar, coulis acidul\xE9 de framboises.",
-    priceDt: 18,
-    active: true,
-    sortOrder: 24
-  },
-  {
-    category: "Desserts",
-    name: "Pizza Nutella & Pistaches",
-    description: "P\xE2te fine et croustillante au four, Nutella fondant et \xE9clats de pistaches grill\xE9es.",
-    priceDt: 24,
-    active: true,
-    sortOrder: 25
-  },
-  {
-    category: "Desserts",
-    name: "Fondant au Chocolat Coeur Coulant",
-    description: "Chocolat noir 70%, c\u0153ur coulant intense, servi avec glace vanille.",
-    priceDt: 22,
-    active: true,
-    sortOrder: 26
   },
   // --- BOISSONS ---
   {
     category: "Boissons",
-    name: "Mocktail Signature Per Voi",
-    description: "Jus d'agrumes frais de Tunisie, menthe pil\xE9e, pur\xE9e de passion et eau p\xE9tillante.",
-    priceDt: 14,
+    name: "Coca-Cola / Zero (33cl)",
+    description: "Canette fra\xEEche 33cl servie frapp\xE9e.",
+    priceDt: 3,
+    active: true,
+    sortOrder: 23
+  },
+  {
+    category: "Boissons",
+    name: "Boga Cidre / Boga Lim (33cl)",
+    description: "Boisson gazeuse tunisienne embl\xE9matique bien fra\xEEche.",
+    priceDt: 3,
+    active: true,
+    sortOrder: 24
+  },
+  {
+    category: "Boissons",
+    name: "Fanta Orange / Sprite (33cl)",
+    description: "Canette fra\xEEche 33cl.",
+    priceDt: 3,
+    active: true,
+    sortOrder: 25
+  },
+  {
+    category: "Boissons",
+    name: "Eau Min\xE9rale 0.5L",
+    description: "Bouteille 0.5L servie fra\xEEche.",
+    priceDt: 1.5,
+    active: true,
+    sortOrder: 26
+  },
+  {
+    category: "Boissons",
+    name: "Eau Min\xE9rale 1L",
+    description: "Bouteille 1L servie fra\xEEche.",
+    priceDt: 3,
     active: true,
     sortOrder: 27
-  },
-  {
-    category: "Boissons",
-    name: "Mojito Frais Maison",
-    description: "Citron vert press\xE9, feuilles de menthe fra\xEEche, sucre de canne et soda.",
-    priceDt: 12,
-    active: true,
-    sortOrder: 28
-  },
-  {
-    category: "Boissons",
-    name: "Limonade Artisanale Menthe",
-    description: "Citrons frais press\xE9s minute, sirop de menthe maison et glace pil\xE9e.",
-    priceDt: 10,
-    active: true,
-    sortOrder: 29
-  },
-  {
-    category: "Boissons",
-    name: "Espresso Italien",
-    description: "S\xE9lection de caf\xE9 italien torr\xE9fi\xE9 artisanalement.",
-    priceDt: 5,
-    active: true,
-    sortOrder: 30
-  },
-  {
-    category: "Boissons",
-    name: "Eau Min\xE9rale / Gazeuse 1L",
-    description: "Bouteille en verre servie bien fra\xEEche.",
-    priceDt: 4,
-    active: true,
-    sortOrder: 31
   }
 ];
 var DATA_DIR = path.resolve(import.meta.dirname, "../data");
@@ -1368,19 +1338,19 @@ var menuItemInput = z2.object({
   category: z2.string().min(1).max(80),
   name: z2.string().min(1).max(160),
   description: z2.string().max(1e3).optional().nullable(),
-  priceDt: z2.number().int().nonnegative(),
+  priceDt: z2.number().nonnegative(),
   active: z2.boolean().default(true),
   sortOrder: z2.number().int().default(0)
 });
-function isClosedDay(serviceDate) {
-  const date = /* @__PURE__ */ new Date(`${serviceDate}T12:00:00Z`);
-  return date.getUTCDay() === 1;
+function isClosedDay(_serviceDate) {
+  return false;
 }
 function isServiceTime(serviceTime) {
   return SERVICE_TIMES.includes(serviceTime);
 }
 function calculateOrderTotal(lines) {
-  return lines.reduce((total, line) => total + line.priceDt * line.quantity, 0);
+  const sum = lines.reduce((total, line) => total + line.priceDt * line.quantity, 0);
+  return Math.round(sum * 100) / 100;
 }
 async function getAvailabilityForDate(serviceDate) {
   const db = await getDb();

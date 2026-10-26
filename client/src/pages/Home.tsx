@@ -1,2646 +1,1523 @@
-import { FormEvent, useEffect, useMemo, useState } from "react";
-import {
-  ArrowDown,
-  ArrowRight,
-  CalendarDays,
-  Check,
-  ChevronLeft,
-  ChevronRight,
-  Clock3,
-  Instagram,
-  MapPin,
-  Menu,
-  MessageCircle,
-  Minus,
-  Phone,
-  Plus,
-  ShoppingBag,
-  Star,
-  UtensilsCrossed,
-  X,
-} from "lucide-react";
-import { toast } from "sonner";
+import React, { useState, useRef, useEffect, useMemo } from "react";
 import { trpc } from "@/lib/trpc";
+import { toast } from "sonner";
+import {
+  Flame,
+  ShoppingBag,
+  Phone,
+  MapPin,
+  Clock,
+  Sparkles,
+  Layers,
+  RotateCw,
+  Plus,
+  Minus,
+  Check,
+  X,
+  ChevronRight,
+  ShieldCheck,
+  Instagram,
+  ArrowRight,
+  Search,
+  Sliders,
+  UtensilsCrossed,
+  Truck,
+  Store
+} from "lucide-react";
 
-const mapLink = "https://share.google/l2G73Ea4o4TdpSBVz";
-const RESTAURANT_PHONE = "21620217090";
-const RESTAURANT_PHONE_DISPLAY = "+216 20 217 090";
-const whatsappLink =
-  `https://wa.me/${RESTAURANT_PHONE}?text=Bonjour%20Per%20Voi%2C%20je%20souhaite%20r%C3%A9server%20une%20table%20ou%20poser%20une%20question.`;
-const googleReviewLink =
-  "https://www.google.com/search?q=per+voi+sousse+avis&oq=per+voi+sousse+avis&sourceid=chrome&ie=UTF-8#lrd=0x12fd8b00228081c7:0x86eae71c78023075,3,,,,";
-
-type Language = "fr" | "en" | "it" | "ar";
-const languages: Language[] = ["fr", "en", "it", "ar"];
-const languageLabels: Record<Language, string> = {
-  fr: "Français",
-  en: "English",
-  it: "Italiano",
-  ar: "العربية",
-};
-const languageCodes: Record<Language, string> = {
-  fr: "FR",
-  en: "EN",
-  it: "IT",
-  ar: "AR",
-};
-
-const menuCopy: Record<Language, Record<string, string>> = {
-  fr: {},
-  en: {
-    Entrées: "Starters",
-    Pâtes: "Pasta",
-    Pizzas: "Pizzas",
-    "Terre & mer": "Land & Sea",
-    Desserts: "Desserts",
-    Boissons: "Drinks",
-    "Burrata crémeuse": "Creamy Burrata",
-    "Carpaccio de Bœuf Truffé": "Truffled Beef Carpaccio",
-    "Bruschetta Gourmande Saumon": "Gourmet Salmon Bruschetta",
-    "Salade Caprese Di Bufala": "Bufala Caprese Salad",
-    "Fritto Misto de la Mer": "Seafood Fritto Misto",
-    "Rigatoni Effiloché de Bœuf": "Pulled Beef Rigatoni",
-    "Rigatoni Poivrons Fumés et Crevettes": "Smoked Pepper & Shrimp Rigatoni",
-    "Tagliatelles aux Fruits de Mer": "Seafood Tagliatelle",
-    "Raviolis Ricotta & Épinards": "Ricotta & Spinach Ravioli",
-    "Penne au Poulet et Champignons": "Chicken & Mushroom Penne",
-    "Spaghetti Al Pomodoro & Burrata": "Spaghetti Al Pomodoro & Burrata",
-    "Risotto aux Crevettes & Safran": "Shrimp & Saffron Risotto",
-    "La Margherita": "Margherita Pizza",
-    "Quattro Formaggi": "Four Cheese Pizza",
-    "Pizza Diavola": "Diavola Pizza",
-    "Pizza Per Voi Truffe": "Per Voi Truffle Pizza",
-    "Pizza Frutti di Mare": "Frutti di Mare Pizza",
-    "Pizza Végétarienne Grillée": "Grilled Veggie Pizza",
-    "Filet de Bœuf au Poivre Vert": "Green Pepper Beef Tenderloin",
-    "Daurade Royale Grillée": "Grilled Sea Bream",
-    "Escalope Milanaise Croustillante": "Crispy Milanese Veal Escalope",
-    "Saumon Poêlé aux Agrumes": "Pan-Seared Citrus Salmon",
-    "Tiramisu Classico": "Classic Tiramisu",
-    "Panna Cotta Vanille & Fruits Rouges": "Vanilla & Red Berry Panna Cotta",
-    "Pizza Nutella & Pistaches": "Nutella & Pistachio Pizza",
-    "Fondant au Chocolat Coeur Coulant": "Molten Chocolate Lava Cake",
-    "Mocktail Signature Per Voi": "Signature Per Voi Mocktail",
-    "Mojito Frais Maison": "Fresh Homemade Mojito",
-    "Limonade Artisanale Menthe": "Craft Mint Lemonade",
-    "Espresso Italien": "Italian Espresso",
-    "Eau Minérale / Gazeuse 1L": "Mineral / Sparkling Water 1L",
-    "Marmelade de tomates, pickles de gingembre, crème citronnée et basilic frais.":
-      "Tomato marmalade, ginger pickles, lemon cream and fresh basil.",
-    "Fines tranches de filet de bœuf, copeaux de grana padano, roquette et huile de truffe.":
-      "Thin slices of beef tenderloin, grana padano shavings, rocket and truffle oil.",
-    "Pain de campagne grillé, saumon gravlax, ricotta aux herbes et câpres croquantes.":
-      "Toasted sourdough bread, gravlax salmon, herb ricotta and crispy capers.",
-    "Tomates savoureuses, mozzarella di bufala, réduction balsamique et basilic.":
-      "Heirloom tomatoes, mozzarella di bufala, balsamic reduction and fresh basil.",
-    "Calamars, crevettes et seiches croustillants, mayonnaise citronnée maison.":
-      "Crispy calamari, shrimp and cuttlefish with homemade lemon mayonnaise.",
-    "Sauce tomates mijotée, tomates séchées, bœuf fondant et crème de parmesan.":
-      "Slow-simmered tomato sauce, sun-dried tomatoes, tender pulled beef and parmesan cream.",
-    "Crevettes sautées, crème de poivrons fumés, miel, noisettes et figues séchées.":
-      "Sautéed shrimp, smoked pepper cream, honey, roasted hazelnuts and dried figs.",
-    "Crevettes, moules, seiches, bisque maison, tomates cerises et persil plat.":
-      "Shrimp, mussels, cuttlefish, homemade bisque, cherry tomatoes and flat parsley.",
-    "Pâtes fraîches maison farcies, beurre de sauge parfumé et crème de parmesan.":
-      "Fresh homemade stuffed pasta, fragrant sage butter and parmesan cream.",
-    "Émincé de poulet fermier, champignons de Paris, crème fraîche et parmesan.":
-      "Sliced farm chicken, button mushrooms, fresh cream and parmesan.",
-    "Sauce tomate napolitaine au basilic frais, couronnée d'une burrata entière.":
-      "Neapolitan tomato sauce with fresh basil, crowned with a whole creamy burrata.",
-    "Riz carnaroli crémeux, bouillon de crustacés, crevettes fraîches et parmesan.":
-      "Creamy carnaroli risotto, shellfish broth, fresh shrimp and aged parmesan.",
-    "Sauce tomate italienne, mozzarella fior di latte, grana padano et basilic frais.":
-      "Italian tomato sauce, mozzarella fior di latte, grana padano and fresh basil.",
-    "Mozzarella, gorgonzola, grana padano, ricotta crémeuse et touche de miel.":
-      "Mozzarella, gorgonzola, grana padano, creamy ricotta and a touch of honey.",
-    "Sauce tomate, mozzarella fior di latte, salami piquant italien et piments doux.":
-      "Tomato sauce, mozzarella fior di latte, spicy Italian salami and sweet peppers.",
-    "Crème de truffe blanche, mozzarella, champignons sautés, parmesan et roquette.":
-      "White truffle cream, mozzarella, sautéed mushrooms, parmesan and fresh rocket.",
-    "Sauce tomate, mozzarella, fruits de mer frais de Sousse, ail confit et persil.":
-      "Tomato sauce, mozzarella, fresh Sousse seafood, confit garlic and parsley.",
-    "Courgettes, aubergines marinées, poivrons rôtis, mozzarella et origan.":
-      "Zucchini, marinated eggplants, roasted peppers, mozzarella and wild oregano.",
-    "Filet de bœuf tendre, sauce au poivre vert et crème, légumes sautés du jour.":
-      "Tender beef tenderloin, green peppercorn cream sauce and sautéed daily vegetables.",
-    "Filet de daurade fraîche, écrasé de pommes de terre à l'huile d'olive et caviar d'aubergines.":
-      "Fresh sea bream fillet, olive oil crushed potatoes and smoked eggplant caviar.",
-    "Escalope de veau panée dorée au beurre clarifié, servie avec spaghettis al pomodoro.":
-      "Crispy golden breaded veal escalope in clarified butter, served with spaghetti al pomodoro.",
-    "Pavé de saumon croustillant, réduction d'agrumes, fenouil croquant et riz safrané.":
-      "Crispy salmon steak, citrus reduction, crunchy fennel and saffron rice.",
-    "Café espresso italien, mascarpone onctueux, biscuits savoiardi et pur cacao amer.":
-      "Italian espresso, velvety mascarpone, savoiardi ladyfingers and pure dark cocoa.",
-    "Crème cuite à la vanille bourbon de Madagascar, coulis acidulé de framboises.":
-      "Madagascar bourbon vanilla panna cotta, tangy raspberry coulis.",
-    "Pâte fine et croustillante au four, Nutella fondant et éclats de pistaches grillées.":
-      "Thin crispy oven-baked dough, melted Nutella and toasted roasted pistachios.",
-    "Chocolat noir 70%, cœur coulant intense, servi avec glace vanille.":
-      "70% dark chocolate lava cake with warm molten center, served with vanilla gelato.",
-    "Jus d'agrumes frais de Tunisie, menthe pilée, purée de passion et eau pétillante.":
-      "Fresh Tunisian citrus juice, crushed mint, passion fruit puree and sparkling soda.",
-    "Citron vert pressé, feuilles de menthe fraîche, sucre de canne et soda.":
-      "Freshly squeezed lime, fresh mint leaves, cane sugar and sparkling soda.",
-    "Citrons frais pressés minute, sirop de menthe maison et glace pilée.":
-      "Freshly squeezed lemons, artisanal mint syrup and crushed ice.",
-    "Sélection de café italien torréfié artisanalement.":
-      "Selection of artisan roasted Italian coffee.",
-    "Bouteille en verre servie bien fraîche.": "Glass bottle served chilled.",
-  },
-  it: {
-    Entrées: "Antipasti",
-    Pâtes: "Primi Piatti",
-    Pizzas: "Pizze",
-    "Terre & mer": "Secondi Piatti",
-    Desserts: "Dolci",
-    Boissons: "Bevande",
-    "Burrata crémeuse": "Burrata cremosa",
-    "Carpaccio de Bœuf Truffé": "Carpaccio di Manzo al Tartufo",
-    "Bruschetta Gourmande Saumon": "Bruschetta Gourmet al Salmone",
-    "Salade Caprese Di Bufala": "Insalata Caprese di Bufala",
-    "Fritto Misto de la Mer": "Fritto Misto di Mare",
-    "Rigatoni Effiloché de Bœuf": "Rigatoni con Manzo Sfilacciato",
-    "Rigatoni Poivrons Fumés et Crevettes":
-      "Rigatoni Peperoni Affumicati e Gamberi",
-    "Tagliatelles aux Fruits de Mer": "Tagliatelle ai Frutti di Mare",
-    "Raviolis Ricotta & Épinards": "Ravioli Ricotta e Spinaci",
-    "Penne au Poulet et Champignons": "Penne Pollo e Funghi",
-    "Spaghetti Al Pomodoro & Burrata": "Spaghetti al Pomodoro e Burrata",
-    "Risotto aux Crevettes & Safran": "Risotto Gamberi e Zafferano",
-    "La Margherita": "Pizza Margherita",
-    "Quattro Formaggi": "Pizza Quattro Formaggi",
-    "Pizza Diavola": "Pizza Diavola",
-    "Pizza Per Voi Truffe": "Pizza Per Voi al Tartufo",
-    "Pizza Frutti di Mare": "Pizza Frutti di Mare",
-    "Pizza Végétarienne Grillée": "Pizza Vegetariana",
-    "Filet de Bœuf au Poivre Vert": "Filetto di Manzo al Pepe Verde",
-    "Daurade Royale Grillée": "Orata Reale alla Griglia",
-    "Escalope Milanaise Croustillante": "Cotoletta alla Milanese",
-    "Saumon Poêlé aux Agrumes": "Salmone Scottato agli Agrumi",
-    "Tiramisu Classico": "Tiramisù Classico",
-    "Panna Cotta Vanille & Fruits Rouges": "Panna Cotta ai Frutti di Bosco",
-    "Pizza Nutella & Pistaches": "Pizza Nutella e Pistacchi",
-    "Fondant au Chocolat Coeur Coulant": "Tortino al Cioccolato Cuore Caldo",
-    "Mocktail Signature Per Voi": "Mocktail Signature Per Voi",
-    "Mojito Frais Maison": "Mojito Fresco della Casa",
-    "Limonade Artisanale Menthe": "Limonata Artigianale alla Menta",
-    "Espresso Italien": "Caffè Espresso Italiano",
-    "Eau Minérale / Gazeuse 1L": "Acqua Minerale / Frizzante 1L",
-    "Marmelade de tomates, pickles de gingembre, crème citronnée et basilic frais.":
-      "Marmellata di pomodoro, pickles di zenzero, crema al limone e basilico fresco.",
-    "Fines tranches de filet de bœuf, copeaux de grana padano, roquette et huile de truffe.":
-      "Sottili fette di filetto di manzo, scaglie di grana padano, rucola e olio al tartufo.",
-    "Pain de campagne grillé, saumon gravlax, ricotta aux herbes et câpres croquantes.":
-      "Pane casereccio tostato, salmone gravlax, ricotta alle erbe e capperi croccanti.",
-    "Tomates savoureuses, mozzarella di bufala, réduction balsamique et basilic.":
-      "Pomodori saporiti, mozzarella di bufala, riduzione balsamica e basilico fresco.",
-    "Calamars, crevettes et seiches croustillants, mayonnaise citronnée maison.":
-      "Calamari, gamberi e seppie croccanti con maionese fatta in casa al limone.",
-    "Sauce tomates mijotée, tomates séchées, bœuf fondant et crème de parmesan.":
-      "Salsa di pomodoro cotta a fuoco lento, pomodori secchi, manzo tenero e crema di parmigiano.",
-    "Crevettes sautées, crème de poivrons fumés, miel, noisettes et figues séchées.":
-      "Gamberi saltati, crema di peperoni affumicati, miele, nocciole tostate e fichi secchi.",
-    "Crevettes, moules, seiches, bisque maison, tomates cerises et persil plat.":
-      "Gamberi, cozze, seppie, bisque della casa, pomodorini e prezzemolo fresco.",
-    "Pâtes fraîches maison farcies, beurre de sauge parfumé et crème de parmesan.":
-      "Pasta fresca fatta in casa ripiena, burro alla salvia profumato e crema di parmigiano.",
-    "Émincé de poulet fermier, champignons de Paris, crème fraîche et parmesan.":
-      "Straccetti di pollo ruspante, funghi champignon, panna fresca e parmigiano.",
-    "Sauce tomate napolitaine au basilic frais, couronnée d'une burrata entière.":
-      "Salsa di pomodoro napoletana con basilico fresco, coronata da una burrata intera.",
-    "Riz carnaroli crémeux, bouillon de crustacés, crevettes fraîches et parmesan.":
-      "Riso carnaroli mantecato, brodo di crostacei, gamberi freschi e parmigiano.",
-    "Sauce tomate italienne, mozzarella fior di latte, grana padano et basilic frais.":
-      "Salsa di pomodoro italiana, mozzarella fior di latte, grana padano e basilico fresco.",
-    "Mozzarella, gorgonzola, grana padano, ricotta crémeuse et touche de miel.":
-      "Mozzarella, gorgonzola, grana padano, ricotta cremosa e un tocco di miele.",
-    "Sauce tomate, mozzarella fior di latte, salami piquant italien et piments doux.":
-      "Salsa di pomodoro, mozzarella fior di latte, salame piccante italiano e peperoncini dolci.",
-    "Crème de truffe blanche, mozzarella, champignons sautés, parmesan et roquette.":
-      "Crema di tartufo bianco, mozzarella, funghi saltati, parmigiano e rucola fresca.",
-    "Sauce tomate, mozzarella, fruits de mer frais de Sousse, ail confit et persil.":
-      "Salsa di pomodoro, mozzarella, frutti di mare freschi di Sousse, aglio confit e prezzemolo.",
-    "Courgettes, aubergines marinées, poivrons rôtis, mozzarella et origan.":
-      "Zucchine, melanzane marinate, peperoni arrostiti, mozzarella e origano selvatico.",
-    "Filet de bœuf tendre, sauce au poivre vert et crème, légumes sautés du jour.":
-      "Filetto di manzo tenero, salsa al pepe verde e panna, verdure saltate del giorno.",
-    "Filet de daurade fraîche, écrasé de pommes de terre à l'huile d'olive et caviar d'aubergines.":
-      "Filetto di orata fresca, purea rustica di patate all'olio d'oliva e caviale di melanzane.",
-    "Escalope de veau panée dorée au beurre clarifié, servie avec spaghettis al pomodoro.":
-      "Cotoletta di vitello dorata al burro chiarificato, servita con spaghetti al pomodoro.",
-    "Pavé de saumon croustillant, réduction d'agrumes, fenouil croquant et riz safrané.":
-      "Trancio di salmone croccante, riduzione agli agrumi, finocchio fresco e riso allo zafferano.",
-    "Café espresso italien, mascarpone onctueux, biscuits savoiardi et pur cacao amer.":
-      "Caffè espresso italiano, crema al mascarpone, biscotti savoiardi e cacao amaro puro.",
-    "Crème cuite à la vanille bourbon de Madagascar, coulis acidulé de framboises.":
-      "Panna cotta alla vaniglia bourbon del Madagascar, coulis ai lamponi freschi.",
-    "Pâte fine et croustillante au four, Nutella fondant et éclats de pistaches grillées.":
-      "Pasta sottile e croccante al forno, Nutella calda e granella di pistacchi tostati.",
-    "Chocolat noir 70%, cœur coulant intense, servi avec glace vanille.":
-      "Tortino al cioccolato fondente 70% con cuore caldo fuso, servito con gelato alla vaniglia.",
-    "Jus d'agrumes frais de Tunisie, menthe pilée, purée de passion et eau pétillante.":
-      "Spremuta di agrumi freschi di Tunisia, menta pestata, purea di frutto della passione e soda.",
-    "Citron vert pressé, feuilles de menthe fraîche, sucre de canne et soda.":
-      "Lime fresco spremuto, foglie di menta fresca, zucchero di canna e soda.",
-    "Citrons frais pressés minute, sirop de menthe maison et glace pilée.":
-      "Limoni freschi spremuti al momento, sciroppo di menta artigianale e ghiaccio tritato.",
-    "Sélection de café italien torréfié artisanalement.":
-      "Selezione di caffè italiano tostato artigianalmente.",
-    "Bouteille en verre servie bien fraîche.":
-      "Bottiglia di vetro servita freschissima.",
-  },
-  ar: {
-    // Categories
-    Entrées: "المقبلات",
-    Pâtes: "المعكرونة",
-    Pizzas: "البيتزا",
-    "Terre & mer": "اللحوم والأسماك",
-    Desserts: "الحلويات",
-    Boissons: "المشروبات",
-    "Burrata crémeuse": "بوراتا كريمية",
-    "Carpaccio de Bœuf Truffé": "كارباتشيو لحم بالكمأة",
-    "Bruschetta Gourmande Saumon": "بروسكيتا بالسلمون الفاخر",
-    "Salade Caprese Di Bufala": "سلطة كابريزي بجبن البوفالا",
-    "Fritto Misto de la Mer": "فواكه بحر مقلية ومقرمشة",
-    "Rigatoni Effiloché de Bœuf": "ريغاتوني بلحم البقر المفتت",
-    "Rigatoni Poivrons Fumés et Crevettes": "ريغاتوني بالفلفل المدخن والجمبري",
-    "Tagliatelles aux Fruits de Mer": "تالياتيلي بفواكه البحر",
-    "Raviolis Ricotta & Épinards": "رافيولي الريكوتا والسبانخ",
-    "Penne au Poulet et Champignons": "بيني بالدجاج والفطر",
-    "Spaghetti Al Pomodoro & Burrata": "سباغيتي بصلصة الطماطم والبوراتا",
-    "Risotto aux Crevettes & Safran": "ريزوتو بالجمبري والزعفران",
-    "La Margherita": "بيتزا مارغريتا",
-    "Quattro Formaggi": "بيتزا أربعة أجبان",
-    "Pizza Diavola": "بيتزا ديافولا حارة",
-    "Pizza Per Voi Truffe": "بيتزا بير فوي بالكمأة",
-    "Pizza Frutti di Mare": "بيتزا فواكه البحر",
-    "Pizza Végétarienne Grillée": "بيتزا خضار مشوية",
-    "Filet de Bœuf au Poivre Vert": "فيليه لحم بقر بالفلفل الأخضر",
-    "Daurade Royale Grillée": "سمك وراطة ملكية مشوية",
-    "Escalope Milanaise Croustillante": "إسكالوب ميلانيز مقرمش",
-    "Saumon Poêlé aux Agrumes": "سلمون مشوح بالحمضيات",
-    "Tiramisu Classico": "تيراميسو كلاسيكي",
-    "Panna Cotta Vanille & Fruits Rouges":
-      "بانا كوتا بالفانيليا والفواكه الحمراء",
-    "Pizza Nutella & Pistaches": "بيتزا النوتيلا والفستق",
-    "Fondant au Chocolat Coeur Coulant": "فوندان الشوكولاتة الذائبة",
-    "Mocktail Signature Per Voi": "موكتيل بير فوي الخاص",
-    "Mojito Frais Maison": "موهيتو طازج محضر في المطعم",
-    "Limonade Artisanale Menthe": "عصير ليمون بالنعناع طبيعي",
-    "Espresso Italien": "إسبريسو إيطالي",
-    "Eau Minérale / Gazeuse 1L": "مياه معدنية / غازية 1 لتر",
-    "Marmelade de tomates, pickles de gingembre, crème citronnée et basilic frais.":
-      "مربى الطماطم، مخلل الزنجبيل، كريمة الليمون والريحان الطازج.",
-    "Fines tranches de filet de bœuf, copeaux de grana padano, roquette et huile de truffe.":
-      "شرائح رقيقة من فيليه البقر، رقائق جبن غرانا بادانو، جرجير وزيت الكمأة.",
-    "Pain de campagne grillé, saumon gravlax, ricotta aux herbes et câpres croquantes.":
-      "خبز ريفي محمص، سلمون جرافلاكس، ريكوتا بالأعشاب وقبار مقرمش.",
-    "Tomates savoureuses, mozzarella di bufala, réduction balsamique et basilic.":
-      "طماطم طازجة، جبن موزاريلا بوفالا، خل بلسمي وريحان طازج.",
-    "Calamars, crevettes et seiches croustillants, mayonnaise citronnée maison.":
-      "كالاماري وجمبري وسبيط مقرمش مع مايونيز بالليمون محضر في المطعم.",
-    "Sauce tomates mijotée, tomates séchées, bœuf fondant et crème de parmesan.":
-      "صلصة طماطم مطهوة بهدوء، طماطم مجففة، لحم بقر طري وكريمة البارميزان.",
-    "Crevettes sautées, crème de poivrons fumés, miel, noisettes et figues séchées.":
-      "جمبري مشوح، كريمة الفلفل المدخن، عسل، بندق محمص وتين مجفف.",
-    "Crevettes, moules, seiches, bisque maison, tomates cerises et persil plat.":
-      "جمبري، بلح البحر، سبيط، حساء البحر الخاص، طماطم كرزية وبقدونس.",
-    "Pâtes fraîches maison farcies, beurre de sauge parfumé et crème de parmesan.":
-      "معكرونة طازجة محشوة، زبدة الميرمية العطرة وكريمة البارميزان.",
-    "Émincé de poulet fermier, champignons de Paris, crème fraîche et parmesan.":
-      "شرائح دجاج طازج، فطر باريسي، كريمة طازجة وجبن بارميزان.",
-    "Sauce tomate napolitaine au basilic frais, couronnée d'une burrata entière.":
-      "صلصة طماطم نابولية بالريحان الطازج مع قطعة بوراتا كاملة وكريمية.",
-    "Riz carnaroli crémeux, bouillon de crustacés, crevettes fraîches et parmesan.":
-      "أرز كارنارولي كريمي، مرق ثمار البحر، جمبري طازج وجبن بارميزان.",
-    "Sauce tomate italienne, mozzarella fior di latte, grana padano et basilic frais.":
-      "صلصة طماطم إيطالية، موزاريلا فيور دي لاتي، غرانا بادانو وريحان طازج.",
-    "Mozzarella, gorgonzola, grana padano, ricotta crémeuse et touche de miel.":
-      "موزاريلا، جورجونزولا، غرانا بادانو، ريكوتا ولمسة عسل طبيعي.",
-    "Sauce tomate, mozzarella fior di latte, salami piquant italien et piments doux.":
-      "صلصة طماطم، موزاريلا، سلامي إيطالي حار وفلفل حلو.",
-    "Crème de truffe blanche, mozzarella, champignons sautés, parmesan et roquette.":
-      "كريمة الكمأة البيضاء، موزاريلا، فطر مشوح، بارميزان وجرجير طازج.",
-    "Sauce tomate, mozzarella, fruits de mer frais de Sousse, ail confit et persil.":
-      "صلصة طماطم، موزاريلا، فواكه بحر طازجة من سوسة، ثوم وبقدونس.",
-    "Courgettes, aubergines marinées, poivrons rôtis, mozzarella et origan.":
-      "كوسة، باذنجان متبل، فلفل مشوي، موزاريلا وزعتر بري.",
-    "Filet de bœuf tendre, sauce au poivre vert et crème, légumes sautés du jour.":
-      "فيليه بقر طري جداً، صلصة الفلفل الأخضر والكريمة، مع خضار اليوم المشوحة.",
-    "Filet de daurade fraîche, écrasé de pommes de terre à l'huile d'olive et caviar d'aubergines.":
-      "فيليه سمك وراطة طازج، بطاطا مهروسة بزيت الزيتون وكافيار الباذنجان.",
-    "Escalope de veau panée dorée au beurre clarifié, servie avec spaghettis al pomodoro.":
-      "إسكالوب عجل مقرمش ومحمر بالزبدة، يُقدم مع سباغيتي بصلصة الطماطم.",
-    "Pavé de saumon croustillant, réduction d'agrumes, fenouil croquant et riz safrané.":
-      "شريحة سلمون مقرمشة، صلصة الحمضيات، شمر طازج وأرز بالزعفران.",
-    "Café espresso italien, mascarpone onctueux, biscuits savoiardi et pur cacao amer.":
-      "قهوة إسبريسو إيطالية، ماسكاربوني كريمي، بسكويت سافوياردي وكاكاو نقي.",
-    "Crème cuite à la vanille bourbon de Madagascar, coulis acidulé de framboises.":
-      "بانا كوتا بالفانيليا الطبيعية، مع صلصة توت العليق الطازجة.",
-    "Pâte fine et croustillante au four, Nutella fondant et éclats de pistaches grillées.":
-      "عجينة رقيقة ومقرمشة من الفرن، نوتيلا ذائبة وفستق حلبي محمص.",
-    "Chocolat noir 70%, cœur coulant intense, servi avec glace vanille.":
-      "فوندان شوكولاتة داكنة 70% بقلب سائل دافئ، يُقدم مع آيس كريم فانيليا.",
-    "Jus d'agrumes frais de Tunisie, menthe pilée, purée de passion et eau pétillante.":
-      "عصير حمضيات تونسية طازجة، نعناع مفروم، باشن فروت ومياه فوارة.",
-    "Citron vert pressé, feuilles de menthe fraîche, sucre de canne et soda.":
-      "ليمون أخضر طازج، أوراق نعناع، سكر القصب وصودا.",
-    "Citrons frais pressés minute, sirop de menthe maison et glace pilée.":
-      "عصير ليمون طازج معصور مباشرة، شراب نعناع محلي وثلج مجروش.",
-    "Sélection de café italien torréfié artisanalement.":
-      "تشكيلة قهوة إيطالية محمصة يدوياً بجودة عالية.",
-    "Bouteille en verre servie bien fraîche.":
-      "قارورة زجاجية تُقدم باردة ومنعشة.",
-  },
-};
-const menuTokenCopy: Record<Exclude<Language, "fr">, Record<string, string>> = {
-  en: {
-    "Selon stock :": "Subject to availability: ",
-    "sauce tomates": "tomato sauce",
-    "sauce tomate": "tomato sauce",
-    crème: "cream",
-    "tomates séchées": "sun-dried tomatoes",
-    "huile d’olives": "olive oil",
-    "basilic frais": "fresh basil",
-    basilic: "basil",
-    persil: "parsley",
-    crevettes: "shrimp",
-    poulpes: "octopus",
-    moules: "mussels",
-    seiches: "cuttlefish",
-    bœuf: "beef",
-    poulet: "chicken",
-    saumon: "salmon",
-    "champignons de Paris": "button mushrooms",
-    champignons: "mushrooms",
-    mozzarella: "mozzarella",
-    parmesan: "parmesan",
-    "grana padano": "grana padano",
-    miel: "honey",
-    noisettes: "hazelnuts",
-    "figues séchées": "dried figs",
-    citron: "lemon",
-    orange: "orange",
-    courgettes: "zucchini",
-    poivrons: "peppers",
-    oignons: "onions",
-    "ail confit": "confit garlic",
-    "huile de truffes": "truffle oil",
-    truffes: "truffle",
-    pistaches: "pistachios",
-    roquette: "rocket",
-    olives: "olives",
-    frites: "fries",
-    pâtes: "pasta",
-    "pommes de terre": "potatoes",
-    épinard: "spinach",
-    épinards: "spinach",
-    risotto: "risotto",
-    "jus de bœuf": "beef jus",
-    "pâte fraîche": "fresh pasta",
-    pâte: "dough",
-    houmous: "hummus",
-    tahina: "tahini",
-    "jus de citron": "lemon juice",
-    "fleur de sel": "sea salt",
-    "caramel au lait": "milk caramel",
-    "fruits secs concassés": "crushed nuts",
-    café: "coffee",
-    mascarpone: "mascarpone",
-    "poudre de cacao": "cocoa powder",
-    "pain brioché": "brioche bread",
-    framboises: "raspberries",
-    menthe: "mint",
-    chocolat: "chocolate",
-    œuf: "egg",
-    salade: "salad",
-    fromage: "cheese",
-    croûtons: "croutons",
-    anchois: "anchovies",
-    betterave: "beetroot",
-    melon: "melon",
-    "saumon gravlax": "gravlax salmon",
-    filet: "fillet",
-    "mille-feuille": "layered",
-    gingembre: "ginger",
-    "légumes sautés": "sautéed vegetables",
-    daurade: "sea bream",
-    "caviar d’aubergines": "eggplant caviar",
-    aubergines: "eggplant",
-    "algue croustillante": "crispy seaweed",
-    "bisque de crevettes": "shrimp bisque",
-    ricotta: "ricotta",
-    noix: "walnuts",
-  },
-  it: {
-    "Selon stock :": "Secondo disponibilità: ",
-    "sauce tomates": "salsa di pomodoro",
-    "sauce tomate": "salsa di pomodoro",
-    crème: "crema",
-    "tomates séchées": "pomodori secchi",
-    "huile d’olives": "olio d’oliva",
-    "basilic frais": "basilico fresco",
-    basilic: "basilico",
-    persil: "prezzemolo",
-    crevettes: "gamberi",
-    poulpes: "polpo",
-    moules: "cozze",
-    seiches: "seppie",
-    bœuf: "manzo",
-    poulet: "pollo",
-    saumon: "salmone",
-    "champignons de Paris": "funghi champignon",
-    champignons: "funghi",
-    miel: "miele",
-    noisettes: "nocciole",
-    "figues séchées": "fichi secchi",
-    citron: "limone",
-    orange: "arancia",
-    courgettes: "zucchine",
-    poivrons: "peperoni",
-    oignons: "cipolle",
-    "ail confit": "aglio confit",
-    "huile de truffes": "olio al tartufo",
-    truffes: "tartufo",
-    pistaches: "pistacchi",
-    roquette: "rucola",
-    olives: "olive",
-    frites: "patatine",
-    pâtes: "pasta",
-    "pommes de terre": "patate",
-    épinard: "spinaci",
-    épinards: "spinaci",
-    risotto: "risotto",
-    "jus de bœuf": "fondo di manzo",
-    "pâte fraîche": "pasta fresca",
-    houmous: "hummus",
-    tahina: "tahina",
-    "jus de citron": "succo di limone",
-    "fleur de sel": "fior di sale",
-    "caramel au lait": "caramello al latte",
-    "fruits secs concassés": "frutta secca tritata",
-    café: "caffè",
-    mascarpone: "mascarpone",
-    "poudre de cacao": "cacao in polvere",
-    "pain brioché": "pane brioche",
-    framboises: "lamponi",
-    menthe: "menta",
-    chocolat: "cioccolato",
-    œuf: "uovo",
-    salade: "insalata",
-    fromage: "formaggio",
-    croûtons: "crostini",
-    anchois: "acciughe",
-    betterave: "barbabietola",
-    melon: "melone",
-    "saumon gravlax": "salmone gravlax",
-    filet: "filetto",
-    gingembre: "zenzero",
-    "légumes sautés": "verdure saltate",
-    daurade: "orata",
-    "caviar d’aubergines": "caviale di melanzane",
-    aubergines: "melanzane",
-    "algue croustillante": "alga croccante",
-    "bisque de crevettes": "bisque di gamberi",
-    ricotta: "ricotta",
-    noix: "noci",
-  },
-  ar: {
-    "Selon stock :": "حسب التوفر: ",
-    "sauce tomates": "صلصة الطماطم",
-    "sauce tomate": "صلصة الطماطم",
-    crème: "كريمة",
-    "tomates séchées": "طماطم مجففة",
-    "huile d’olives": "زيت الزيتون",
-    "basilic frais": "ريحان طازج",
-    basilic: "ريحان",
-    persil: "بقدونس",
-    crevettes: "جمبري",
-    poulpes: "أخطبوط",
-    moules: "بلح البحر",
-    seiches: "حبار",
-    bœuf: "لحم بقر",
-    poulet: "دجاج",
-    saumon: "سلمون",
-    "champignons de Paris": "فطر",
-    champignons: "فطر",
-    miel: "عسل",
-    noisettes: "بندق",
-    "figues séchées": "تين مجفف",
-    citron: "ليمون",
-    orange: "برتقال",
-    courgettes: "كوسة",
-    poivrons: "فلفل",
-    oignons: "بصل",
-    "ail confit": "ثوم مطهو",
-    "huile de truffes": "زيت الكمأة",
-    truffes: "كمأة",
-    pistaches: "فستق",
-    roquette: "جرجير",
-    olives: "زيتون",
-    frites: "بطاطا مقلية",
-    pâtes: "معكرونة",
-    "pommes de terre": "بطاطا",
-    épinard: "سبانخ",
-    épinards: "سبانخ",
-    risotto: "ريزوتو",
-    "jus de bœuf": "صلصة لحم البقر",
-    "pâte fraîche": "عجينة طازجة",
-    houmous: "حمص",
-    tahina: "طحينة",
-    "jus de citron": "عصير الليمون",
-    "fleur de sel": "ملح البحر",
-    "caramel au lait": "كراميل الحليب",
-    "fruits secs concassés": "مكسرات مجروشة",
-    café: "قهوة",
-    mascarpone: "ماسكاربوني",
-    "poudre de cacao": "مسحوق الكاكاو",
-    "pain brioché": "خبز بريوش",
-    framboises: "توت العليق",
-    menthe: "نعناع",
-    chocolat: "شوكولاتة",
-    œuf: "بيض",
-    salade: "سلطة",
-    fromage: "جبن",
-    croûtons: "خبز محمص",
-    anchois: "أنشوفة",
-    betterave: "شمندر",
-    melon: "شمام",
-    "saumon gravlax": "سلمون جرافلاكس",
-    filet: "فيليه",
-    gingembre: "زنجبيل",
-    "légumes sautés": "خضروات مشوحة",
-    daurade: "دنيس",
-    "caviar d’aubergines": "كافيار الباذنجان",
-    aubergines: "باذنجان",
-    "algue croustillante": "أعشاب بحرية مقرمشة",
-    "bisque de crevettes": "حساء الجمبري",
-    ricotta: "ريكوتا",
-    noix: "جوز",
-  },
-};
-const translateMenuText = (
-  language: Language,
-  text: string | null | undefined
-) => {
-  if (!text) return "";
-  if (language === "fr") return text;
-  const exact = menuCopy[language]?.[text];
-  if (exact) return exact;
-  const translated = Object.entries(menuTokenCopy[language])
-    .sort((a, b) => b[0].length - a[0].length)
-    .reduce((value, [from, to]) => value.replaceAll(from, to), text);
-  if (language === "en")
-    return translated
-      .replaceAll(" et ", " and ")
-      .replaceAll(" de ", " of ")
-      .replaceAll(" aux ", " with ")
-      .replaceAll(" au ", " with ")
-      .replaceAll(" à ", " with ")
-      .replaceAll(" fumés", " smoked")
-      .replaceAll(" Poivrons", " Peppers")
-      .replaceAll(" Crevettes", " Shrimp")
-      .replaceAll(" Poulpes", " Octopus")
-      .replaceAll(" Fruits de Mer", " Seafood")
-      .replaceAll(" Poulet", " Chicken")
-      .replaceAll(" Bœuf", " Beef")
-      .replaceAll(" Saumon", " Salmon");
-  if (language === "it")
-    return translated
-      .replaceAll(" et ", " e ")
-      .replaceAll(" de ", " di ")
-      .replaceAll(" aux ", " con ")
-      .replaceAll(" au ", " con ")
-      .replaceAll(" à ", " con ");
-  return translated
-    .replaceAll(" et ", " و ")
-    .replaceAll(" de ", " من ")
-    .replaceAll(" aux ", " مع ")
-    .replaceAll(" au ", " مع ")
-    .replaceAll(" à ", " مع ");
-};
-
-const translations: Record<Language, Record<string, string>> = {
-  fr: {
-    locationCity: "Sousse · 4054",
-    reviewsCount: "· 286 avis",
-    perPerson: "par personne",
-    house: "La maison",
-    menu: "La carte",
-    gallery: "Galerie",
-    reviews: "Avis",
-    find: "Nous trouver",
-    reserve: "Réserver",
-    reserveTable: "Réserver une table",
-    discover: "Découvrir la carte",
-    story: "Notre histoire",
-    scroll: "Faites défiler",
-    restaurant: "Restaurant italien à Sousse",
-    cuisine: "Cucina italiana, cuore mediterraneo",
-    houseTitle: "Une table italienne avec une âme tunisienne.",
-    menuTitle: "À choisir, à savourer.",
-    completeMenu: "La carte complète",
-    menuFor: "Tous les plats et prix du menu Per Voi.",
-    galleryTitle: "Le goût du détail.",
-    reviewTitle: "Ils parlent de Per Voi.",
-    leaveReview: "Laisser un avis Google",
-    reviewHint: "Votre avis s’ouvre directement dans Google.",
-    bookIntro: "Votre table vous attend.",
-    bookText: "Choisissez un jour et un créneau disponibles.",
-    findUs: "À presto, à Sousse.",
-    add: "Ajouter",
-    officialMenu: "Menu Per Voi",
-    maps: "Ouvrir dans Maps",
-    call: "Nous appeler",
-    host: "Espace hôte",
-    whatsapp: "Réserver sur WhatsApp",
-    sending: "Envoi…",
-    thanks: "Grazie mille.",
-    unit: "/ unité",
-    addedToast: "ajouté au panier",
-    addedToastDesc: "Votre panier est prêt à être commandé.",
-    resToastSuccess: "Votre demande est bien envoyée",
-    resToastSuccessDesc:
-      "Per Voi vous recontactera pour confirmer votre table.",
-    resToastError: "Réservation impossible",
-    orderToastSuccess: "Commande reçue",
-    orderToastSuccessDesc:
-      "Per Voi va vous contacter pour confirmer la commande.",
-    orderToastError: "Commande impossible",
-    takeawayHeader: "Per Voi à emporter",
-    namePlaceholder: "Ex. Amira Ben Ali",
-    emailPlaceholder: "vous@exemple.com",
-    notePlaceholder: "Anniversaire, chaise bébé…",
-    addressPlaceholder: "Adresse de livraison",
-    addressDefault: "Sahloul, Sousse",
-    kitchenNotePlaceholder: "Précision pour la cuisine",
-    itemWord: "article",
-    itemsWord: "articles",
-    closedMonday: "Fermé le lundi",
-    sahloulSousse: "Sahloul · Sousse",
-    copyright: "© 2026 Per Voi · Sousse",
-  },
-  en: {
-    locationCity: "Sousse · 4054",
-    reviewsCount: "· 286 reviews",
-    perPerson: "per person",
-    house: "The house",
-    menu: "The menu",
-    gallery: "Gallery",
-    reviews: "Reviews",
-    find: "Find us",
-    reserve: "Book",
-    reserveTable: "Book a table",
-    discover: "Discover the menu",
-    story: "Our story",
-    scroll: "Scroll down",
-    restaurant: "Italian restaurant in Sousse",
-    cuisine: "Italian cuisine, Mediterranean heart",
-    houseTitle: "An Italian table with a Tunisian soul.",
-    menuTitle: "Choose, then savor.",
-    completeMenu: "The full menu",
-    menuFor: "All Per Voi dishes and prices.",
-    galleryTitle: "A taste for detail.",
-    reviewTitle: "They talk about Per Voi.",
-    leaveReview: "Leave a Google review",
-    reviewHint: "Your review opens directly in Google.",
-    bookIntro: "Your table is waiting.",
-    bookText: "Choose an available day and time.",
-    findUs: "See you soon in Sousse.",
-    add: "Add",
-    officialMenu: "Per Voi menu",
-    maps: "Open in Maps",
-    call: "Call us",
-    host: "Owner area",
-    whatsapp: "Book on WhatsApp",
-    sending: "Sending…",
-    thanks: "Grazie mille.",
-    unit: "/ unit",
-    addedToast: "added to cart",
-    addedToastDesc: "Your cart is ready to order.",
-    resToastSuccess: "Your request has been sent",
-    resToastSuccessDesc: "Per Voi will contact you to confirm your table.",
-    resToastError: "Reservation unavailable",
-    orderToastSuccess: "Order received",
-    orderToastSuccessDesc: "Per Voi will contact you to confirm your order.",
-    orderToastError: "Order unavailable",
-    takeawayHeader: "Per Voi Takeaway",
-    namePlaceholder: "Ex. John Smith",
-    emailPlaceholder: "you@example.com",
-    notePlaceholder: "Birthday, high chair…",
-    addressPlaceholder: "Delivery address",
-    addressDefault: "Sahloul, Sousse",
-    kitchenNotePlaceholder: "Note for the kitchen",
-    itemWord: "item",
-    itemsWord: "items",
-    closedMonday: "Closed on Monday",
-    sahloulSousse: "Sahloul · Sousse",
-    copyright: "© 2026 Per Voi · Sousse",
-  },
-  it: {
-    locationCity: "Sousse · 4054",
-    reviewsCount: "· 286 recensioni",
-    perPerson: "a persona",
-    house: "La casa",
-    menu: "Il menù",
-    gallery: "Galleria",
-    reviews: "Recensioni",
-    find: "Dove trovarci",
-    reserve: "Prenota",
-    reserveTable: "Prenota un tavolo",
-    discover: "Scopri il menù",
-    story: "La nostra storia",
-    scroll: "Scorri",
-    restaurant: "Ristorante italiano a Sousse",
-    cuisine: "Cucina italiana, cuore mediterraneo",
-    houseTitle: "Una tavola italiana con un'anima tunisina.",
-    menuTitle: "Scegli, poi assapora.",
-    completeMenu: "Il menù completo",
-    menuFor: "Tutti i piatti e i prezzi di Per Voi.",
-    galleryTitle: "Il gusto dei dettagli.",
-    reviewTitle: "Parlano di Per Voi.",
-    leaveReview: "Lascia una recensione Google",
-    reviewHint: "La recensione si apre direttamente su Google.",
-    bookIntro: "Il tuo tavolo ti aspetta.",
-    bookText: "Scegli un giorno e un orario disponibili.",
-    findUs: "A presto, a Sousse.",
-    add: "Aggiungi",
-    officialMenu: "Menù Per Voi",
-    maps: "Apri in Maps",
-    call: "Chiamaci",
-    host: "Area proprietario",
-    whatsapp: "Prenota su WhatsApp",
-    sending: "Invio in corso…",
-    thanks: "Grazie mille.",
-    unit: "/ unità",
-    addedToast: "aggiunto al carrello",
-    addedToastDesc: "Il carrello è pronto per l'ordine.",
-    resToastSuccess: "La tua richiesta è stata inviata",
-    resToastSuccessDesc: "Per Voi ti ricontatterà per confermare il tavolo.",
-    resToastError: "Prenotazione non riuscita",
-    orderToastSuccess: "Ordine ricevuto",
-    orderToastSuccessDesc: "Per Voi ti contatterà per confermare l'ordine.",
-    orderToastError: "Ordine non riuscito",
-    takeawayHeader: "Per Voi da asporto",
-    namePlaceholder: "Es. Marco Rossi",
-    emailPlaceholder: "tu@esempio.it",
-    notePlaceholder: "Compleanno, seggiolone…",
-    addressPlaceholder: "Indirizzo di consegna",
-    addressDefault: "Sahloul, Sousse",
-    kitchenNotePlaceholder: "Nota per la cucina",
-    itemWord: "articolo",
-    itemsWord: "articoli",
-    closedMonday: "Chiuso il lunedì",
-    sahloulSousse: "Sahloul · Sousse",
-    copyright: "© 2026 Per Voi · Sousse",
-  },
-  ar: {
-    locationCity: "سوسة · 4054",
-    reviewsCount: "· 286 تقييماً",
-    perPerson: "للشخص",
-    house: "عن المطعم",
-    menu: "القائمة",
-    gallery: "الصور",
-    reviews: "التقييمات",
-    find: "موقعنا",
-    reserve: "احجز",
-    reserveTable: "احجز طاولة",
-    discover: "اكتشف القائمة",
-    story: "قصتنا",
-    scroll: "مرر للأسفل",
-    restaurant: "مطعم إيطالي في سوسة",
-    cuisine: "مطبخ إيطالي بروح متوسطية",
-    houseTitle: "مائدة إيطالية بروح تونسية.",
-    menuTitle: "اختر واستمتع.",
-    completeMenu: "القائمة الكاملة",
-    menuFor: "جميع أطباق وأسعار بير فوي.",
-    galleryTitle: "مذاق التفاصيل.",
-    reviewTitle: "ماذا يقولون عن بير فوي.",
-    leaveReview: "اترك تقييماً على Google",
-    reviewHint: "سيُفتح تقييمك مباشرة على Google.",
-    bookIntro: "طاولتك في انتظارك.",
-    bookText: "اختر يوماً ووقتاً متاحاً.",
-    findUs: "نراك قريباً في سوسة.",
-    add: "أضف",
-    officialMenu: "قائمة بير فوي",
-    maps: "افتح الخريطة",
-    call: "اتصل بنا",
-    host: "مساحة المالك",
-    whatsapp: "احجز عبر واتساب",
-    sending: "جاري الإرسال…",
-    thanks: "شكراً جزيلاً لكم.",
-    unit: "/ للوحدة",
-    addedToast: "تمت إضافته إلى السلة",
-    addedToastDesc: "سلتك جاهزة لتأكيد الطلب.",
-    resToastSuccess: "تم إرسال طلبكم بنجاح",
-    resToastSuccessDesc: "سيتصل بكم فريق بير فوي لتأكيد حجز الطاولة.",
-    resToastError: "تعذر الحجز حالياً",
-    orderToastSuccess: "تم استلام الطلب",
-    orderToastSuccessDesc: "سيتصل بكم فريق بير فوي لتأكيد الطلب.",
-    orderToastError: "تعذر إرسال الطلب",
-    takeawayHeader: "بير فوي للطلب الخارجي",
-    namePlaceholder: "مثال: أميرة بن علي",
-    emailPlaceholder: "you@example.com",
-    notePlaceholder: "عيد ميلاد، كرسي أطفال…",
-    addressPlaceholder: "عنوان التوصيل بالتفصيل",
-    addressDefault: "سهلول، سوسة",
-    kitchenNotePlaceholder: "ملاحظات إضافية للمطبخ",
-    itemWord: "عنصر",
-    itemsWord: "عناصر",
-    closedMonday: "مغلق يوم الاثنين",
-    sahloulSousse: "سهلول · سوسة",
-    copyright: "© 2026 بير فوي · سوسة",
-  },
-};
-
-const formLabels: Record<Language, Record<string, string>> = {
-  fr: {
-    request: "Demande de réservation",
-    name: "Votre nom",
-    date: "Date",
-    time: "Heure",
-    guests: "Personnes",
-    phone: "Téléphone",
-    email: "Email (facultatif)",
-    note: "Note (facultatif)",
-    chooseDate: "Choisir une date d'abord",
-    chooseTime: "Choisir un créneau",
-    chooseGuests: "Choisir",
-    send: "Envoyer la demande",
-    disclaimer: "Les créneaux complets ou fermés ne sont pas proposés.",
-    pickup: "À emporter",
-    delivery: "Livraison",
-    address: "Adresse",
-    order: "Passer la commande",
-    total: "Total",
-    yourOrder: "Votre commande",
-  },
-  en: {
-    request: "Reservation request",
-    name: "Your name",
-    date: "Date",
-    time: "Time",
-    guests: "Guests",
-    phone: "Phone",
-    email: "Email (optional)",
-    note: "Note (optional)",
-    chooseDate: "Choose a date first",
-    chooseTime: "Choose a time",
-    chooseGuests: "Choose",
-    send: "Send request",
-    disclaimer: "Full or closed time slots are not offered.",
-    pickup: "Pickup",
-    delivery: "Delivery",
-    address: "Address",
-    order: "Place order",
-    total: "Total",
-    yourOrder: "Your order",
-  },
-  it: {
-    request: "Richiesta di prenotazione",
-    name: "Il tuo nome",
-    date: "Data",
-    time: "Ora",
-    guests: "Persone",
-    phone: "Telefono",
-    email: "Email (facoltativa)",
-    note: "Nota (facoltativa)",
-    chooseDate: "Scegli prima una data",
-    chooseTime: "Scegli un orario",
-    chooseGuests: "Scegli",
-    send: "Invia la richiesta",
-    disclaimer: "Gli orari completi o chiusi non vengono mostrati.",
-    pickup: "Da asporto",
-    delivery: "Consegna",
-    address: "Indirizzo",
-    order: "Invia ordine",
-    total: "Totale",
-    yourOrder: "Il tuo ordine",
-  },
-  ar: {
-    request: "طلب حجز",
-    name: "اسمك",
-    date: "التاريخ",
-    time: "الوقت",
-    guests: "عدد الأشخاص",
-    phone: "الهاتف",
-    email: "البريد الإلكتروني (اختياري)",
-    note: "ملاحظة (اختياري)",
-    chooseDate: "اختر التاريخ أولاً",
-    chooseTime: "اختر الوقت",
-    chooseGuests: "اختر",
-    send: "إرسال الطلب",
-    disclaimer: "لا تظهر الأوقات الممتلئة أو المغلقة.",
-    pickup: "استلام",
-    delivery: "توصيل",
-    address: "العنوان",
-    order: "إرسال الطلب",
-    total: "المجموع",
-    yourOrder: "طلبك",
-  },
-};
-
-const siteCopy: Record<Language, Record<string, string>> = {
-  fr: {
-    heroTitle: "La dolce vita",
-    heroTitleAccent: "à votre table.",
-    heroCopy:
-      "Une cuisine italienne sincère, généreuse et solaire. Des pâtes fraîches, des produits choisis, et le plaisir d'être ensemble.",
-    introEyebrow: "Benvenuti da Per Voi",
-    introTitle: "Une table italienne",
-    introAccent: "avec une âme tunisienne.",
-    introCopy:
-      "Chez Per Voi, l'Italie se raconte sans détour : dans une pâte faite avec patience, une sauce qui mijote, un verre partagé. Notre cuisine puise dans les gestes italiens et dans la lumière de Sousse.",
-    visitCta: "Venir nous voir",
-    welcome: "L'art de recevoir, tout simplement.",
-    gallery: "La galerie",
-    instagram: "Voir Instagram",
-    galleryNote:
-      "Photos fournies par Per Voi · Autocollants retirés et images nettoyées pour la présentation du site.",
-    reviews: "Les avis",
-    google: "sur Google · 286 avis",
-    reviewSource:
-      "Avis vérifiés de nos clients sur Google · Note moyenne 4,7/5.",
-    dayHours: "Mardi — dimanche · 12h — 23h",
-    closed: "Lundi fermé · réservation conseillée",
-    serviceNote:
-      "Les demandes sont enregistrées et confirmées par l'équipe Per Voi.",
-    locationCopy:
-      "Per Voi vous accueille à Sahloul, Sousse. Venez découvrir une table pensée pour les bons moments.",
-    open: "À bientôt",
-    days: "Mardi — Dimanche",
-    orderNote:
-      "Paiement à la livraison ou sur place. Votre commande est confirmée par téléphone.",
-    quantity: "/ unité",
-    person: "personne",
-    people: "personnes",
-    close: "Fermer",
-    orderReceived: "Ordre reçu.",
-    orderReceivedCopy:
-      "Per Voi vous contactera pour confirmer votre commande et le délai.",
-    backMenu: "Retour à la carte",
-    requestSent:
-      "Votre demande est bien enregistrée. Notre équipe vous appellera au numéro fourni pour confirmer la table.",
-    anotherRequest: "Faire une autre demande",
-  },
-  en: {
-    heroTitle: "La dolce vita",
-    heroTitleAccent: "at your table.",
-    heroCopy:
-      "Sincere, generous and sunny Italian cuisine. Fresh pasta, carefully chosen ingredients, and the pleasure of being together.",
-    introEyebrow: "Benvenuti da Per Voi",
-    introTitle: "An Italian table",
-    introAccent: "with a Tunisian soul.",
-    introCopy:
-      "At Per Voi, Italy is told without detours: through patiently made pasta, a gently simmered sauce and a glass shared together. Our cuisine draws on Italian gestures and the light of Sousse.",
-    visitCta: "Come and see us",
-    welcome: "The art of welcoming, simply.",
-    gallery: "The gallery",
-    instagram: "View Instagram",
-    galleryNote:
-      "Photos provided by Per Voi · Stickers removed and images cleaned for the website presentation.",
-    reviews: "Reviews",
-    google: "on Google · 286 reviews",
-    reviewSource: "Verified customer reviews on Google · Average rating 4.7/5.",
-    dayHours: "Tuesday — Sunday · 12pm — 11pm",
-    closed: "Monday closed · reservations recommended",
-    serviceNote: "Requests are recorded and confirmed by the Per Voi team.",
-    locationCopy:
-      "Per Voi welcomes you in Sahloul, Sousse. Discover a table designed for good moments.",
-    open: "See you soon",
-    days: "Tuesday — Sunday",
-    orderNote: "Pay on delivery or pickup. Your order is confirmed by phone.",
-    quantity: "/ unit",
-    person: "person",
-    people: "people",
-    close: "Close",
-    orderReceived: "Order received.",
-    orderReceivedCopy:
-      "Per Voi will contact you to confirm your order and timing.",
-    backMenu: "Back to the menu",
-    requestSent:
-      "Your request has been recorded. Our team will call the number provided to confirm your table.",
-    anotherRequest: "Make another request",
-  },
-  it: {
-    heroTitle: "La dolce vita",
-    heroTitleAccent: "alla tua tavola.",
-    heroCopy:
-      "Una cucina italiana sincera, generosa e solare. Pasta fresca, ingredienti scelti e il piacere di stare insieme.",
-    introEyebrow: "Benvenuti da Per Voi",
-    introTitle: "Una tavola italiana",
-    introAccent: "con un'anima tunisina.",
-    introCopy:
-      "Da Per Voi l'Italie si racconta senza mezzi termini: nella pasta fatta con pazienza, in una salsa che cuoce lentamente e in un calice condiviso. La nostra cucina nasce dai gesti italiani e dalla luce di Sousse.",
-    visitCta: "Vieni a trovarci",
-    welcome: "L'arte dell'accoglienza, semplicemente.",
-    gallery: "La galleria",
-    instagram: "Vedi Instagram",
-    galleryNote:
-      "Foto fornite da Per Voi · Adesivi rimossi e immagini pulite per la presentazione del sito.",
-    reviews: "Recensioni",
-    google: "su Google · 286 recensioni",
-    reviewSource:
-      "Recensioni verificate dei clienti su Google · Valutazione media 4,7/5.",
-    dayHours: "Martedì — domenica · 12:00 — 23:00",
-    closed: "Lunedì chiuso · prenotazione consigliata",
-    serviceNote:
-      "Le richieste vengono registrate e confermate dal team Per Voi.",
-    locationCopy:
-      "Per Voi ti accoglie a Sahloul, Sousse. Scopri una tavola pensata per i momenti belli.",
-    open: "A presto",
-    days: "Martedì — Domenica",
-    orderNote:
-      "Pagamento alla consegna o al ritiro. L'ordine viene confermato per telefono.",
-    quantity: "/ unità",
-    person: "persona",
-    people: "persone",
-    close: "Chiudi",
-    orderReceived: "Ordine ricevuto.",
-    orderReceivedCopy:
-      "Per Voi ti contatterà per confermare l'ordine e i tempi.",
-    backMenu: "Torna al menù",
-    requestSent:
-      "La richiesta è stata registrata. Il nostro team chiamerà il numero fornito per confermare il tavolo.",
-    anotherRequest: "Fai un'altra richiesta",
-  },
-  ar: {
-    heroTitle: "لا دولتشي فيتا",
-    heroTitleAccent: "على طاولتكم.",
-    heroCopy:
-      "مطبخ إيطالي صادق، غني ومشرق. معكرونة طازجة، مكونات مختارة ومتعة اللقاء.",
-    introEyebrow: "أهلاً بكم في بير فوي",
-    introTitle: "مائدة إيطالية",
-    introAccent: "بروح تونسية.",
-    introCopy:
-      "في بير فوي، تُروى إيطاليا ببساطة: في العجين المحضر بصبر، والصلصة المطهوة بهدوء، والكأس الذي نتشاركه. يستلهم مطبخنا الحركات الإيطالية وضوء سوسة.",
-    visitCta: "تفضلوا بزيارتنا",
-    welcome: "فن الضيافة ببساطة.",
-    gallery: "الصور",
-    instagram: "شاهد Instagram",
-    galleryNote:
-      "صور مقدمة من بير فوي · تمت إزالة الملصقات وتنظيف الصور لعرضها على الموقع.",
-    reviews: "التقييمات",
-    google: "على Google · 286 تقييماً",
-    reviewSource: "تقييمات موثقة من زبائننا على Google · متوسط التقييم 4.7/5.",
-    dayHours: "الثلاثاء — الأحد · 12:00 — 23:00",
-    closed: "الاثنين مغلق · ينصح بالحجز",
-    serviceNote: "يتم تسجيل الطلبات وتأكيدها من فريق بير فوي.",
-    locationCopy:
-      "يستقبلكم بير فوي في سهلول، سوسة. اكتشفوا مائدة صممت للحظات الجميلة.",
-    open: "إلى اللقاء",
-    days: "الثلاثاء — الأحد",
-    orderNote: "الدفع عند التوصيل أو الاستلام. يتم تأكيد الطلب عبر الهاتف.",
-    quantity: "/ الوحدة",
-    person: "شخص",
-    people: "أشخاص",
-    close: "إغلاق",
-    orderReceived: "تم استلام الطلب.",
-    orderReceivedCopy: "سيتصل بكم بير فوي لتأكيد الطلب والمدة.",
-    backMenu: "العودة إلى القائمة",
-    requestSent: "تم تسجيل طلبكم. سيتصل فريقنا بالرقم المقدم لتأكيد الطاولة.",
-    anotherRequest: "إرسال طلب آخر",
-  },
-};
-const galleryCopy: Record<
-  Language,
-  Array<{ title: string; caption: string }>
-> = {
-  fr: [
-    { title: "La salle", caption: "Lumière, arches & dolce vita" },
-    { title: "La pizza", caption: "Pâte levée, four & basilic" },
-    { title: "Les cocktails", caption: "Fraîcheur, agrumes & partage" },
-    { title: "La pasta", caption: "Des recettes généreuses" },
-    { title: "Les raviolis", caption: "Fait maison, avec amore" },
-    { title: "Les classiques", caption: "Le goût du vrai" },
-    { title: "Le dessert", caption: "La dernière touche" },
-    { title: "À partager", caption: "Une cuisine qui rassemble" },
-  ],
-  en: [
-    { title: "The room", caption: "Light, arches & dolce vita" },
-    { title: "The pizza", caption: "Risen dough, oven & basil" },
-    { title: "Cocktails", caption: "Freshness, citrus & sharing" },
-    { title: "The pasta", caption: "Generous recipes" },
-    { title: "The ravioli", caption: "Homemade, with amore" },
-    { title: "The classics", caption: "The taste of the real" },
-    { title: "Dessert", caption: "The final touch" },
-    { title: "To share", caption: "A cuisine that brings us together" },
-  ],
-  it: [
-    { title: "La sala", caption: "Luce, archi & dolce vita" },
-    { title: "La pizza", caption: "Impasto, forno & basilico" },
-    { title: "I cocktail", caption: "Freschezza, agrumi & condivisione" },
-    { title: "La pasta", caption: "Ricette generose" },
-    { title: "I ravioli", caption: "Fatti in casa, con amore" },
-    { title: "I classici", caption: "Il gusto autentico" },
-    { title: "Il dolce", caption: "Il tocco finale" },
-    { title: "Da condividere", caption: "Una cucina che unisce" },
-  ],
-  ar: [
-    { title: "القاعة", caption: "ضوء وأقواس ولا دولتشي فيتا" },
-    { title: "البيتزا", caption: "عجين مخمر وفرن وريحان" },
-    { title: "المشروبات", caption: "انتعاش وحمضيات ومشاركة" },
-    { title: "المعكرونة", caption: "وصفات غنية" },
-    { title: "الرافيولي", caption: "محضر في المطعم بحب" },
-    { title: "الأطباق الكلاسيكية", caption: "المذاق الأصيل" },
-    { title: "الحلوى", caption: "اللمسة الأخيرة" },
-    { title: "للمشاركة", caption: "مطبخ يجمعنا" },
-  ],
-};
-
-const customerReviewsByLang: Record<
-  Language,
-  Array<{ quote: string; author: string; detail: string }>
-> = {
-  fr: [
-    {
-      quote: "Restaurant très accueillant sympathique et délicieux.",
-      author: "Momo Farhat",
-      detail: "Avis Google · 5/5 · il y a 23 jours",
-    },
-    {
-      quote:
-        "Un restaurant moderne et un lieu de vie où cuisine d'exception, mocktails signatures, musique et atmosphère unique se rencontrent. Un endroit parfait pour savourer, se détendre et partager des moments inoubliables.",
-      author: "Omar Hajamor",
-      detail: "Avis Google · 5/5 · il y a 23 jours",
-    },
-    {
-      quote:
-        "Très bonne expérience, le service était excellent, à refaire absolument la prochaine fois.",
-      author: "Sabi F.",
-      detail: "Avis Google · 5/5 · il y a 23 jours",
-    },
-    {
-      quote:
-        "Très belle expérience au restaurant Per Voi ! Les pizzas sont magnifiques, très bonnes et préparées avec des produits de qualité. Les entrées étaient également excellentes. Le cadre est magnifique et le service très agréable !",
-      author: "A M",
-      detail: "Avis Google · 5/5 · il y a 23 jours",
-    },
-    {
-      quote:
-        "Honnêtement une ambiance européenne très agréable et chaleureuse !",
-      author: "Ahmed Zguem",
-      detail: "Avis Google · 5/5 · il y a 23 jours",
-    },
-    {
-      quote:
-        "Très bel endroit. Service agréable. Très bon service. Pizza très bonne.",
-      author: "Angélique Cossinet",
-      detail: "Avis Google · 5/5 · il y a 23 jours",
-    },
-    {
-      quote: "Très bon, restaurant joli, rien à redire.",
-      author: "Ymène Zouaghi",
-      detail: "Avis Google · 5/5 · il y a 25 jours",
-    },
-    {
-      quote:
-        "C'était vraiment excellent, très très bon ! L'accueil était super chaleureux, petite attention pour notre fille. On a passé un moment magique !",
-      author: "Ib Marie",
-      detail: "Avis Google · 5/5 · il y a 27 jours",
-    },
-  ],
-  en: [
-    {
-      quote: "Very welcoming, friendly and delicious restaurant.",
-      author: "Momo Farhat",
-      detail: "Google Review · 5/5 · 23 days ago",
-    },
-    {
-      quote:
-        "A modern restaurant & lifestyle spot where great food, signature mocktails, music, and a unique atmosphere come together. A place to eat, relax, connect, and enjoy unforgettable moments.",
-      author: "Omar Hajamor",
-      detail: "Google Review · 5/5 · 23 days ago",
-    },
-    {
-      quote:
-        "Great experience, the service was excellent, definitely returning next time.",
-      author: "Sabi F.",
-      detail: "Google Review · 5/5 · 23 days ago",
-    },
-    {
-      quote:
-        "Wonderful experience at Per Voi! The pizzas are gorgeous, delicious and made with prime quality ingredients. Starters were wonderful too. Stunning ambiance and attentive service!",
-      author: "A M",
-      detail: "Google Review · 5/5 · 23 days ago",
-    },
-    {
-      quote: "Honestly a very pleasant and warm European atmosphere!",
-      author: "Ahmed Zguem",
-      detail: "Google Review · 5/5 · 23 days ago",
-    },
-    {
-      quote:
-        "Very nice place. Friendly and prompt service. Pizzas were delicious.",
-      author: "Angélique Cossinet",
-      detail: "Google Review · 5/5 · 23 days ago",
-    },
-    {
-      quote: "Really tasty food, lovely interior design, flawless experience.",
-      author: "Ymène Zouaghi",
-      detail: "Google Review · 5/5 · 25 days ago",
-    },
-    {
-      quote:
-        "Everything was truly excellent and delicious! Very warm welcome, lovely gesture for our daughter. We had a memorable time!",
-      author: "Ib Marie",
-      detail: "Google Review · 5/5 · 27 days ago",
-    },
-  ],
-  it: [
-    {
-      quote: "Ristorante molto accogliente, simpatico e squisito.",
-      author: "Momo Farhat",
-      detail: "Recensione Google · 5/5 · 23 giorni fa",
-    },
-    {
-      quote:
-        "Un locale moderno dove si incontrano cucina raffinata, mocktail d'autore, musica e un'atmosfera unica. Il posto ideale per rilassarsi e condividere momenti indimenticabili.",
-      author: "Omar Hajamor",
-      detail: "Recensione Google · 5/5 · 23 giorni fa",
-    },
-    {
-      quote:
-        "Esperienza ottima, servizio eccellente, ci torneremo sicuramente la prossima volta.",
-      author: "Sabi F.",
-      detail: "Recensione Google · 5/5 · 23 giorni fa",
-    },
-    {
-      quote:
-        "Splendida esperienza al ristorante Per Voi! Le pizze sono stupende, buonissime e preparate con materie prime scelte. Antipasti deliziosi e servizio impeccabile!",
-      author: "A M",
-      detail: "Recensione Google · 5/5 · 23 giorni fa",
-    },
-    {
-      quote: "Un'atmosfera europea davvero piacevole e calorosa!",
-      author: "Ahmed Zguem",
-      detail: "Recensione Google · 5/5 · 23 giorni fa",
-    },
-    {
-      quote:
-        "Posto incantevole. Servizio rapido e cortese. Pizza davvero squisita.",
-      author: "Angélique Cossinet",
-      detail: "Recensione Google · 5/5 · 23 giorni fa",
-    },
-    {
-      quote: "Cibo buonissimo, locale stupendo, nulla da ridire.",
-      author: "Ymène Zouaghi",
-      detail: "Recensione Google · 5/5 · 25 giorni fa",
-    },
-    {
-      quote:
-        "Cucina eccellente e gustosissima! Accoglienza calorosa con una dolce attenzione per nostra figlia. Abbiamo trascorso una serata meravigliosa!",
-      author: "Ib Marie",
-      detail: "Recensione Google · 5/5 · 27 giorni fa",
-    },
-  ],
-  ar: [
-    {
-      quote: "مطعم مضياف وودود للغاية، والأكل شهي ولذيذ جداً.",
-      author: "Momo Farhat",
-      detail: "تقييم Google · 5/5 · منذ 23 يوماً",
-    },
-    {
-      quote:
-        "مطعم عصري ومكان لقاء مميز يجمع بين الأطباق الراقية والمشروبات المبتكرة والموسيقى والأجواء الفريدة. المكان المثالي للاستمتاع بلحظات لا تُنسى.",
-      author: "Omar Hajamor",
-      detail: "تقييم Google · 5/5 · منذ 23 يوماً",
-    },
-    {
-      quote:
-        "تجربة ممتازة والخدمة كانت رائعة للغاية، سنعود بالتأكيد في المرة القادمة.",
-      author: "Sabi F.",
-      detail: "تقييم Google · 5/5 · منذ 23 يوماً",
-    },
-    {
-      quote:
-        "تجربة رائعة في مطعم بير فوي! البيتزا مذهلة ومعدة بمكونات عالية الجودة، والمقبلات لذيذة جداً والديكور فخم والخدمة في القمة!",
-      author: "A M",
-      detail: "تقييم Google · 5/5 · منذ 23 يوماً",
-    },
-    {
-      quote: "أجواء أوروبية راقية ودافئة ومريحة للغاية!",
-      author: "Ahmed Zguem",
-      detail: "تقييم Google · 5/5 · منذ 23 يوماً",
-    },
-    {
-      quote: "مكان جميل جداً، استقبال لطيف وخدمة ممتازة وبيتزا لذيذة وخفيفة.",
-      author: "Angélique Cossinet",
-      detail: "تقييم Google · 5/5 · منذ 23 يوماً",
-    },
-    {
-      quote: "أكل لذيذ جداً ومطعم أنيق ومرتب بدون أي ملاحظات.",
-      author: "Ymène Zouaghi",
-      detail: "تقييم Google · 5/5 · منذ 25 يوماً",
-    },
-    {
-      quote:
-        "الأطباق كانت استثنائية ولذيذة جداً! استقبال رائع ومعاملة لطيفة جداً لابنتنا. قضينا وقتاً ممتعاً للغاية!",
-      author: "Ib Marie",
-      detail: "تقييم Google · 5/5 · منذ 27 يوماً",
-    },
-  ],
-};
-
-const ownerGallery = [
-  {
-    src: "/photos/table-design.jpg",
-    alt: "Salle principale de Per Voi",
-    title: "La salle",
-    caption: "Lumière, arches & dolce vita",
-  },
-  {
-    src: "/photos/pizza-part.jpg",
-    alt: "Pizza de Per Voi",
-    title: "La pizza",
-    caption: "Pâte levée, four & basilic",
-  },
-  {
-    src: "/photos/cocktails.jpg",
-    alt: "Cocktails frais de Per Voi",
-    title: "Les cocktails",
-    caption: "Fraîcheur, agrumes & partage",
-  },
-  {
-    src: "/photos/penne-boeuf.jpg",
-    alt: "Penne crémeuses de Per Voi",
-    title: "La pasta",
-    caption: "Des recettes généreuses",
-  },
-  {
-    src: "/photos/raviolis.jpg",
-    alt: "Raviolis maison de Per Voi",
-    title: "Les raviolis",
-    caption: "Fait maison, avec amore",
-  },
-  {
-    src: "/photos/pasta-fourchette.jpg",
-    alt: "Tagliatelles bolognaises de Per Voi",
-    title: "Les classiques",
-    caption: "Le goût du vrai",
-  },
-  {
-    src: "/photos/tiramisu.jpg",
-    alt: "Dessert au cacao de Per Voi",
-    title: "Le dessert",
-    caption: "La dernière touche",
-  },
-  {
-    src: "/photos/assiette-gourmande.jpg",
-    alt: "Assiette gourmande de Per Voi",
-    title: "À partager",
-    caption: "Une cuisine qui rassemble",
-  },
-];
-
-type LiveMenuItem = {
-  id: number;
-  category: string;
+// Featured Burgers for 3D stage
+interface FeaturedBurger {
+  id: string;
   name: string;
-  description: string | null;
-  priceDt: number;
-  active: boolean;
-  sortOrder: number;
-};
+  subtitle: string;
+  price: number;
+  tag: string;
+  image: string;
+  description: string;
+  details: {
+    bun: string;
+    patty: string;
+    cheese: string;
+    sauce: string;
+    toppings: string;
+  };
+}
 
-const fallbackItems: LiveMenuItem[] = [
-  // Entrées
+const FEATURED_BURGERS: FeaturedBurger[] = [
   {
-    id: 1,
-    category: "Entrées",
-    name: "Burrata crémeuse",
-    description:
-      "Marmelade de tomates, pickles de gingembre, crème citronnée et basilic frais.",
-    priceDt: 27,
-    active: true,
-    sortOrder: 1,
+    id: "truffle-mushroom",
+    name: "Truffle Mushroom",
+    subtitle: "Notre Chef-d'œuvre Signature",
+    price: 29.5,
+    tag: "BEST SELLER #1",
+    image: "/burgers/truffle-mushroom.png",
+    description: "Double smash patty de bœuf pur jus, champignons de Paris sautés à la plancha, sauce truffe noire onctueuse, roquette fraîche et double cheddar fondant dans notre potato bun doré.",
+    details: {
+      bun: "Artisanal Potato Bun doré au beurre doux",
+      patty: "Double steak smash pur bœuf croustillant",
+      cheese: "Double American Cheese affiné fondant",
+      sauce: "Mayonnaise artisanale à la truffe noire",
+      toppings: "Champignons sautés minute & roquette croquante"
+    }
   },
   {
-    id: 2,
-    category: "Entrées",
-    name: "Carpaccio de Bœuf Truffé",
-    description:
-      "Fines tranches de filet de bœuf, copeaux de grana padano, roquette et huile de truffe.",
-    priceDt: 32,
-    active: true,
-    sortOrder: 2,
+    id: "og-smash",
+    name: "The OG Smash",
+    subtitle: "L'Authentique Classique Américain",
+    price: 22.7,
+    tag: "ORIGINAL RECIPE",
+    image: "/burgers/og-smash.png",
+    description: "L'essence même du smash : double steak écrasé ultra-fin avec croûte caramélisée, oignons fondants, double American cheese et notre mythique sauce secrète OG.",
+    details: {
+      bun: "Potato Bun New-Yorkais toasté à cœur",
+      patty: "Double smash patty croûte Maillard intense",
+      cheese: "Double American cheese fondu",
+      sauce: "Sauce secrète OG maison",
+      toppings: "Oignons caramélisés & pickles croquants"
+    }
   },
   {
-    id: 3,
-    category: "Entrées",
-    name: "Bruschetta Gourmande Saumon",
-    description:
-      "Pain de campagne grillé, saumon gravlax, ricotta aux herbes et câpres croquantes.",
-    priceDt: 24,
-    active: true,
-    sortOrder: 3,
+    id: "og-smash-oklahoma",
+    name: "OG Smash Oklahoma",
+    subtitle: "Oignons Caramélisés Dans La Viande",
+    price: 22.7,
+    tag: "TECHNIQUE OKLAHOMA",
+    image: "/burgers/og-smash-oklahoma.png",
+    description: "La légende de 1926 : de très fines lamelles d'oignons doux écrasées directement sur le bœuf brûlant, caramélisant ensemble à 240°C sous la presse d'acier.",
+    details: {
+      bun: "Potato Bun moelleux aérien toasté",
+      patty: "Double steak infusé aux oignons grillés",
+      cheese: "American cheese ultra fondant",
+      sauce: "Sauce signature OG relevée",
+      toppings: "Oignons fondants fusionnés au bœuf"
+    }
   },
   {
-    id: 4,
-    category: "Entrées",
-    name: "Salade Caprese Di Bufala",
-    description:
-      "Tomates savoureuses, mozzarella di bufala, réduction balsamique et basilic.",
-    priceDt: 26,
-    active: true,
-    sortOrder: 4,
+    id: "hot-smash",
+    name: "Hot Smash",
+    subtitle: "Pour Les Amateurs de Frissons",
+    price: 25.0,
+    tag: "SPICY LOVERS 🔥",
+    image: "/burgers/hot-smash.png",
+    description: "Double smash patty croustillant, piments jalapeños croquants marinés, notre sauce piquante aux piments fumés et oignons caramélisés.",
+    details: {
+      bun: "Potato Bun toasté au beurre",
+      patty: "Double steak smash pur bœuf",
+      cheese: "Double American cheese fondant",
+      sauce: "Hot Sauce maison aux piments fumés",
+      toppings: "Jalapeños marinés & oignons grillés"
+    }
   },
   {
-    id: 5,
-    category: "Entrées",
-    name: "Fritto Misto de la Mer",
-    description:
-      "Calamars, crevettes et seiches croustillants, mayonnaise citronnée maison.",
-    priceDt: 34,
-    active: true,
-    sortOrder: 5,
-  },
-
-  // Pâtes
-  {
-    id: 6,
-    category: "Pâtes",
-    name: "Rigatoni Effiloché de Bœuf",
-    description:
-      "Sauce tomates mijotée, tomates séchées, bœuf fondant et crème de parmesan.",
-    priceDt: 36,
-    active: true,
-    sortOrder: 6,
-  },
-  {
-    id: 7,
-    category: "Pâtes",
-    name: "Rigatoni Poivrons Fumés et Crevettes",
-    description:
-      "Crevettes sautées, crème de poivrons fumés, miel, noisettes et figues séchées.",
-    priceDt: 42,
-    active: true,
-    sortOrder: 7,
-  },
-  {
-    id: 8,
-    category: "Pâtes",
-    name: "Tagliatelles aux Fruits de Mer",
-    description:
-      "Crevettes, moules, seiches, bisque maison, tomates cerises et persil plat.",
-    priceDt: 46,
-    active: true,
-    sortOrder: 8,
-  },
-  {
-    id: 9,
-    category: "Pâtes",
-    name: "Raviolis Ricotta & Épinards",
-    description:
-      "Pâtes fraîches maison farcies, beurre de sauge parfumé et crème de parmesan.",
-    priceDt: 34,
-    active: true,
-    sortOrder: 9,
-  },
-  {
-    id: 10,
-    category: "Pâtes",
-    name: "Penne au Poulet et Champignons",
-    description:
-      "Émincé de poulet fermier, champignons de Paris, crème fraîche et parmesan.",
-    priceDt: 32,
-    active: true,
-    sortOrder: 10,
-  },
-  {
-    id: 11,
-    category: "Pâtes",
-    name: "Spaghetti Al Pomodoro & Burrata",
-    description:
-      "Sauce tomate napolitaine au basilic frais, couronnée d'une burrata entière.",
-    priceDt: 35,
-    active: true,
-    sortOrder: 11,
-  },
-  {
-    id: 12,
-    category: "Pâtes",
-    name: "Risotto aux Crevettes & Safran",
-    description:
-      "Riz carnaroli crémeux, bouillon de crustacés, crevettes fraîches et parmesan.",
-    priceDt: 44,
-    active: true,
-    sortOrder: 12,
-  },
-
-  // Pizzas
-  {
-    id: 13,
-    category: "Pizzas",
-    name: "La Margherita",
-    description:
-      "Sauce tomate italienne, mozzarella fior di latte, grana padano et basilic frais.",
-    priceDt: 22,
-    active: true,
-    sortOrder: 13,
-  },
-  {
-    id: 14,
-    category: "Pizzas",
-    name: "Quattro Formaggi",
-    description:
-      "Mozzarella, gorgonzola, grana padano, ricotta crémeuse et touche de miel.",
-    priceDt: 28,
-    active: true,
-    sortOrder: 14,
-  },
-  {
-    id: 15,
-    category: "Pizzas",
-    name: "Pizza Diavola",
-    description:
-      "Sauce tomate, mozzarella fior di latte, salami piquant italien et piments doux.",
-    priceDt: 29,
-    active: true,
-    sortOrder: 15,
-  },
-  {
-    id: 16,
-    category: "Pizzas",
-    name: "Pizza Per Voi Truffe",
-    description:
-      "Crème de truffe blanche, mozzarella, champignons sautés, parmesan et roquette.",
-    priceDt: 38,
-    active: true,
-    sortOrder: 16,
-  },
-  {
-    id: 17,
-    category: "Pizzas",
-    name: "Pizza Frutti di Mare",
-    description:
-      "Sauce tomate, mozzarella, fruits de mer frais de Sousse, ail confit et persil.",
-    priceDt: 39,
-    active: true,
-    sortOrder: 17,
-  },
-  {
-    id: 18,
-    category: "Pizzas",
-    name: "Pizza Végétarienne Grillée",
-    description:
-      "Courgettes, aubergines marinées, poivrons rôtis, mozzarella et origan.",
-    priceDt: 25,
-    active: true,
-    sortOrder: 18,
-  },
-
-  // Terre & mer
-  {
-    id: 19,
-    category: "Terre & mer",
-    name: "Filet de Bœuf au Poivre Vert",
-    description:
-      "Filet de bœuf tendre, sauce au poivre vert et crème, légumes sautés du jour.",
-    priceDt: 54,
-    active: true,
-    sortOrder: 19,
-  },
-  {
-    id: 20,
-    category: "Terre & mer",
-    name: "Daurade Royale Grillée",
-    description:
-      "Filet de daurade fraîche, écrasé de pommes de terre à l'huile d'olive et caviar d'aubergines.",
-    priceDt: 48,
-    active: true,
-    sortOrder: 20,
-  },
-  {
-    id: 21,
-    category: "Terre & mer",
-    name: "Escalope Milanaise Croustillante",
-    description:
-      "Escalope de veau panée dorée au beurre clarifié, servie avec spaghettis al pomodoro.",
-    priceDt: 38,
-    active: true,
-    sortOrder: 21,
-  },
-  {
-    id: 22,
-    category: "Terre & mer",
-    name: "Saumon Poêlé aux Agrumes",
-    description:
-      "Pavé de saumon croustillant, réduction d'agrumes, fenouil croquant et riz safrané.",
-    priceDt: 52,
-    active: true,
-    sortOrder: 22,
-  },
-
-  // Desserts
-  {
-    id: 23,
-    category: "Desserts",
-    name: "Tiramisu Classico",
-    description:
-      "Café espresso italien, mascarpone onctueux, biscuits savoiardi et pur cacao amer.",
-    priceDt: 23,
-    active: true,
-    sortOrder: 23,
-  },
-  {
-    id: 24,
-    category: "Desserts",
-    name: "Panna Cotta Vanille & Fruits Rouges",
-    description:
-      "Crème cuite à la vanille bourbon de Madagascar, coulis acidulé de framboises.",
-    priceDt: 18,
-    active: true,
-    sortOrder: 24,
-  },
-  {
-    id: 25,
-    category: "Desserts",
-    name: "Pizza Nutella & Pistaches",
-    description:
-      "Pâte fine et croustillante au four, Nutella fondant et éclats de pistaches grillées.",
-    priceDt: 24,
-    active: true,
-    sortOrder: 25,
-  },
-  {
-    id: 26,
-    category: "Desserts",
-    name: "Fondant au Chocolat Coeur Coulant",
-    description:
-      "Chocolat noir 70%, cœur coulant intense, servi avec glace vanille.",
-    priceDt: 22,
-    active: true,
-    sortOrder: 26,
-  },
-
-  // Boissons
-  {
-    id: 27,
-    category: "Boissons",
-    name: "Mocktail Signature Per Voi",
-    description:
-      "Jus d'agrumes frais de Tunisie, menthe pilée, purée de passion et eau pétillante.",
-    priceDt: 14,
-    active: true,
-    sortOrder: 27,
-  },
-  {
-    id: 28,
-    category: "Boissons",
-    name: "Mojito Frais Maison",
-    description:
-      "Citron vert pressé, feuilles de menthe fraîche, sucre de canne et soda.",
-    priceDt: 12,
-    active: true,
-    sortOrder: 28,
-  },
-  {
-    id: 29,
-    category: "Boissons",
-    name: "Limonade Artisanale Menthe",
-    description:
-      "Citrons frais pressés minute, sirop de menthe maison et glace pilée.",
-    priceDt: 10,
-    active: true,
-    sortOrder: 29,
-  },
-  {
-    id: 30,
-    category: "Boissons",
-    name: "Espresso Italien",
-    description: "Sélection de café italien torréfié artisanalement.",
-    priceDt: 5,
-    active: true,
-    sortOrder: 30,
-  },
-  {
-    id: 31,
-    category: "Boissons",
-    name: "Eau Minérale / Gazeuse 1L",
-    description: "Bouteille en verre servie bien fraîche.",
-    priceDt: 4,
-    active: true,
-    sortOrder: 31,
-  },
+    id: "og-chicken",
+    name: "OG Crispy Chicken",
+    subtitle: "Poulet Frit Ultra-Croustillant",
+    price: 17.5,
+    tag: "100% FILET FRAIS",
+    image: "/burgers/og-chicken.png",
+    description: "Généreux suprême de poulet mariné aux épices, pané minute pour un croustillant légendaire, salade coleslaw crémeuse et sauce OG.",
+    details: {
+      bun: "Potato Bun toasté crousti-moelleux",
+      patty: "Filet de poulet panure dorée croustillante",
+      cheese: "Sauce crémeuse signature",
+      sauce: "Sauce OG douce et relevée",
+      toppings: "Coleslaw frais préparé le matin"
+    }
+  }
 ];
+
+// Available customization extras
+interface CustomExtra {
+  id: string;
+  name: string;
+  price: number;
+}
+
+const AVAILABLE_EXTRAS: CustomExtra[] = [
+  { id: "patty", name: "Extra Smash Patty (Bœuf)", price: 6.0 },
+  { id: "bacon", name: "Bacon de Bœuf Croustillant", price: 5.0 },
+  { id: "pastrami", name: "Pastrami Bœuf Grillé", price: 5.0 },
+  { id: "cheddar", name: "Extra Tranche American Cheese", price: 3.0 },
+  { id: "smoked", name: "Fromage Fumé (Smoked Cheese)", price: 3.0 },
+  { id: "mushrooms", name: "Champignons Sautés Grillés", price: 3.0 },
+  { id: "truffle-mayo", name: "Sauce Truffle Mayo Extra", price: 3.0 },
+  { id: "hot-sauce", name: "Sauce Hot Spicy Extra", price: 3.5 },
+  { id: "jalapenos", name: "Piments Jalapeños Marinés", price: 2.5 },
+  { id: "og-sauce", name: "Sauce OG Signature Extra", price: 2.5 },
+  { id: "pickles", name: "Pickles Croquants Extra", price: 2.0 },
+];
+
+// Cart Item interface
+interface CartItem {
+  id: string; // unique item uuid
+  name: string;
+  category: string;
+  basePrice: number;
+  quantity: number;
+  image?: string;
+  pattiesCount?: number; // 1, 2 or 3
+  selectedExtras?: CustomExtra[];
+  totalPrice: number;
+}
 
 export default function Home() {
-  const [language, setLanguage] = useState<Language>(
-    () => (localStorage.getItem("per-voi-language") as Language) || "fr"
-  );
-  const t = translations[language];
-  const menuQuery = trpc.restaurant.menu.list.useQuery();
-  const menuItems =
-    (menuQuery.data as LiveMenuItem[] | undefined) ?? fallbackItems;
-  const categories = useMemo(
-    () => Array.from(new Set(menuItems.map(item => item.category))),
-    [menuItems]
-  );
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [category, setCategory] = useState("Pâtes");
-  const [submitted, setSubmitted] = useState(false);
-  const [reservationDate, setReservationDate] = useState("");
-  const [reservationTime, setReservationTime] = useState("");
-  const [orderOpen, setOrderOpen] = useState(false);
-  const [orderSubmitted, setOrderSubmitted] = useState(false);
-  const [cart, setCart] = useState<
-    Record<number, { item: LiveMenuItem; quantity: number }>
-  >({});
-  const [customerName, setCustomerName] = useState("");
-  const [phone, setPhone] = useState("");
-  const [orderType, setOrderType] = useState<"pickup" | "delivery">("pickup");
-  const [address, setAddress] = useState("");
-  const [orderNotes, setOrderNotes] = useState("");
-  const [reviewIndex, setReviewIndex] = useState(0);
+  // --- 3D INTERACTIVE HERO STATE ---
+  const [selectedBurgerIndex, setSelectedBurgerIndex] = useState(0);
+  const [isExploded, setIsExploded] = useState(false);
+  const [activePin, setActivePin] = useState<string | null>(null);
+  const [isAutoRotating, setIsAutoRotating] = useState(false);
 
-  const currentReviews = customerReviewsByLang[language];
+  // 3D Tilt Coordinates
+  const [tilt, setTilt] = useState({ x: 12, y: -16 });
+  const isDragging = useRef(false);
+  const lastMousePos = useRef({ x: 0, y: 0 });
+  const stageRef = useRef<HTMLDivElement>(null);
 
+  const activeBurger = FEATURED_BURGERS[selectedBurgerIndex];
+
+  // Mouse / Touch handlers for 3D rotation
+  const handlePointerDown = (e: React.PointerEvent) => {
+    isDragging.current = true;
+    lastMousePos.current = { x: e.clientX, y: e.clientY };
+    setIsAutoRotating(false);
+  };
+
+  const handlePointerMove = (e: React.PointerEvent) => {
+    if (!isDragging.current) return;
+    const deltaX = e.clientX - lastMousePos.current.x;
+    const deltaY = e.clientY - lastMousePos.current.y;
+    lastMousePos.current = { x: e.clientX, y: e.clientY };
+
+    setTilt(prev => ({
+      x: Math.max(-35, Math.min(45, prev.x - deltaY * 0.35)),
+      y: Math.max(-60, Math.min(60, prev.y + deltaX * 0.35)),
+    }));
+  };
+
+  const handlePointerUp = () => {
+    isDragging.current = false;
+  };
+
+  // Auto rotation effect when enabled
   useEffect(() => {
-    localStorage.setItem("per-voi-language", language);
-    document.documentElement.lang = language;
-    document.documentElement.dir = language === "ar" ? "rtl" : "ltr";
-    document.title =
-      language === "ar"
-        ? "بير فوي — مطعم إيطالي في سوسة"
-        : language === "en"
-          ? "Per Voi — Italian restaurant in Sousse"
-          : language === "it"
-            ? "Per Voi — Ristorante italiano a Sousse"
-            : "Per Voi — Restaurant italien à Sousse";
-  }, [language]);
+    if (!isAutoRotating) return;
+    const interval = setInterval(() => {
+      setTilt(prev => ({
+        ...prev,
+        y: (prev.y + 1) % 360,
+      }));
+    }, 30);
+    return () => clearInterval(interval);
+  }, [isAutoRotating]);
 
-  useEffect(() => {
-    const timer = window.setInterval(() => {
-      setReviewIndex(current => (current + 1) % currentReviews.length);
-    }, 5500);
-    return () => window.clearInterval(timer);
-  }, [currentReviews.length]);
+  // --- MENU DATA & SEARCH/FILTERS ---
+  const { data: menuItemsData, isLoading: isMenuLoading } = trpc.restaurant.menu.list.useQuery();
+  const [selectedCategory, setSelectedCategory] = useState("Tous");
+  const [searchQuery, setSearchQuery] = useState("");
 
-  const recordVisitMutation = trpc.restaurant.visits.record.useMutation();
-  useEffect(() => {
-    const hasVisited = sessionStorage.getItem("per-voi-session-visit");
-    if (!hasVisited) {
-      sessionStorage.setItem("per-voi-session-visit", "true");
-      recordVisitMutation.mutate();
-    }
-  }, []);
+  const categories = useMemo(() => {
+    if (!menuItemsData) return ["Tous", "Smash Burgers", "Crispy Chicken", "Chicken Tenders", "Frites & Sides", "Extras & Sauces", "Boissons"];
+    const unique = Array.from(new Set(menuItemsData.map(item => item.category)));
+    return ["Tous", ...unique];
+  }, [menuItemsData]);
 
-  const availabilityQuery = trpc.restaurant.availability.forDate.useQuery(
-    { serviceDate: reservationDate },
-    { enabled: reservationDate.length === 10 }
-  );
-  const reservationMutation = trpc.restaurant.reservations.create.useMutation({
-    onSuccess: () => {
-      setSubmitted(true);
-      toast.success(t.resToastSuccess, { description: t.resToastSuccessDesc });
-    },
-    onError: error =>
-      toast.error(t.resToastError, { description: error.message }),
-  });
-  const orderMutation = trpc.restaurant.orders.create.useMutation({
-    onSuccess: result => {
-      setOrderSubmitted(true);
-      setCart({});
-      toast.success(`${t.orderToastSuccess} #${result.id}`, {
-        description: t.orderToastSuccessDesc,
-      });
-    },
-    onError: error =>
-      toast.error(t.orderToastError, { description: error.message }),
-  });
+  const filteredMenuItems = useMemo(() => {
+    if (!menuItemsData) return [];
+    return menuItemsData.filter(item => {
+      const matchesCategory = selectedCategory === "Tous" || item.category === selectedCategory;
+      const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (item.description && item.description.toLowerCase().includes(searchQuery.toLowerCase()));
+      return matchesCategory && matchesSearch;
+    });
+  }, [menuItemsData, selectedCategory, searchQuery]);
 
-  const visibleItems = menuItems.filter(item => item.category === category);
-  const cartLines = Object.values(cart);
-  const cartCount = cartLines.reduce((sum, line) => sum + line.quantity, 0);
-  const cartTotal = cartLines.reduce(
-    (sum, line) => sum + line.item.priceDt * line.quantity,
-    0
-  );
-  const isMonday = useMemo(() => {
-    if (!reservationDate) return false;
-    const parts = reservationDate.split("-");
-    if (parts.length !== 3) return false;
-    const d = new Date(
-      Number(parts[0]),
-      Number(parts[1]) - 1,
-      Number(parts[2]),
-      12,
-      0,
-      0
+  // Helper to find image for menu item
+  const getItemImage = (name: string, category: string) => {
+    const lower = name.toLowerCase();
+    if (lower.includes("truffle") || lower.includes("truffe")) return "/burgers/truffle-mushroom.png";
+    if (lower.includes("oklahoma")) return "/burgers/og-smash-oklahoma.png";
+    if (lower.includes("hot smash")) return "/burgers/hot-smash.png";
+    if (lower.includes("og smash")) return "/burgers/og-smash.png";
+    if (lower.includes("og chicken")) return "/burgers/og-chicken.png";
+    if (lower.includes("classic chicken")) return "/burgers/classic-chicken.png";
+    if (lower.includes("hot chicken")) return "/burgers/hot-chicken.png";
+    if (lower.includes("tender")) return "/burgers/chicken-tenders.png";
+    if (lower.includes("frite") || lower.includes("fries")) return "/burgers/crinkle-fries.png";
+    return null;
+  };
+
+  // --- CART STATE ---
+  const [cart, setCart] = useState<CartItem[]>([]);
+  const [isCartOpen, setIsCartOpen] = useState(false);
+
+  // Customizer modal state
+  const [customizerItem, setCustomizerItem] = useState<{
+    name: string;
+    category: string;
+    basePrice: number;
+    image?: string;
+  } | null>(null);
+
+  const [customPatties, setCustomPatties] = useState(2); // 1 = simple, 2 = double, 3 = triple (+6 DT)
+  const [selectedExtras, setSelectedExtras] = useState<CustomExtra[]>([]);
+
+  const openCustomizer = (name: string, category: string, basePrice: number, image?: string) => {
+    setCustomizerItem({ name, category, basePrice, image });
+    setCustomPatties(category === "Smash Burgers" ? 2 : 1);
+    setSelectedExtras([]);
+  };
+
+  const handleToggleExtra = (extra: CustomExtra) => {
+    setSelectedExtras(prev =>
+      prev.some(e => e.id === extra.id)
+        ? prev.filter(e => e.id !== extra.id)
+        : [...prev, extra]
     );
-    return d.getDay() === 1;
-  }, [reservationDate]);
+  };
 
-  const availableTimes = useMemo(() => {
-    if (!reservationDate || isMonday) return [];
-    if (availabilityQuery.data && availabilityQuery.data.length > 0) {
-      return availabilityQuery.data.filter(slot => slot.status === "available");
+  const calculateCustomizerTotal = () => {
+    if (!customizerItem) return 0;
+    let total = customizerItem.basePrice;
+    if (customizerItem.category === "Smash Burgers") {
+      if (customPatties === 3) total += 6.0; // Triple patty
+      if (customPatties === 1) total -= 4.0; // Simple patty reduction
     }
-    const STANDARD_SLOTS = [
-      "12:00",
-      "12:30",
-      "13:00",
-      "13:30",
-      "14:00",
-      "14:30",
-      "15:00",
-      "19:00",
-      "19:30",
-      "20:00",
-      "20:30",
-      "21:00",
-      "21:30",
-      "22:00",
-      "22:30",
-    ];
-    return STANDARD_SLOTS.map(time => ({
-      serviceTime: time,
-      status: "available" as const,
-      remainingGuests: 30,
-    }));
-  }, [reservationDate, isMonday, availabilityQuery.data]);
-
-  const scrollTo = (id: string) => {
-    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
-    setMenuOpen(false);
-  };
-
-  const addToCart = (item: LiveMenuItem) => {
-    if (item.id < 0) return;
-    setCart(current => ({
-      ...current,
-      [item.id]: { item, quantity: (current[item.id]?.quantity ?? 0) + 1 },
-    }));
-    toast.success(`${translateMenuText(language, item.name)} ${t.addedToast}`, {
-      description: t.addedToastDesc,
+    selectedExtras.forEach(e => {
+      total += e.price;
     });
+    return Math.max(0, Math.round(total * 10) / 10);
   };
 
-  const changeQuantity = (id: number, delta: number) => {
-    setCart(current => {
-      const line = current[id];
-      if (!line) return current;
-      const quantity = line.quantity + delta;
-      if (quantity <= 0) {
-        const next = { ...current };
-        delete next[id];
-        return next;
+  const addCustomizedToCart = () => {
+    if (!customizerItem) return;
+    const unitPrice = calculateCustomizerTotal();
+    const newItem: CartItem = {
+      id: `${Date.now()}-${Math.random()}`,
+      name: customizerItem.name,
+      category: customizerItem.category,
+      basePrice: customizerItem.basePrice,
+      quantity: 1,
+      image: customizerItem.image,
+      pattiesCount: customizerItem.category === "Smash Burgers" ? customPatties : undefined,
+      selectedExtras: [...selectedExtras],
+      totalPrice: unitPrice,
+    };
+
+    setCart(prev => [...prev, newItem]);
+    setCustomizerItem(null);
+    setIsCartOpen(true);
+    toast.success(`${customizerItem.name} ajouté avec succès !`);
+  };
+
+  const addQuickItemToCart = (name: string, category: string, price: number, image?: string) => {
+    // If it's a burger, we can open customizer or add directly
+    const newItem: CartItem = {
+      id: `${Date.now()}-${Math.random()}`,
+      name,
+      category,
+      basePrice: price,
+      quantity: 1,
+      image,
+      totalPrice: price,
+    };
+    setCart(prev => [...prev, newItem]);
+    toast.success(`${name} ajouté au panier !`);
+  };
+
+  const updateCartQuantity = (id: string, delta: number) => {
+    setCart(prev =>
+      prev
+        .map(item => {
+          if (item.id === id) {
+            const newQty = item.quantity + delta;
+            return newQty > 0 ? { ...item, quantity: newQty } : null;
+          }
+          return item;
+        })
+        .filter(Boolean) as CartItem[]
+    );
+  };
+
+  const cartTotalDt = useMemo(() => {
+    const sum = cart.reduce((total, item) => total + item.totalPrice * item.quantity, 0);
+    return Math.round(sum * 10) / 10;
+  }, [cart]);
+
+  const cartItemCount = useMemo(() => {
+    return cart.reduce((count, item) => count + item.quantity, 0);
+  }, [cart]);
+
+  // --- CHECKOUT & ORDER STATE ---
+  const [orderType, setOrderType] = useState<"delivery" | "pickup">("delivery");
+  const [customerName, setCustomerName] = useState("");
+  const [customerPhone, setCustomerPhone] = useState("");
+  const [deliveryNeighborhood, setDeliveryNeighborhood] = useState("Sahloul");
+  const [deliveryAddress, setDeliveryAddress] = useState("");
+  const [orderNotes, setOrderNotes] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const createOrderMutation = trpc.restaurant.orders.create.useMutation();
+
+  const handleWhatsAppCheckout = () => {
+    if (cart.length === 0) {
+      toast.error("Votre panier est vide.");
+      return;
+    }
+    if (!customerName.trim() || !customerPhone.trim()) {
+      toast.error("Veuillez renseigner votre nom et votre numéro de téléphone.");
+      return;
+    }
+    if (orderType === "delivery" && !deliveryAddress.trim()) {
+      toast.error("Veuillez indiquer votre adresse de livraison.");
+      return;
+    }
+
+    // Build stylish WhatsApp message
+    let msg = `🍔 *NOUVELLE COMMANDE BEEF & BUNS SOUSSE*\n`;
+    msg += `━━━━━━━━━━━━━━━━━━━━━━\n`;
+    msg += `👤 *Client :* ${customerName.trim()}\n`;
+    msg += `📞 *Téléphone :* ${customerPhone.trim()}\n`;
+    msg += `📦 *Mode :* ${orderType === "delivery" ? `🛵 Livraison (${deliveryNeighborhood})` : "🛍️ À emporter (Takeout)"}\n`;
+    if (orderType === "delivery") {
+      msg += `📍 *Adresse :* ${deliveryAddress.trim()}, ${deliveryNeighborhood}, Sousse\n`;
+    }
+    if (orderNotes.trim()) {
+      msg += `📝 *Notes :* ${orderNotes.trim()}\n`;
+    }
+    msg += `━━━━━━━━━━━━━━━━━━━━━━\n`;
+    msg += `🛒 *ARTICLES COMMANDÉS :*\n\n`;
+
+    cart.forEach((item, idx) => {
+      msg += `${idx + 1}. *${item.quantity}x ${item.name}* (${item.totalPrice.toFixed(1)} DT/u)\n`;
+      if (item.pattiesCount) {
+        msg += `   └ Steak : ${item.pattiesCount === 3 ? "Triple (+6 DT)" : item.pattiesCount === 1 ? "Simple" : "Double (Standard)"}\n`;
       }
-      return { ...current, [id]: { ...line, quantity } };
+      if (item.selectedExtras && item.selectedExtras.length > 0) {
+        msg += `   └ Extras : ${item.selectedExtras.map(e => `${e.name} (+${e.price} DT)`).join(", ")}\n`;
+      }
     });
-  };
 
-  const handleReservation = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    reservationMutation.mutate({
-      name: String(data.get("name") ?? ""),
-      phone: String(data.get("phone") ?? ""),
-      email: String(data.get("email") ?? ""),
-      serviceDate: reservationDate,
-      serviceTime: reservationTime,
-      guests: Number(data.get("guests") ?? 0),
-      notes: String(data.get("notes") ?? ""),
-    });
-  };
+    msg += `━━━━━━━━━━━━━━━━━━━━━━\n`;
+    msg += `💰 *TOTAL À PAYER : ${cartTotalDt.toFixed(1)} DT*\n`;
+    msg += `━━━━━━━━━━━━━━━━━━━━━━\n`;
+    msg += `_Commande passée via le site web officiel Beef & Buns_`;
 
-  const handleOrder = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    if (customerName.trim().length < 2) {
-      toast.error("Veuillez entrer votre nom.");
-      return;
-    }
-    if (phone.trim().length < 6) {
-      toast.error("Veuillez entrer un numéro de téléphone valide.");
-      return;
-    }
-    if (orderType === "delivery" && address.trim().length < 2) {
-      toast.error("Veuillez entrer votre adresse de livraison.");
-      return;
-    }
+    const encoded = encodeURIComponent(msg);
+    const whatsappUrl = `https://wa.me/21628151503?text=${encoded}`;
 
-    orderMutation.mutate({
-      customerName,
-      phone,
-      orderType,
-      address: address || undefined,
-      notes: orderNotes || undefined,
-      items: cartLines.map(line => ({
-        menuItemId: line.item.id,
-        quantity: line.quantity,
-      })),
-    });
+    window.open(whatsappUrl, "_blank");
+    toast.success("Ouverture de WhatsApp avec votre commande prête à être envoyée !");
   };
 
   return (
-    <>
-      <main
-        className={`site-shell language-transition language-${language}`}
-        key={language}
-    >
-      <div className="topline">
-        <div className="container topline-inner">
-          <span>{t.locationCity}</span>
-          <span className="topline-center">{t.cuisine}</span>
-          <span className="rating-mini">
-            <Star size={13} fill="currentColor" /> 4,7 <em>{t.reviewsCount}</em>
-          </span>
-        </div>
+    <div className="min-h-screen bg-[#09090b] text-[#f4f4f5] selection:bg-[#ff3b30] selection:text-white">
+      {/* BACKGROUND ACCENTS */}
+      <div className="fixed inset-0 pointer-events-none z-0">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[450px] bg-gradient-to-b from-[#ff3b30]/15 via-[#f59e0b]/5 to-transparent blur-[120px]" />
+        <div className="absolute bottom-1/4 right-0 w-[500px] h-[500px] bg-[#ff3b30]/10 blur-[140px]" />
+        <div className="absolute top-1/2 left-0 w-[400px] h-[400px] bg-[#f59e0b]/5 blur-[120px]" />
+        <div className="absolute inset-0 bg-grid-pattern opacity-40" />
       </div>
-      <header className="nav-wrap">
-        <div className="container nav-inner">
-          <button
-            className="brand"
-            onClick={() => scrollTo("accueil")}
-            aria-label="Per Voi"
-          >
-            <span className="brand-mark">PV</span>
-            <span className="brand-wordmark">Per Voi</span>
-          </button>
-          <nav
-            className={menuOpen ? "main-nav is-open" : "main-nav"}
-            aria-label="Navigation"
-          >
-            <button onClick={() => scrollTo("histoire")}>{t.house}</button>
-            <button onClick={() => scrollTo("carte")}>{t.menu}</button>
-            <button onClick={() => scrollTo("galerie")}>{t.gallery}</button>
-            <button onClick={() => scrollTo("avis")}>{t.reviews}</button>
-            <button onClick={() => scrollTo("visiter")}>{t.find}</button>
-            <button
-              className="nav-mobile-cta"
-              onClick={() => scrollTo("reservation")}
-            >
-              {t.reserveTable}
-            </button>
-          </nav>
-          <div className="nav-actions">
-            <div className="language-switcher" aria-label="Choisir la langue">
-              {languages.map(code => (
-                <button
-                  key={code}
-                  type="button"
-                  className={language === code ? "active" : ""}
-                  onClick={() => setLanguage(code)}
-                  aria-label={languageLabels[code]}
-                  title={languageLabels[code]}
-                >
-                  {languageCodes[code]}
-                </button>
-              ))}
+
+      {/* TOP ANNOUNCEMENT BANNER */}
+      <div className="relative z-50 bg-[#ff3b30] text-white text-[12px] font-bold tracking-wider py-1.5 px-4 text-center flex items-center justify-center gap-3">
+        <span className="flex items-center gap-1.5 uppercase">
+          <Flame className="w-3.5 h-3.5 fill-white animate-pulse" />
+          Les véritables Smash Burgers artisanaux à Sousse
+        </span>
+        <span className="hidden sm:inline">•</span>
+        <span className="hidden sm:inline font-normal">Ouvert 7j/7 de 12h00 à 00h00</span>
+        <span className="hidden md:inline">•</span>
+        <a href="tel:28151503" className="hidden md:inline-flex items-center gap-1 underline underline-offset-2 hover:opacity-80">
+          <Phone className="w-3 h-3" /> 28 15 15 03
+        </a>
+      </div>
+
+      {/* NAVIGATION BAR */}
+      <header className="sticky top-0 z-40 backdrop-blur-md bg-[#09090b]/80 border-b border-white/[0.08]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+          {/* BRAND LOGO */}
+          <a href="#" className="flex items-center gap-3 group">
+            <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-[#ff3b30] to-[#f59e0b] p-0.5 shadow-lg shadow-[#ff3b30]/20 group-hover:scale-105 transition-transform">
+              <div className="w-full h-full bg-[#09090b] rounded-[10px] flex items-center justify-center">
+                <Flame className="w-6 h-6 text-[#ff3b30] fill-[#ff3b30] group-hover:text-[#f59e0b] transition-colors" />
+              </div>
             </div>
-            <button
-              className="icon-button mobile-trigger"
-              onClick={() => setMenuOpen(!menuOpen)}
-              aria-label={menuOpen ? siteCopy[language].close : t.menu}
+            <div>
+              <div className="font-display text-2xl tracking-wide flex items-center gap-1.5">
+                <span>BEEF</span>
+                <span className="text-[#ff3b30]">&</span>
+                <span>BUNS</span>
+              </div>
+              <p className="text-[10px] uppercase tracking-widest text-[#a1a1aa] font-semibold -mt-1">
+                Sousse • Smash Burger
+              </p>
+            </div>
+          </a>
+
+          {/* DESKTOP NAV LINKS */}
+          <nav className="hidden md:flex items-center gap-8 text-sm font-semibold text-[#a1a1aa]">
+            <a href="#experience-3d" className="hover:text-white transition-colors flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5 text-[#ff3b30]" /> L'Expérience 3D
+            </a>
+            <a href="#menu" className="hover:text-white transition-colors">
+              Le Menu
+            </a>
+            <a href="#science-smash" className="hover:text-white transition-colors">
+              Le Secret du Smash
+            </a>
+            <a href="#livraison" className="hover:text-white transition-colors">
+              Livraison & Contact
+            </a>
+          </nav>
+
+          {/* ACTIONS */}
+          <div className="flex items-center gap-3">
+            <a
+              href="tel:28151503"
+              className="hidden sm:inline-flex items-center gap-2 px-3.5 py-2 rounded-full border border-white/10 text-xs font-semibold hover:border-white/20 hover:bg-white/5 transition-all text-white"
             >
-              {menuOpen ? <X size={21} /> : <Menu size={21} />}
-            </button>
+              <Phone className="w-3.5 h-3.5 text-[#ff3b30]" />
+              <span>28 15 15 03</span>
+            </a>
+
             <button
-              className="button button-dark nav-cta"
-              onClick={() => scrollTo("reservation")}
+              onClick={() => setIsCartOpen(true)}
+              className="relative flex items-center gap-2.5 px-4 py-2.5 rounded-full bg-gradient-to-r from-[#ff3b30] to-[#e11d48] text-white font-bold text-xs tracking-wider uppercase shadow-lg shadow-[#ff3b30]/30 hover:scale-105 active:scale-95 transition-all cursor-pointer"
             >
-              {t.reserve} <ArrowRight size={16} />
+              <ShoppingBag className="w-4 h-4" />
+              <span className="hidden sm:inline">Panier</span>
+              {cartItemCount > 0 ? (
+                <span className="bg-white text-[#09090b] text-[11px] font-black px-2 py-0.5 rounded-full">
+                  {cartItemCount} • {cartTotalDt.toFixed(1)} DT
+                </span>
+              ) : (
+                <span className="bg-white/20 text-white text-[11px] px-1.5 py-0.5 rounded-full">0</span>
+              )}
             </button>
           </div>
         </div>
       </header>
 
-      <section className="hero" id="accueil">
-        <div className="hero-image" />
-        <div className="hero-overlay" />
-        <div className="container hero-content">
-          <div className="hero-kicker reveal">
-            <span className="kicker-line" /> {t.restaurant}
-          </div>
-          <h1 className="hero-title reveal delay-1">
-            {siteCopy[language].heroTitle},<br />
-            <i>{siteCopy[language].heroTitleAccent}</i>
-          </h1>
-          <p className="hero-copy reveal delay-2">
-            {siteCopy[language].heroCopy}
-          </p>
-          <div className="hero-actions reveal delay-3">
-            <button
-              className="button button-light"
-              onClick={() => scrollTo("carte")}
-            >
-              {t.discover} <ArrowRight size={16} />
-            </button>
-            <button
-              className="text-link text-link-light"
-              onClick={() => scrollTo("histoire")}
-            >
-              {t.story} <ArrowDown size={15} />
-            </button>
-          </div>
-        </div>
-        <div className="hero-side-note">
-          PER VOI <span>·</span> 01
-        </div>
-        <div className="hero-bottom container">
-          <span className="scroll-note">
-            <span className="scroll-dot" /> {t.scroll}
-          </span>
-          <span className="hero-price">
-            30 — 90 DT <em>{t.perPerson}</em>
-          </span>
-        </div>
-      </section>
-
-      <section className="intro-section section-padding" id="histoire">
-        <div className="container intro-grid">
-          <div className="section-eyebrow">
-            01 <span /> {t.house}
-          </div>
-          <div className="intro-statement">
-            <p className="eyebrow-label">{siteCopy[language].introEyebrow}</p>
-            <h2>
-              {siteCopy[language].introTitle}
-              <br />
-              <i>{siteCopy[language].introAccent}</i>
-            </h2>
-            <p className="intro-text">{siteCopy[language].introCopy}</p>
-            <button className="text-link" onClick={() => scrollTo("visiter")}>
-              {siteCopy[language].visitCta} <ArrowRight size={16} />
-            </button>
-          </div>
-          <div className="intro-image-frame">
-            <img src="/photos/salle-principale.jpg" alt="Salle de Per Voi" />
-            <span className="image-caption">{siteCopy[language].welcome}</span>
-          </div>
-        </div>
-      </section>
-
-      <section className="menu-section section-padding" id="carte">
-        <div className="container">
-          <div className="menu-heading">
-            <div>
-              <div className="section-eyebrow">
-                02 <span /> {t.completeMenu}
+      {/* HERO SECTION WITH 3D BURGER SHOWCASE */}
+      <section id="experience-3d" className="relative z-10 pt-8 pb-20 overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+            
+            {/* HERO LEFT COPY */}
+            <div className="lg:col-span-5 text-center lg:text-left">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#ff3b30]/10 border border-[#ff3b30]/30 text-[#ff3b30] text-xs font-black uppercase tracking-wider mb-5">
+                <Flame className="w-4 h-4 fill-[#ff3b30]" />
+                <span>Simple. Bold. Perfect.</span>
               </div>
-              <h2>{t.menuTitle}</h2>
-            </div>
-            <div className="menu-heading-note">{t.menuFor}</div>
-          </div>
-          <div className="menu-layout">
-            <div className="menu-list-wrap">
-              <div
-                className="category-tabs"
-                role="tablist"
-                aria-label="Catégories"
-              >
-                {categories.map(item => (
-                  <button
-                    key={item}
-                    role="tab"
-                    aria-selected={category === item}
-                    className={category === item ? "active" : ""}
-                    onClick={() => setCategory(item)}
-                  >
-                    {translateMenuText(language, item)}
-                  </button>
-                ))}
+
+              <h1 className="font-display text-5xl sm:text-6xl lg:text-7xl leading-[0.95] tracking-tight uppercase mb-6">
+                Le Vrai <br />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#ff3b30] via-[#f59e0b] to-[#ff3b30]">
+                  Smash Burger
+                </span>{" "}
+                <br />
+                De Sousse.
+              </h1>
+
+              <p className="text-base sm:text-lg text-[#a1a1aa] leading-relaxed mb-8 max-w-xl mx-auto lg:mx-0">
+                Pur bœuf d'exception pressé ultra-fin sur plaque brûlante à 240°C pour une croûte croustillante caramélisée, servi dans notre fameux potato bun brioché ultra-moelleux.
+              </p>
+
+              {/* HERO CTA BUTTONS */}
+              <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 mb-10">
+                <a
+                  href="#menu"
+                  className="w-full sm:w-auto px-8 py-4 rounded-xl bg-gradient-to-r from-[#ff3b30] to-[#e11d48] text-white font-bold text-sm uppercase tracking-wider shadow-xl shadow-[#ff3b30]/30 hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2 text-center"
+                >
+                  <UtensilsCrossed className="w-4 h-4" />
+                  <span>Commander En Ligne</span>
+                </a>
+
+                <button
+                  onClick={() => setIsExploded(!isExploded)}
+                  className={`w-full sm:w-auto px-6 py-4 rounded-xl border text-sm font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer ${
+                    isExploded
+                      ? "bg-[#f59e0b] text-[#09090b] border-[#f59e0b] shadow-lg shadow-[#f59e0b]/30"
+                      : "bg-white/5 text-white border-white/15 hover:bg-white/10"
+                  }`}
+                >
+                  <Layers className="w-4 h-4" />
+                  <span>{isExploded ? "Fermer la vue éclatée" : "⚡ Vue Éclatée 3D"}</span>
+                </button>
               </div>
-              <div className="menu-items">
-                {visibleItems.map((item, index) => (
-                  <article className="menu-item" key={item.id}>
-                    <div className="menu-item-index">
-                      {String(index + 1).padStart(2, "0")}
-                    </div>
-                    <div className="menu-item-body">
-                      <h3>{translateMenuText(language, item.name)}</h3>
-                      <p>{translateMenuText(language, item.description)}</p>
-                    </div>
-                    <div className="menu-item-action">
-                      <span className="menu-item-price">{item.priceDt} DT</span>
-                      <button
-                        className="menu-add"
-                        onClick={() => addToCart(item)}
-                      >
-                        <Plus size={14} /> {t.add}
-                      </button>
-                    </div>
-                  </article>
-                ))}
+
+              {/* HIGHLIGHT STATS */}
+              <div className="grid grid-cols-3 gap-4 pt-6 border-t border-white/10 max-w-md mx-auto lg:mx-0">
+                <div>
+                  <div className="font-display text-2xl sm:text-3xl text-white">240°C</div>
+                  <div className="text-[11px] text-[#a1a1aa] uppercase font-semibold">Croûte Maillard</div>
+                </div>
+                <div>
+                  <div className="font-display text-2xl sm:text-3xl text-[#f59e0b]">100%</div>
+                  <div className="text-[11px] text-[#a1a1aa] uppercase font-semibold">Pur Bœuf Frais</div>
+                </div>
+                <div>
+                  <div className="font-display text-2xl sm:text-3xl text-[#ff3b30]">7j / 7</div>
+                  <div className="text-[11px] text-[#a1a1aa] uppercase font-semibold">12h - 00h Sousse</div>
+                </div>
               </div>
             </div>
-          </div>
-        </div>
-      </section>
 
-      <section className="gallery-section section-padding" id="galerie">
-        <div className="container">
-          <div className="gallery-heading">
-            <div>
-              <div className="section-eyebrow">
-                02 bis <span /> {siteCopy[language].gallery}
-              </div>
-              <h2>{t.galleryTitle}</h2>
-            </div>
-            <a
-              className="text-link"
-              href="https://www.instagram.com/pervoi_restaurant/"
-              target="_blank"
-              rel="noreferrer"
-            >
-              {siteCopy[language].instagram} <Instagram size={16} />
-            </a>
-          </div>
-          <div className="gallery-grid">
-            {ownerGallery.map((photo, index) => (
-              <figure
-                className="gallery-card"
-                key={photo.src}
-              >
-                <img
-                  src={photo.src}
-                  alt={photo.alt}
-                  loading={index > 1 ? "lazy" : "eager"}
+            {/* HERO RIGHT: 3D INTERACTIVE BURGER VIEWER */}
+            <div className="lg:col-span-7 flex flex-col items-center">
+              {/* 3D STAGE CARD */}
+              <div className="relative w-full max-w-[540px] aspect-square rounded-3xl bg-gradient-to-b from-[#14141a]/90 to-[#0e0e12]/95 border border-white/10 p-6 flex flex-col items-center justify-center shadow-2xl overflow-hidden group">
+                
+                {/* AMBIENT RADIAL LIGHT */}
+                <div
+                  className="absolute inset-0 pointer-events-none transition-opacity duration-700"
+                  style={{
+                    background: isExploded
+                      ? "radial-gradient(circle at 50% 50%, rgba(245, 158, 11, 0.18) 0%, rgba(255, 59, 48, 0.08) 45%, transparent 70%)"
+                      : "radial-gradient(circle at 50% 50%, rgba(255, 59, 48, 0.22) 0%, rgba(245, 158, 11, 0.08) 40%, transparent 70%)",
+                  }}
                 />
-                <figcaption>
-                  <span>{String(index + 1).padStart(2, "0")}</span>
-                  <strong>{galleryCopy[language][index].title}</strong>
-                  <em>{galleryCopy[language][index].caption}</em>
-                </figcaption>
-              </figure>
+
+                {/* 3D BADGE & CONTROLS HEADER */}
+                <div className="absolute top-5 left-5 right-5 flex items-center justify-between z-30">
+                  <div className="flex items-center gap-2">
+                    <span className="flame-badge">
+                      <Sparkles className="w-3 h-3" /> 3D INTERACTIF
+                    </span>
+                    <span className="hidden sm:inline-flex text-[11px] text-[#a1a1aa] bg-black/40 px-2.5 py-1 rounded-full border border-white/5">
+                      Glissez pour pivoter à 360°
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => setIsAutoRotating(!isAutoRotating)}
+                      title="Rotation Automatique"
+                      className={`p-2 rounded-lg border text-xs transition-colors cursor-pointer ${
+                        isAutoRotating
+                          ? "bg-[#ff3b30] text-white border-[#ff3b30]"
+                          : "bg-black/40 text-[#a1a1aa] border-white/10 hover:text-white"
+                      }`}
+                    >
+                      <RotateCw className={`w-4 h-4 ${isAutoRotating ? "animate-spin" : ""}`} />
+                    </button>
+                    <button
+                      onClick={() => setTilt({ x: 12, y: -16 })}
+                      title="Réinitialiser l'angle"
+                      className="p-2 rounded-lg bg-black/40 text-[#a1a1aa] border border-white/10 hover:text-white text-xs cursor-pointer"
+                    >
+                      Reset
+                    </button>
+                  </div>
+                </div>
+
+                {/* 3D PERSPECTIVE CANVAS */}
+                <div
+                  ref={stageRef}
+                  onPointerDown={handlePointerDown}
+                  onPointerMove={handlePointerMove}
+                  onPointerUp={handlePointerUp}
+                  className="burger-3d-stage relative w-full h-[380px] flex items-center justify-center cursor-grab active:cursor-grabbing select-none"
+                >
+                  {/* Dynamic 3D Contact Shadow */}
+                  <div className={`burger-contact-shadow ${isExploded ? "exploded" : ""}`} />
+
+                  {/* 3D BURGER CONTAINER */}
+                  <div
+                    className="burger-3d-model relative w-[310px] h-[310px]"
+                    style={{
+                      transform: `rotateX(${tilt.x}deg) rotateY(${tilt.y}deg)`,
+                    }}
+                  >
+                    {/* EXPLODED LAYER VIEW (Separated Slices) */}
+                    {isExploded ? (
+                      <div className="exploded w-full h-full relative">
+                        {/* Layer 1: Top Bun */}
+                        <div className="burger-layer layer-top-bun">
+                          <img src="/burgers/layers/top-bun.png" alt="Potato Bun Top" />
+                          <div
+                            onClick={(e) => { e.stopPropagation(); setActivePin(activePin === "bun" ? null : "bun"); }}
+                            className="layer-annotation -top-6 -right-4"
+                          >
+                            <div className="hotspot-pin">1</div>
+                            <div className="hotspot-card text-left">
+                              <p className="text-[11px] font-bold text-[#f59e0b] uppercase">Brioche Potato Bun</p>
+                              <p className="text-[10px] text-zinc-300">Toastée au beurre fondu</p>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Layer 2: Toppings & Truffle Mayo */}
+                        <div className="burger-layer layer-toppings">
+                          <img src="/burgers/layers/toppings.png" alt="Toppings & Truffle Sauce" />
+                          <div
+                            onClick={(e) => { e.stopPropagation(); setActivePin(activePin === "toppings" ? null : "toppings"); }}
+                            className="layer-annotation top-2 -left-8"
+                          >
+                            <div className="hotspot-card text-right">
+                              <p className="text-[11px] font-bold text-[#ff3b30] uppercase">Sauce Truffe & Roquette</p>
+                              <p className="text-[10px] text-zinc-300">Champignons sautés minute</p>
+                            </div>
+                            <div className="hotspot-pin">2</div>
+                          </div>
+                        </div>
+
+                        {/* Layer 3: Smash Patty 1 + American Cheese */}
+                        <div className="burger-layer layer-patty1">
+                          <img src="/burgers/layers/cheese-patty1.png" alt="Smash Patty & Cheese" />
+                          <div
+                            onClick={(e) => { e.stopPropagation(); setActivePin(activePin === "patty1" ? null : "patty1"); }}
+                            className="layer-annotation top-8 -right-8"
+                          >
+                            <div className="hotspot-pin">3</div>
+                            <div className="hotspot-card text-left">
+                              <p className="text-[11px] font-bold text-[#f59e0b] uppercase">Double Cheese Fondu</p>
+                              <p className="text-[10px] text-zinc-300">American cheese fondant</p>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Layer 4: Smash Patty 2 */}
+                        <div className="burger-layer layer-patty2">
+                          <img src="/burgers/layers/patty2.png" alt="Smash Patty 2" />
+                          <div
+                            onClick={(e) => { e.stopPropagation(); setActivePin(activePin === "patty2" ? null : "patty2"); }}
+                            className="layer-annotation top-16 -left-8"
+                          >
+                            <div className="hotspot-card text-right">
+                              <p className="text-[11px] font-bold text-[#ff3b30] uppercase">Croûte Caramélisée</p>
+                              <p className="text-[10px] text-zinc-300">Réaction de Maillard 240°C</p>
+                            </div>
+                            <div className="hotspot-pin">4</div>
+                          </div>
+                        </div>
+
+                        {/* Layer 5: Bottom Bun */}
+                        <div className="burger-layer layer-bottom-bun">
+                          <img src="/burgers/layers/bottom-bun.png" alt="Potato Bun Bottom" />
+                          <div
+                            onClick={(e) => { e.stopPropagation(); setActivePin(activePin === "bottom" ? null : "bottom"); }}
+                            className="layer-annotation bottom-0 -right-6"
+                          >
+                            <div className="hotspot-pin">5</div>
+                            <div className="hotspot-card text-left">
+                              <p className="text-[11px] font-bold text-[#f59e0b] uppercase">Base Grille Protectrice</p>
+                              <p className="text-[10px] text-zinc-300">Scelle tous les jus précieux</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      /* SOLID 3D BURGER (Active Selected Burger) */
+                      <div className="w-full h-full relative flex items-center justify-center">
+                        <img
+                          src={activeBurger.image}
+                          alt={activeBurger.name}
+                          className="w-full h-full object-contain filter drop-shadow-[0_20px_35px_rgba(0,0,0,0.85)] pointer-events-none transition-all duration-500 scale-105"
+                        />
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* ACTIVE BURGER INFO & QUICK ACTION */}
+                <div className="w-full pt-4 border-t border-white/10 flex items-center justify-between z-20 mt-auto">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-black text-[#f59e0b] tracking-wider uppercase">
+                        {activeBurger.tag}
+                      </span>
+                    </div>
+                    <h3 className="font-display text-xl text-white tracking-wide">
+                      {activeBurger.name}
+                    </h3>
+                  </div>
+
+                  <div className="flex items-center gap-3">
+                    <span className="font-display text-2xl text-[#ff3b30]">
+                      {activeBurger.price.toFixed(1)} <span className="text-sm">DT</span>
+                    </span>
+                    <button
+                      onClick={() => openCustomizer(activeBurger.name, "Smash Burgers", activeBurger.price, activeBurger.image)}
+                      className="px-4 py-2 rounded-lg bg-[#ff3b30] hover:bg-[#e11d48] text-white font-bold text-xs uppercase tracking-wider transition-all shadow-md shadow-[#ff3b30]/30 cursor-pointer flex items-center gap-1.5"
+                    >
+                      <Sliders className="w-3.5 h-3.5" />
+                      <span>Personnaliser</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* BURGER SELECTOR SWITCHER */}
+              <div className="flex items-center gap-2 mt-6 overflow-x-auto max-w-full pb-2 px-2">
+                {FEATURED_BURGERS.map((burger, idx) => {
+                  const isActive = idx === selectedBurgerIndex;
+                  return (
+                    <button
+                      key={burger.id}
+                      onClick={() => {
+                        setSelectedBurgerIndex(idx);
+                        setIsExploded(false);
+                      }}
+                      className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer border ${
+                        isActive
+                          ? "bg-white/10 text-white border-[#ff3b30] shadow-md shadow-[#ff3b30]/20 scale-105"
+                          : "bg-white/5 text-[#a1a1aa] border-white/5 hover:text-white hover:bg-white/10"
+                      }`}
+                    >
+                      <img src={burger.image} alt={burger.name} className="w-6 h-6 object-contain" />
+                      <span>{burger.name}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      {/* THE SECRET OF THE SMASH (SCIENCE SECTION) */}
+      <section id="science-smash" className="py-20 bg-[#0e0e12] border-y border-white/[0.08] relative">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-2xl mx-auto mb-16">
+            <span className="flame-badge mb-3">
+              <Flame className="w-3 h-3" /> L'EXCELLENCE CULINAIRE
+            </span>
+            <h2 className="font-display text-4xl sm:text-5xl uppercase tracking-tight text-white mb-4">
+              L'Art Secret Du <span className="text-[#ff3b30]">Smash</span>
+            </h2>
+            <p className="text-[#a1a1aa] text-base leading-relaxed">
+              Pourquoi Beef & Buns surpasse les burgers traditionnels ? Une alchimie précise entre chaleur extrême, sélection de viande et maîtrise technique.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {/* CARD 1 */}
+            <div className="glass-panel p-6 rounded-2xl glass-panel-hover flex flex-col justify-between">
+              <div>
+                <div className="w-12 h-12 rounded-xl bg-[#ff3b30]/15 border border-[#ff3b30]/30 flex items-center justify-center text-[#ff3b30] mb-5">
+                  <Flame className="w-6 h-6" />
+                </div>
+                <h3 className="font-heading text-xl font-bold uppercase text-white mb-2">
+                  La Réaction de Maillard
+                </h3>
+                <p className="text-xs text-[#a1a1aa] leading-relaxed">
+                  Pressé avec force sur acier chauffé à 240°C, les acides aminés et sucres caramélisent en millisecondes pour créer cette croûte dentelée ultra-savoureuse inimitable.
+                </p>
+              </div>
+              <div className="mt-6 pt-4 border-t border-white/10 flex items-center justify-between text-[11px] font-bold text-[#ff3b30]">
+                <span>PLANCHA ACIER 240°C</span>
+                <Check className="w-4 h-4" />
+              </div>
+            </div>
+
+            {/* CARD 2 */}
+            <div className="glass-panel p-6 rounded-2xl glass-panel-hover flex flex-col justify-between">
+              <div>
+                <div className="w-12 h-12 rounded-xl bg-[#f59e0b]/15 border border-[#f59e0b]/30 flex items-center justify-center text-[#f59e0b] mb-5">
+                  <Sparkles className="w-6 h-6" />
+                </div>
+                <h3 className="font-heading text-xl font-bold uppercase text-white mb-2">
+                  Le Véritable Potato Bun
+                </h3>
+                <p className="text-xs text-[#a1a1aa] leading-relaxed">
+                  Inspiré des plus célèbres burger joints de New York. Un pain à base de pomme de terre d'une légèreté aérienne, beurré et toasté pour résister aux jus sans jamais s'imbiber.
+                </p>
+              </div>
+              <div className="mt-6 pt-4 border-t border-white/10 flex items-center justify-between text-[11px] font-bold text-[#f59e0b]">
+                <span>MOELLEUX INCOMPARABLE</span>
+                <Check className="w-4 h-4" />
+              </div>
+            </div>
+
+            {/* CARD 3 */}
+            <div className="glass-panel p-6 rounded-2xl glass-panel-hover flex flex-col justify-between">
+              <div>
+                <div className="w-12 h-12 rounded-xl bg-[#ff3b30]/15 border border-[#ff3b30]/30 flex items-center justify-center text-[#ff3b30] mb-5">
+                  <ShieldCheck className="w-6 h-6" />
+                </div>
+                <h3 className="font-heading text-xl font-bold uppercase text-white mb-2">
+                  100% Frais Jamais Surgelé
+                </h3>
+                <p className="text-xs text-[#a1a1aa] leading-relaxed">
+                  Sélection rigoureuse des meilleurs morceaux de bœuf avec le ratio parfait gras/maigre (80/20) pour une explosion de jutosité en bouche.
+                </p>
+              </div>
+              <div className="mt-6 pt-4 border-t border-white/10 flex items-center justify-between text-[11px] font-bold text-[#ff3b30]">
+                <span>HACHÉ SUR PLACE</span>
+                <Check className="w-4 h-4" />
+              </div>
+            </div>
+
+            {/* CARD 4 */}
+            <div className="glass-panel p-6 rounded-2xl glass-panel-hover flex flex-col justify-between">
+              <div>
+                <div className="w-12 h-12 rounded-xl bg-[#f59e0b]/15 border border-[#f59e0b]/30 flex items-center justify-center text-[#f59e0b] mb-5">
+                  <UtensilsCrossed className="w-6 h-6" />
+                </div>
+                <h3 className="font-heading text-xl font-bold uppercase text-white mb-2">
+                  Sauces Signatures Secrètes
+                </h3>
+                <p className="text-xs text-[#a1a1aa] leading-relaxed">
+                  De notre mayonnaise infusée à la véritable truffe noire d'Italie jusqu'à notre mythique sauce OG fumée et notre sauce hot épicée artisanale.
+                </p>
+              </div>
+              <div className="mt-6 pt-4 border-t border-white/10 flex items-center justify-between text-[11px] font-bold text-[#f59e0b]">
+                <span>RECETTES MAISON</span>
+                <Check className="w-4 h-4" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* FULL MENU SECTION */}
+      <section id="menu" className="py-20 relative z-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          
+          {/* MENU HEADER */}
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+            <div>
+              <span className="flame-badge mb-3">
+                <UtensilsCrossed className="w-3 h-3" /> LA CARTE OFFICIELLE
+              </span>
+              <h2 className="font-display text-4xl sm:text-5xl uppercase tracking-tight text-white">
+                Nos Créations <span className="text-[#ff3b30]">Gourmet</span>
+              </h2>
+              <p className="text-[#a1a1aa] text-sm mt-2">
+                Tous nos smash burgers sont servis en double steak 100% pur bœuf dans leur potato bun artisanal.
+              </p>
+            </div>
+
+            {/* SEARCH INPUT */}
+            <div className="relative w-full md:w-72">
+              <Search className="w-4 h-4 text-[#a1a1aa] absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <input
+                type="text"
+                placeholder="Rechercher un plat, sauce..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full bg-[#14141a] border border-white/10 rounded-xl pl-10 pr-4 py-2.5 text-xs text-white placeholder-[#71717a] focus:outline-none focus:border-[#ff3b30] transition-colors"
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery("")}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#a1a1aa] hover:text-white"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* CATEGORY TABS */}
+          <div className="flex items-center gap-2 overflow-x-auto pb-4 mb-10 no-scrollbar">
+            {categories.map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setSelectedCategory(cat)}
+                className={`category-pill ${selectedCategory === cat ? "active" : ""}`}
+              >
+                {cat}
+              </button>
             ))}
           </div>
-          <p className="gallery-note">{siteCopy[language].galleryNote}</p>
+
+          {/* MENU ITEMS GRID */}
+          {isMenuLoading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[1, 2, 3, 4, 5, 6].map((i) => (
+                <div key={i} className="h-64 rounded-2xl bg-[#14141a] animate-pulse border border-white/5" />
+              ))}
+            </div>
+          ) : filteredMenuItems.length === 0 ? (
+            <div className="text-center py-16 bg-[#14141a] rounded-2xl border border-white/10">
+              <UtensilsCrossed className="w-12 h-12 text-[#a1a1aa] mx-auto mb-3 opacity-40" />
+              <p className="text-lg font-bold text-white mb-1">Aucun article trouvé</p>
+              <p className="text-sm text-[#a1a1aa]">Essayez une autre recherche ou réinitialisez le filtre de catégorie.</p>
+              <button
+                onClick={() => { setSelectedCategory("Tous"); setSearchQuery(""); }}
+                className="mt-4 px-4 py-2 bg-white/10 hover:bg-white/15 rounded-lg text-xs font-semibold text-white transition-colors"
+              >
+                Afficher tout le menu
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredMenuItems.map((item) => {
+                const itemImg = getItemImage(item.name, item.category);
+                const isBurger = item.category === "Smash Burgers" || item.category === "Crispy Chicken";
+
+                return (
+                  <div
+                    key={item.id}
+                    className="glass-panel rounded-2xl p-5 flex flex-col justify-between glass-panel-hover group relative overflow-hidden"
+                  >
+                    {/* Top row with category / tag & price */}
+                    <div className="flex items-start justify-between gap-3 mb-3">
+                      <div>
+                        <span className="text-[10px] font-bold text-[#f59e0b] tracking-wider uppercase">
+                          {item.category}
+                        </span>
+                        <h3 className="font-heading text-2xl font-bold text-white group-hover:text-[#ff3b30] transition-colors leading-tight">
+                          {item.name}
+                        </h3>
+                      </div>
+                      <div className="text-right">
+                        <span className="font-display text-2xl text-[#ff3b30] tracking-wide whitespace-nowrap">
+                          {item.priceDt.toFixed(1)} <span className="text-xs">DT</span>
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Image if available */}
+                    {itemImg ? (
+                      <div className="w-full h-44 my-2 flex items-center justify-center relative">
+                        <div className="absolute inset-0 bg-radial from-[#ff3b30]/10 to-transparent blur-xl opacity-0 group-hover:opacity-100 transition-opacity" />
+                        <img
+                          src={itemImg}
+                          alt={item.name}
+                          className="max-h-full max-w-full object-contain filter drop-shadow-[0_10px_20px_rgba(0,0,0,0.7)] group-hover:scale-108 transition-transform duration-300 pointer-events-none"
+                        />
+                      </div>
+                    ) : (
+                      <div className="my-2" />
+                    )}
+
+                    {/* Description */}
+                    {item.description && (
+                      <p className="text-xs text-[#a1a1aa] leading-relaxed mb-5 line-clamp-3">
+                        {item.description}
+                      </p>
+                    )}
+
+                    {/* Action buttons */}
+                    <div className="pt-4 border-t border-white/[0.08] flex items-center gap-2 mt-auto">
+                      {isBurger ? (
+                        <>
+                          <button
+                            onClick={() => openCustomizer(item.name, item.category, item.priceDt, itemImg || undefined)}
+                            className="flex-1 py-2.5 px-3 rounded-xl bg-white/10 hover:bg-white/15 text-white text-xs font-bold uppercase tracking-wider transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+                          >
+                            <Sliders className="w-3.5 h-3.5 text-[#f59e0b]" />
+                            <span>Personnaliser</span>
+                          </button>
+                          <button
+                            onClick={() => addQuickItemToCart(item.name, item.category, item.priceDt, itemImg || undefined)}
+                            title="Ajouter direct au panier"
+                            className="p-2.5 rounded-xl bg-[#ff3b30] hover:bg-[#e11d48] text-white transition-all shadow-md shadow-[#ff3b30]/20 cursor-pointer"
+                          >
+                            <Plus className="w-4 h-4" />
+                          </button>
+                        </>
+                      ) : (
+                        <button
+                          onClick={() => addQuickItemToCart(item.name, item.category, item.priceDt, itemImg || undefined)}
+                          className="w-full py-2.5 px-3 rounded-xl bg-[#ff3b30] hover:bg-[#e11d48] text-white text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 shadow-md shadow-[#ff3b30]/20 cursor-pointer"
+                        >
+                          <Plus className="w-4 h-4" />
+                          <span>Ajouter au Panier</span>
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
         </div>
       </section>
 
-      <section className="quote-band" id="avis">
-        <div className="container reviews-container">
-          <div className="reviews-heading">
+      {/* DELIVERY & LOCATION SECTION */}
+      <section id="livraison" className="py-20 bg-[#0e0e12] border-t border-white/[0.08] relative">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            
+            {/* LEFT COPY */}
             <div>
-              <div className="section-eyebrow">
-                02 ter <span /> {siteCopy[language].reviews}
-              </div>
-              <h2>{t.reviewTitle}</h2>
-            </div>
-            <div className="quote-meta">
-              <div className="stars">
-                <Star size={15} fill="currentColor" />
-                <Star size={15} fill="currentColor" />
-                <Star size={15} fill="currentColor" />
-                <Star size={15} fill="currentColor" />
-                <Star size={15} fill="currentColor" />
-              </div>
-              <strong>4,7 / 5</strong>
-              <span>{siteCopy[language].google}</span>
-            </div>
-          </div>
-          <div className="review-carousel">
-            <div className="review-quote-mark">“</div>
-            <div
-              className="review-slide review-slide-enter"
-              key={`${language}-${reviewIndex}`}
-            >
-              <div className="review-stars">
-                <Star size={13} fill="currentColor" />
-                <Star size={13} fill="currentColor" />
-                <Star size={13} fill="currentColor" />
-                <Star size={13} fill="currentColor" />
-                <Star size={13} fill="currentColor" />
-              </div>
-              <blockquote>
-                {currentReviews[reviewIndex % currentReviews.length].quote}
-              </blockquote>
-              <div className="review-author">
-                <strong>
-                  {currentReviews[reviewIndex % currentReviews.length].author}
-                </strong>
-                <span>
-                  {currentReviews[reviewIndex % currentReviews.length].detail}
-                </span>
-              </div>
-            </div>
-            <div className="review-controls">
-              <button
-                onClick={() =>
-                  setReviewIndex(
-                    current =>
-                      (current - 1 + currentReviews.length) %
-                      currentReviews.length
-                  )
-                }
-                aria-label="Avis précédent"
-              >
-                <ChevronLeft size={18} />
-              </button>
-              <span>
-                {String((reviewIndex % currentReviews.length) + 1).padStart(
-                  2,
-                  "0"
-                )}{" "}
-                / {String(currentReviews.length).padStart(2, "0")}
+              <span className="flame-badge mb-3">
+                <Truck className="w-3 h-3" /> LIVRAISON & EMPORTER
               </span>
-              <button
-                onClick={() =>
-                  setReviewIndex(
-                    current => (current + 1) % currentReviews.length
-                  )
-                }
-                aria-label="Avis suivant"
-              >
-                <ChevronRight size={18} />
-              </button>
-            </div>
-          </div>
-          <p className="review-source">{siteCopy[language].reviewSource}</p>
-          <div className="review-actions">
-            <a
-              className="button button-light"
-              href={googleReviewLink}
-              target="_blank"
-              rel="noreferrer"
-            >
-              {t.leaveReview} <ArrowRight size={16} />
-            </a>
-            <span>{t.reviewHint}</span>
-          </div>
-        </div>
-      </section>
+              <h2 className="font-display text-4xl sm:text-5xl uppercase tracking-tight text-white mb-6">
+                Chaud & Croustillant <br />
+                <span className="text-[#ff3b30]">Chez Vous À Sousse</span>
+              </h2>
+              <p className="text-[#a1a1aa] text-base leading-relaxed mb-8">
+                Commandez directement en ligne ou par téléphone. Vos smash burgers sont préparés minute à la commande et emballés dans nos papiers thermiques spéciaux pour garder la croûte croustillante et le fromage fondant.
+              </p>
 
-      <section className="reservation-section section-padding" id="reservation">
-        <div className="container reservation-grid">
-          <div className="reservation-intro">
-            <div className="section-eyebrow">
-              03 <span /> {t.reserve}
-            </div>
-            <h2>{t.bookIntro}</h2>
-            <p>
-              {t.bookText} {siteCopy[language].serviceNote}
-            </p>
-            <div className="reservation-details">
-              <span>
-                <Clock3 size={17} /> {siteCopy[language].dayHours}
-              </span>
-              <span>
-                <CalendarDays size={17} /> {siteCopy[language].closed}
-              </span>
-            </div>
-          </div>
-          <div className="reservation-card">
-            {submitted ? (
-              <div className="submitted-state">
-                <div className="success-icon">
-                  <Check size={24} />
+              {/* DETAILS CARDS */}
+              <div className="space-y-4 mb-8">
+                <div className="flex items-start gap-4 p-4 rounded-xl bg-[#14141a] border border-white/10">
+                  <div className="p-2.5 rounded-lg bg-[#ff3b30]/15 text-[#ff3b30] mt-0.5">
+                    <MapPin className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-bold text-white uppercase">Zones de Livraison</h4>
+                    <p className="text-xs text-[#a1a1aa] mt-1">
+                      Sousse Ville, Sahloul (1, 2, 3, 4), Hammam Sousse, Port El Kantaoui, Khzema, Bouhsina, Taffala, Kalaa Sghira.
+                    </p>
+                  </div>
                 </div>
-                <h3>{t.thanks}</h3>
-                <p>{siteCopy[language].requestSent}</p>
+
+                <div className="flex items-start gap-4 p-4 rounded-xl bg-[#14141a] border border-white/10">
+                  <div className="p-2.5 rounded-lg bg-[#f59e0b]/15 text-[#f59e0b] mt-0.5">
+                    <Clock className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-bold text-white uppercase">Horaires d'Ouverture</h4>
+                    <p className="text-xs text-[#a1a1aa] mt-1">
+                      Ouvert 7 jours sur 7 en service continu : <strong className="text-white">12:00 — 00:00</strong>.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-4 p-4 rounded-xl bg-[#14141a] border border-white/10">
+                  <div className="p-2.5 rounded-lg bg-[#ff3b30]/15 text-[#ff3b30] mt-0.5">
+                    <Phone className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-bold text-white uppercase">Ligne Directe & WhatsApp</h4>
+                    <p className="text-xs text-[#a1a1aa] mt-1">
+                      Pour commander ou réserver : <a href="tel:28151503" className="text-[#ff3b30] font-bold underline">28 15 15 03</a>
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* ACTION BUTTONS */}
+              <div className="flex flex-wrap items-center gap-4">
                 <button
-                  className="text-link"
-                  onClick={() => setSubmitted(false)}
+                  onClick={() => setIsCartOpen(true)}
+                  className="px-6 py-3.5 rounded-xl bg-[#ff3b30] hover:bg-[#e11d48] text-white font-bold text-xs uppercase tracking-wider shadow-lg shadow-[#ff3b30]/30 transition-all flex items-center gap-2 cursor-pointer"
                 >
-                  {siteCopy[language].anotherRequest} <ArrowRight size={16} />
+                  <ShoppingBag className="w-4 h-4" />
+                  <span>Commander Maintenant</span>
                 </button>
-              </div>
-            ) : (
-              <form onSubmit={handleReservation}>
-                <div className="form-topline">
-                  <span>{formLabels[language].request}</span>
-                  <span>03 / 04</span>
-                </div>
-                <label>
-                  {formLabels[language].name}
-                  <input required name="name" placeholder={t.namePlaceholder} />
-                </label>
-                <div className="form-row">
-                  <label>
-                    {formLabels[language].date}
-                    <input
-                      required
-                      type="date"
-                      name="date"
-                      min={new Date().toISOString().slice(0, 10)}
-                      value={reservationDate}
-                      onChange={event => {
-                        setReservationDate(event.target.value);
-                        setReservationTime("");
-                      }}
-                    />
-                  </label>
-                  <label>
-                    {formLabels[language].time}
-                    <select
-                      required
-                      name="time"
-                      value={reservationTime}
-                      onChange={event => setReservationTime(event.target.value)}
-                    >
-                      <option value="">
-                        {isMonday
-                          ? t.closedMonday
-                          : !reservationDate
-                            ? formLabels[language].chooseDate
-                            : formLabels[language].chooseTime}
-                      </option>
-                      {availableTimes.map(slot => (
-                        <option key={slot.serviceTime} value={slot.serviceTime}>
-                          {slot.serviceTime}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-                </div>
-                <div className="form-row">
-                  <label>
-                    {formLabels[language].guests}
-                    <select required name="guests" defaultValue="">
-                      <option value="" disabled>
-                        {formLabels[language].chooseGuests}
-                      </option>
-                      {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(value => (
-                        <option key={value} value={value}>
-                          {value}{" "}
-                          {value > 1
-                            ? siteCopy[language].people
-                            : siteCopy[language].person}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-                  <label>
-                    {formLabels[language].phone}
-                    <input required name="phone" placeholder="26 982 284" />
-                  </label>
-                </div>
-                <label>
-                  {formLabels[language].email}
-                  <input
-                    type="email"
-                    name="email"
-                    placeholder={t.emailPlaceholder}
-                  />
-                </label>
-                <label>
-                  {formLabels[language].note}
-                  <input name="notes" placeholder={t.notePlaceholder} />
-                </label>
-                <button
-                  className="button button-dark button-wide"
-                  type="submit"
-                  disabled={reservationMutation.isPending}
-                >
-                  {reservationMutation.isPending
-                    ? t.sending
-                    : formLabels[language].send}{" "}
-                  <ArrowRight size={16} />
-                </button>
-                <p className="form-disclaimer">
-                  {formLabels[language].disclaimer}
-                </p>
-              </form>
-            )}
-          </div>
-        </div>
-      </section>
 
-      <section className="visit-section" id="visiter">
-        <div className="container visit-grid">
-          <div className="visit-copy">
-            <div className="section-eyebrow">
-              04 <span /> {t.find}
+                <a
+                  href="https://instagram.com/beef.and.buns.sousse"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="px-6 py-3.5 rounded-xl border border-white/15 bg-white/5 hover:bg-white/10 text-white font-bold text-xs uppercase tracking-wider transition-all flex items-center gap-2"
+                >
+                  <Instagram className="w-4 h-4 text-[#e1306c]" />
+                  <span>@beef.and.buns.sousse</span>
+                </a>
+              </div>
             </div>
-            <h2>{t.findUs}</h2>
-            <p>{siteCopy[language].locationCopy}</p>
-            <div className="visit-actions">
-              <a
-                className="button button-light"
-                href={mapLink}
-                target="_blank"
-                rel="noreferrer"
-              >
-                {t.maps} <MapPin size={16} />
-              </a>
-              <a className="text-link text-link-light" href={`tel:+${RESTAURANT_PHONE}`}>
-                {t.call} <Phone size={15} />
-              </a>
-            </div>
-          </div>
-          <div className="visit-card">
-            <div className="visit-card-top">
-              <span>Per Voi</span>
-              <span className="open-pill">
-                <span /> {siteCopy[language].open}
+
+            {/* RIGHT: RESTAURANT ADDRESS & MAP CARD */}
+            <div className="glass-panel p-8 rounded-3xl border border-white/10 text-center flex flex-col items-center">
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#ff3b30] to-[#f59e0b] p-0.5 shadow-xl shadow-[#ff3b30]/30 mb-6">
+                <div className="w-full h-full bg-[#09090b] rounded-[14px] flex items-center justify-center">
+                  <Store className="w-8 h-8 text-[#ff3b30]" />
+                </div>
+              </div>
+
+              <span className="text-xs font-black tracking-widest uppercase text-[#f59e0b] mb-2">
+                RESTAURANT BEEF & BUNS
               </span>
-            </div>
-            <div className="visit-address">
-              <MapPin size={20} />
-              <div>
-                <strong>{t.sahloulSousse}</strong>
-                <span>{RESTAURANT_PHONE_DISPLAY}</span>
+              <h3 className="font-display text-3xl uppercase text-white mb-2">
+                Avenue des Orangers
+              </h3>
+              <p className="text-sm text-[#a1a1aa] max-w-sm mb-6">
+                Avenue des Orangers, Sousse, Tunisie (près du rond-point / en face de l'école internationale).
+              </p>
+
+              <div className="w-full p-4 rounded-2xl bg-black/50 border border-white/5 mb-6 text-left">
+                <div className="flex items-center justify-between py-2 border-b border-white/5 text-xs">
+                  <span className="text-[#a1a1aa]">Lundi — Dimanche</span>
+                  <span className="font-bold text-white">12:00 — 00:00</span>
+                </div>
+                <div className="flex items-center justify-between py-2 border-b border-white/5 text-xs">
+                  <span className="text-[#a1a1aa]">Service</span>
+                  <span className="font-bold text-[#f59e0b]">Sur place • Emporter • Livraison</span>
+                </div>
+                <div className="flex items-center justify-between py-2 text-xs">
+                  <span className="text-[#a1a1aa]">Téléphone</span>
+                  <span className="font-bold text-[#ff3b30]">28 15 15 03</span>
+                </div>
               </div>
-            </div>
-            <div className="visit-hours">
-              <span>{siteCopy[language].days}</span>
-              <strong>12:00 — 23:00</strong>
-            </div>
-            <div className="visit-socials">
+
               <a
-                href="https://www.instagram.com/pervoi_restaurant/"
+                href="https://maps.google.com/?q=Beef+and+Buns+Sousse+Avenue+des+Orangers"
                 target="_blank"
                 rel="noreferrer"
-                aria-label="Instagram"
+                className="w-full py-3.5 rounded-xl border border-white/20 bg-white/5 hover:bg-white/10 text-white font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2"
               >
-                <Instagram size={18} />
-              </a>
-              <a
-                href={whatsappLink}
-                target="_blank"
-                rel="noreferrer"
-                aria-label="WhatsApp"
-              >
-                <MessageCircle size={18} />
+                <MapPin className="w-4 h-4 text-[#ff3b30]" />
+                <span>Ouvrir dans Google Maps</span>
               </a>
             </div>
+
           </div>
         </div>
       </section>
 
-      <footer className="footer">
-        <div className="container footer-inner">
-          <div className="footer-brand">
-            <span className="brand-mark">PV</span>
-            <span className="brand-wordmark">Per Voi</span>
+      {/* FOOTER */}
+      <footer className="bg-[#08080a] py-12 border-t border-white/[0.08] relative z-10 text-xs text-[#a1a1aa]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg bg-[#ff3b30] flex items-center justify-center text-white">
+              <Flame className="w-4 h-4 fill-white" />
+            </div>
+            <div>
+              <span className="font-display text-lg tracking-wider text-white">BEEF & BUNS</span>
+              <p className="text-[10px] text-[#71717a]">The Art of the Smash Burger • Sousse</p>
+            </div>
           </div>
-          <p>{t.cuisine}</p>
-          <div className="footer-links">
-            <span className="footer-copy">{t.copyright}</span>
+
+          <div className="flex items-center gap-6 font-semibold">
+            <a href="#experience-3d" className="hover:text-white transition-colors">3D Experience</a>
+            <a href="#menu" className="hover:text-white transition-colors">Menu</a>
+            <a href="#science-smash" className="hover:text-white transition-colors">Le Smash</a>
+            <a href="#livraison" className="hover:text-white transition-colors">Livraison</a>
+            <a href="tel:28151503" className="text-[#ff3b30] hover:underline">28 15 15 03</a>
+          </div>
+
+          <div>
+            <p>© {new Date().getFullYear()} Beef & Buns Sousse. Tous droits réservés.</p>
           </div>
         </div>
       </footer>
-      <a
-        className="whatsapp-float"
-        href={whatsappLink}
-        target="_blank"
-        rel="noreferrer"
-        aria-label="WhatsApp"
-      >
-        <MessageCircle size={23} />
-        <span>{t.whatsapp}</span>
-      </a>
-      {cartCount > 0 && (
-        <button className="cart-float" onClick={() => setOrderOpen(true)}>
-          <ShoppingBag size={18} />
-          <span>
-            {cartCount} {cartCount > 1 ? t.itemsWord : t.itemWord}
-          </span>
-          <strong>{cartTotal} DT</strong>
-        </button>
-      )}
-    </main>
-      {orderOpen && (
-        <div
-          className="order-overlay"
-          role="dialog"
-          aria-modal="true"
-          aria-label={formLabels[language].yourOrder}
-        >
-          <div className="order-panel">
-            <div className="order-panel-head">
+
+      {/* BURGER CUSTOMIZER MODAL */}
+      {customizerItem && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-modal">
+          <div className="relative w-full max-w-lg rounded-3xl bg-[#14141a] border border-white/15 p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
+            {/* CLOSE BUTTON */}
+            <button
+              onClick={() => setCustomizerItem(null)}
+              className="absolute top-5 right-5 p-2 rounded-full bg-white/5 hover:bg-white/10 text-[#a1a1aa] hover:text-white transition-colors cursor-pointer"
+            >
+              <X className="w-4 h-4" />
+            </button>
+
+            {/* MODAL HEADER */}
+            <div className="flex items-center gap-4 mb-6">
+              {customizerItem.image && (
+                <img
+                  src={customizerItem.image}
+                  alt={customizerItem.name}
+                  className="w-16 h-16 object-contain filter drop-shadow-md"
+                />
+              )}
               <div>
-                <span className="eyebrow-label">{t.takeawayHeader}</span>
-                <h2>{formLabels[language].yourOrder}</h2>
+                <span className="flame-badge mb-1">PERSONNALISATION</span>
+                <h3 className="font-display text-2xl uppercase text-white">
+                  {customizerItem.name}
+                </h3>
+                <p className="text-xs text-[#a1a1aa]">Prix de base : {customizerItem.basePrice.toFixed(1)} DT</p>
               </div>
+            </div>
+
+            {/* PATTIES SELECTION (FOR BURGERS) */}
+            {customizerItem.category === "Smash Burgers" && (
+              <div className="mb-6">
+                <label className="block text-xs font-bold uppercase tracking-wider text-white mb-2">
+                  Nombre de Steaks Smash (Pur Bœuf)
+                </label>
+                <div className="grid grid-cols-3 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setCustomPatties(1)}
+                    className={`py-3 px-2 rounded-xl border text-center text-xs font-bold transition-all cursor-pointer ${
+                      customPatties === 1
+                        ? "bg-[#ff3b30] text-white border-[#ff3b30]"
+                        : "bg-white/5 text-[#a1a1aa] border-white/10 hover:text-white"
+                    }`}
+                  >
+                    Simple (-4 DT)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setCustomPatties(2)}
+                    className={`py-3 px-2 rounded-xl border text-center text-xs font-bold transition-all cursor-pointer ${
+                      customPatties === 2
+                        ? "bg-[#ff3b30] text-white border-[#ff3b30]"
+                        : "bg-white/5 text-[#a1a1aa] border-white/10 hover:text-white"
+                    }`}
+                  >
+                    Double (Signature)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setCustomPatties(3)}
+                    className={`py-3 px-2 rounded-xl border text-center text-xs font-bold transition-all cursor-pointer ${
+                      customPatties === 3
+                        ? "bg-[#ff3b30] text-white border-[#ff3b30]"
+                        : "bg-white/5 text-[#a1a1aa] border-white/10 hover:text-white"
+                    }`}
+                  >
+                    Triple (+6 DT) 🔥
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* EXTRAS CHECKBOX LIST */}
+            <div className="mb-6">
+              <label className="block text-xs font-bold uppercase tracking-wider text-white mb-2">
+                Ajouter des Extras & Sauces Gourmets
+              </label>
+              <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
+                {AVAILABLE_EXTRAS.map((extra) => {
+                  const isChecked = selectedExtras.some(e => e.id === extra.id);
+                  return (
+                    <div
+                      key={extra.id}
+                      onClick={() => handleToggleExtra(extra)}
+                      className={`flex items-center justify-between p-3 rounded-xl border text-xs cursor-pointer transition-all ${
+                        isChecked
+                          ? "bg-[#ff3b30]/15 border-[#ff3b30] text-white font-semibold"
+                          : "bg-white/5 border-white/5 text-[#a1a1aa] hover:bg-white/10"
+                      }`}
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <div
+                          className={`w-4 h-4 rounded-md border flex items-center justify-center ${
+                            isChecked ? "bg-[#ff3b30] border-[#ff3b30]" : "border-white/20"
+                          }`}
+                        >
+                          {isChecked && <Check className="w-3 h-3 text-white" />}
+                        </div>
+                        <span>{extra.name}</span>
+                      </div>
+                      <span className="font-bold text-white">+{extra.price.toFixed(1)} DT</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* MODAL FOOTER */}
+            <div className="pt-4 border-t border-white/10 flex items-center justify-between">
+              <div>
+                <p className="text-[11px] text-[#a1a1aa] uppercase font-bold">Total Calculé</p>
+                <p className="font-display text-2xl text-[#ff3b30]">
+                  {calculateCustomizerTotal().toFixed(1)} <span className="text-sm">DT</span>
+                </p>
+              </div>
+
               <button
-                className="icon-button"
-                onClick={() => setOrderOpen(false)}
-                aria-label={siteCopy[language].close}
+                onClick={addCustomizedToCart}
+                className="px-6 py-3.5 rounded-xl bg-gradient-to-r from-[#ff3b30] to-[#e11d48] text-white font-bold text-xs uppercase tracking-wider shadow-lg shadow-[#ff3b30]/30 hover:scale-105 active:scale-95 transition-all flex items-center gap-2 cursor-pointer"
               >
-                <X />
+                <Plus className="w-4 h-4" />
+                <span>Ajouter au Panier</span>
               </button>
             </div>
-            {orderSubmitted ? (
-              <div className="submitted-state">
-                <div className="success-icon">
-                  <Check size={24} />
+          </div>
+        </div>
+      )}
+
+      {/* SHOPPING CART & CHECKOUT DRAWER */}
+      {isCartOpen && (
+        <div className="fixed inset-0 z-50 flex justify-end backdrop-blur-modal">
+          <div className="relative w-full max-w-md h-full bg-[#121216] border-l border-white/15 p-6 shadow-2xl flex flex-col justify-between overflow-y-auto">
+            {/* DRAWER HEADER */}
+            <div>
+              <div className="flex items-center justify-between pb-5 border-b border-white/10">
+                <div className="flex items-center gap-2">
+                  <ShoppingBag className="w-5 h-5 text-[#ff3b30]" />
+                  <h3 className="font-display text-2xl uppercase text-white">Mon Panier</h3>
+                  <span className="text-xs bg-white/10 text-white px-2 py-0.5 rounded-full font-bold">
+                    {cartItemCount}
+                  </span>
                 </div>
-                <h3>{siteCopy[language].orderReceived}</h3>
-                <p>{siteCopy[language].orderReceivedCopy}</p>
                 <button
-                  className="text-link"
-                  onClick={() => {
-                    setOrderSubmitted(false);
-                    setOrderOpen(false);
-                  }}
+                  onClick={() => setIsCartOpen(false)}
+                  className="p-2 rounded-full bg-white/5 hover:bg-white/10 text-[#a1a1aa] hover:text-white transition-colors cursor-pointer"
                 >
-                  {siteCopy[language].backMenu} <ArrowRight size={16} />
+                  <X className="w-4 h-4" />
                 </button>
               </div>
-            ) : (
-              <form onSubmit={handleOrder}>
-                <div className="order-lines">
-                  {cartLines.map(line => (
-                    <div className="order-line" key={line.item.id}>
-                      <div>
-                        <strong style={{ color: "black" }}>
-                          {translateMenuText(language, line.item.name)}
-                        </strong>
-                        <span style={{ color: "gray" }}>
-                          {line.item.priceDt} DT {t.unit}
-                        </span>
+
+              {/* CART ITEMS LIST */}
+              <div className="py-4 space-y-3 max-h-[38vh] overflow-y-auto pr-1">
+                {cart.length === 0 ? (
+                  <div className="text-center py-12 text-[#a1a1aa]">
+                    <ShoppingBag className="w-12 h-12 mx-auto mb-3 opacity-30 text-[#ff3b30]" />
+                    <p className="text-sm font-bold text-white">Votre panier est encore vide</p>
+                    <p className="text-xs mt-1">Sélectionnez vos burgers et sauces préférés pour commencer.</p>
+                  </div>
+                ) : (
+                  cart.map((item) => (
+                    <div
+                      key={item.id}
+                      className="p-3.5 rounded-xl bg-white/5 border border-white/5 flex items-start justify-between gap-3"
+                    >
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <h4 className="font-heading text-sm font-bold text-white">{item.name}</h4>
+                          {item.pattiesCount && item.pattiesCount > 1 && (
+                            <span className="text-[10px] text-[#f59e0b] font-bold">
+                              ({item.pattiesCount === 3 ? "Triple" : "Double"})
+                            </span>
+                          )}
+                        </div>
+
+                        {item.selectedExtras && item.selectedExtras.length > 0 && (
+                          <div className="text-[10px] text-[#a1a1aa] mt-1 space-y-0.5">
+                            {item.selectedExtras.map((e) => (
+                              <div key={e.id}>+ {e.name} ({e.price} DT)</div>
+                            ))}
+                          </div>
+                        )}
+
+                        <p className="font-bold text-[#ff3b30] text-xs mt-1.5">
+                          {(item.totalPrice * item.quantity).toFixed(1)} DT
+                        </p>
                       </div>
-                      <div className="quantity-control">
+
+                      {/* QUANTITY CONTROLS */}
+                      <div className="flex items-center gap-1.5 bg-black/40 rounded-lg p-1 border border-white/10">
                         <button
-                          type="button"
-                          onClick={() => changeQuantity(line.item.id, -1)}
-                          aria-label="Diminuer"
+                          onClick={() => updateCartQuantity(item.id, -1)}
+                          className="w-6 h-6 rounded flex items-center justify-center text-[#a1a1aa] hover:text-white hover:bg-white/10 transition-colors"
                         >
-                          <Minus size={13} color="black" />
+                          <Minus className="w-3 h-3" />
                         </button>
-                        <span style={{ color: "black" }}>{line.quantity}</span>
+                        <span className="w-5 text-center text-xs font-bold text-white">
+                          {item.quantity}
+                        </span>
                         <button
-                          type="button"
-                          onClick={() => changeQuantity(line.item.id, 1)}
-                          aria-label="Augmenter"
+                          onClick={() => updateCartQuantity(item.id, 1)}
+                          className="w-6 h-6 rounded flex items-center justify-center text-[#a1a1aa] hover:text-white hover:bg-white/10 transition-colors"
                         >
-                          <Plus size={13} color="black" />
+                          <Plus className="w-3 h-3" />
                         </button>
                       </div>
                     </div>
-                  ))}
+                  ))
+                )}
+              </div>
+            </div>
+
+            {/* CHECKOUT FORM & ACTIONS */}
+            {cart.length > 0 && (
+              <div className="pt-4 border-t border-white/10">
+                {/* MODE SELECTOR */}
+                <div className="grid grid-cols-2 gap-2 mb-4">
+                  <button
+                    type="button"
+                    onClick={() => setOrderType("delivery")}
+                    className={`py-2 px-3 rounded-xl border text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                      orderType === "delivery"
+                        ? "bg-[#ff3b30] text-white border-[#ff3b30]"
+                        : "bg-white/5 text-[#a1a1aa] border-white/10"
+                    }`}
+                  >
+                    <Truck className="w-3.5 h-3.5" />
+                    <span>Livraison</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setOrderType("pickup")}
+                    className={`py-2 px-3 rounded-xl border text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                      orderType === "pickup"
+                        ? "bg-[#ff3b30] text-white border-[#ff3b30]"
+                        : "bg-white/5 text-[#a1a1aa] border-white/10"
+                    }`}
+                  >
+                    <Store className="w-3.5 h-3.5" />
+                    <span>À Emporter</span>
+                  </button>
                 </div>
-                <div className="order-total">
-                  <span style={{ color: "black" }}>{formLabels[language].total}</span>
-                  <strong style={{ color: "black" }}>{cartTotal} DT</strong>
-                </div>
-                <label style={{ color: "black" }}>
-                  {formLabels[language].name}
+
+                {/* FORM INPUTS */}
+                <div className="space-y-2 mb-4 text-xs">
                   <input
+                    type="text"
+                    placeholder="Votre Nom & Prénom *"
                     value={customerName}
-                    onChange={event => setCustomerName(event.target.value)}
-                    placeholder={t.namePlaceholder}
+                    onChange={(e) => setCustomerName(e.target.value)}
+                    className="w-full bg-[#18181f] border border-white/10 rounded-xl px-3.5 py-2.5 text-white placeholder-[#71717a] focus:outline-none focus:border-[#ff3b30]"
                   />
-                </label>
-                <label style={{ color: "black" }}>
-                  {formLabels[language].phone}
                   <input
-                    value={phone}
-                    onChange={event => setPhone(event.target.value)}
-                    placeholder="26 982 284"
+                    type="tel"
+                    placeholder="Numéro de Téléphone (ex: 28 15 15 03) *"
+                    value={customerPhone}
+                    onChange={(e) => setCustomerPhone(e.target.value)}
+                    className="w-full bg-[#18181f] border border-white/10 rounded-xl px-3.5 py-2.5 text-white placeholder-[#71717a] focus:outline-none focus:border-[#ff3b30]"
                   />
-                </label>
-                <div className="form-row">
-                  <label style={{ color: "black" }}>
-                    {formLabels[language].order}
-                    <select
-                      value={orderType}
-                      onChange={event =>
-                        setOrderType(
-                          event.target.value as "pickup" | "delivery"
-                        )
-                      }
-                    >
-                      <option value="pickup">
-                        {formLabels[language].pickup}
-                      </option>
-                      <option value="delivery">
-                        {formLabels[language].delivery}
-                      </option>
-                    </select>
-                  </label>
-                  <label style={{ color: "black" }}>
-                    {formLabels[language].address}
-                    {orderType === "delivery" ? (
+
+                  {orderType === "delivery" && (
+                    <>
+                      <select
+                        value={deliveryNeighborhood}
+                        onChange={(e) => setDeliveryNeighborhood(e.target.value)}
+                        className="w-full bg-[#18181f] border border-white/10 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-[#ff3b30]"
+                      >
+                        <option value="Sahloul">Sahloul (1, 2, 3, 4)</option>
+                        <option value="Hammam Sousse">Hammam Sousse</option>
+                        <option value="Port El Kantaoui">Port El Kantaoui</option>
+                        <option value="Khzema Est / Ouest">Khzema Est / Ouest</option>
+                        <option value="Sousse Centre / Médina">Sousse Centre / Médina</option>
+                        <option value="Bouhsina">Bouhsina</option>
+                        <option value="Kalaa Sghira">Kalaa Sghira</option>
+                        <option value="Autre Zone Sousse">Autre Zone à Sousse</option>
+                      </select>
+
                       <input
-                        value={address}
-                        onChange={event => setAddress(event.target.value)}
-                        placeholder={t.addressPlaceholder}
+                        type="text"
+                        placeholder="Adresse précise (Rue, Résidence, Étage) *"
+                        value={deliveryAddress}
+                        onChange={(e) => setDeliveryAddress(e.target.value)}
+                        className="w-full bg-[#18181f] border border-white/10 rounded-xl px-3.5 py-2.5 text-white placeholder-[#71717a] focus:outline-none focus:border-[#ff3b30]"
                       />
-                    ) : (
-                      <input value={t.addressDefault} readOnly />
-                    )}
-                  </label>
-                </div>
-                <label style={{ color: "black" }}>
-                  {formLabels[language].note}
+                    </>
+                  )}
+
                   <input
+                    type="text"
+                    placeholder="Remarques éventuelles (sans oignons, sonnette...)"
                     value={orderNotes}
-                    onChange={event => setOrderNotes(event.target.value)}
-                    placeholder={t.kitchenNotePlaceholder}
+                    onChange={(e) => setOrderNotes(e.target.value)}
+                    className="w-full bg-[#18181f] border border-white/10 rounded-xl px-3.5 py-2.5 text-white placeholder-[#71717a] focus:outline-none focus:border-[#ff3b30]"
                   />
-                </label>
+                </div>
+
+                {/* TOTAL SUMMARY */}
+                <div className="flex items-center justify-between mb-4 pt-2 border-t border-white/10">
+                  <span className="text-xs font-bold text-[#a1a1aa] uppercase">Total Commande</span>
+                  <span className="font-display text-2xl text-[#ff3b30]">
+                    {cartTotalDt.toFixed(1)} DT
+                  </span>
+                </div>
+
+                {/* WHATSAPP 1-CLICK ORDER BUTTON */}
                 <button
-                  className="button button-dark button-wide"
-                  type="submit"
-                  disabled={orderMutation.isPending}
+                  onClick={handleWhatsAppCheckout}
+                  className="w-full py-4 rounded-xl bg-gradient-to-r from-[#25D366] to-[#128C7E] text-white font-bold text-xs uppercase tracking-wider shadow-lg shadow-[#25D366]/30 hover:scale-[1.02] active:scale-98 transition-all flex items-center justify-center gap-2 cursor-pointer"
                 >
-                  {orderMutation.isPending
-                    ? t.sending
-                    : formLabels[language].order}{" "}
-                  <ArrowRight size={16} />
+                  <Phone className="w-4 h-4 fill-white" />
+                  <span>Envoyer Commande via WhatsApp</span>
                 </button>
-                <p className="form-disclaimer" style={{ color: "gray" }}>
-                  Pour toute commande, nous vous rappellerons pour confirmer.
-                </p>
-              </form>
+              </div>
             )}
           </div>
         </div>
       )}
-    </>
+
+      {/* FLOATING ACTION CART TRIGGER (MOBILE & DESKTOP) */}
+      {cartItemCount > 0 && !isCartOpen && (
+        <button
+          onClick={() => setIsCartOpen(true)}
+          className="fixed bottom-6 right-6 z-40 flex items-center gap-3 px-5 py-3.5 rounded-full bg-gradient-to-r from-[#ff3b30] to-[#e11d48] text-white font-bold text-xs uppercase tracking-wider shadow-2xl shadow-[#ff3b30]/50 hover:scale-105 active:scale-95 transition-all cursor-pointer"
+        >
+          <ShoppingBag className="w-4 h-4" />
+          <span>Voir Panier ({cartItemCount})</span>
+          <span className="bg-white text-[#09090b] px-2 py-0.5 rounded-full text-[11px] font-black">
+            {cartTotalDt.toFixed(1)} DT
+          </span>
+        </button>
+      )}
+
+    </div>
   );
 }
