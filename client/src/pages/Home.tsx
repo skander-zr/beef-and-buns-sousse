@@ -239,62 +239,123 @@ export default function Home() {
   const [isExploded, setIsExploded] = useState(false);
   const [isAutoRotating, setIsAutoRotating] = useState(true); // Continuous 360 rotation is active by default
   const [activeLayerIndex, setActiveLayerIndex] = useState(1);
-  const [tilt, setTilt] = useState({ x: 8, y: -15 });
-  const [isDraggingTilt, setIsDraggingTilt] = useState(false);
 
   const isDragging = useRef(false);
-  const dragStartPos = useRef({ x: 0, y: 0 });
-  const dragDistance = useRef(0);
+  const lastPointerPos = useRef({ x: 0, y: 0 });
+  const pointerStartPos = useRef({ x: 0, y: 0 });
+  const currentTilt = useRef({ x: 8, y: -15 });
+  const modelRef = useRef<HTMLDivElement>(null);
+  const autoRotateRef = useRef(true);
+  const isExplodedRef = useRef(false);
   const resumeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   const activeBurger = ALL_7_BURGERS[selectedBurgerIndex];
 
-  // Mouse / Touch handlers for 3D rotation & click
+  // Keep refs in sync for the high-performance rAF loop
+  useEffect(() => {
+    autoRotateRef.current = isAutoRotating;
+  }, [isAutoRotating]);
+
+  useEffect(() => {
+    isExplodedRef.current = isExploded;
+  }, [isExploded]);
+
+  // Butter-smooth 60/120fps continuous 360 rotation loop directly on DOM (0 React re-renders)
+  useEffect(() => {
+    let animId: number;
+    let lastTime = performance.now();
+
+    const loop = (now: number) => {
+      const dt = Math.min((now - lastTime) / 1000, 0.1);
+      lastTime = now;
+
+      // Continuous 360 spin when auto-rotating and not actively dragging
+      if (autoRotateRef.current && !isDragging.current) {
+        if (!isExplodedRef.current) {
+          // Continuous 360 degree spin around Y axis
+          currentTilt.current.y = (currentTilt.current.y + dt * 28) % 360;
+        } else {
+          // Subtle gentle sway in exploded view so layers retain 3D depth
+          currentTilt.current.y = -10 + Math.sin(now * 0.001) * 12;
+        }
+      }
+
+      if (modelRef.current) {
+        modelRef.current.style.transform = `rotateX(${currentTilt.current.x}deg) rotateY(${currentTilt.current.y}deg)`;
+      }
+
+      animId = requestAnimationFrame(loop);
+    };
+
+    animId = requestAnimationFrame(loop);
+    return () => cancelAnimationFrame(animId);
+  }, []);
+
+  // Universal Touch & Mouse pointer handlers
   const handlePointerDown = (e: React.PointerEvent) => {
     isDragging.current = true;
-    dragStartPos.current = { x: e.clientX, y: e.clientY };
-    dragDistance.current = 0;
+    lastPointerPos.current = { x: e.clientX, y: e.clientY };
+    pointerStartPos.current = { x: e.clientX, y: e.clientY };
     if (resumeTimer.current) clearTimeout(resumeTimer.current);
+    try {
+      (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+    } catch (_) {}
   };
 
   const handlePointerMove = (e: React.PointerEvent) => {
     if (!isDragging.current) return;
-    const deltaX = e.clientX - dragStartPos.current.x;
-    const deltaY = e.clientY - dragStartPos.current.y;
-    dragDistance.current = Math.hypot(deltaX, deltaY);
+    const deltaX = e.clientX - lastPointerPos.current.x;
+    const deltaY = e.clientY - lastPointerPos.current.y;
+    lastPointerPos.current = { x: e.clientX, y: e.clientY };
 
-    if (dragDistance.current > 5) {
-      setIsDraggingTilt(true);
-      setTilt(prev => ({
-        x: Math.max(-30, Math.min(35, prev.x - (e.movementY || 0) * 0.4)),
-        y: prev.y + (e.movementX || 0) * 0.45
-      }));
+    // Update 3D tilt instantaneously
+    currentTilt.current.x = Math.max(-35, Math.min(45, currentTilt.current.x - deltaY * 0.4));
+    currentTilt.current.y = currentTilt.current.y + deltaX * 0.45;
+
+    if (modelRef.current) {
+      modelRef.current.style.transform = `rotateX(${currentTilt.current.x}deg) rotateY(${currentTilt.current.y}deg)`;
     }
   };
 
-  const handlePointerUp = () => {
+  const handlePointerUp = (e: React.PointerEvent) => {
+    if (!isDragging.current) return;
     isDragging.current = false;
-    // If minimal movement, it's an intentional tap/click to toggle 3D!
-    if (dragDistance.current <= 5) {
+    try {
+      (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
+    } catch (_) {}
+
+    // Calculate total movement distance
+    const dist = Math.hypot(e.clientX - pointerStartPos.current.x, e.clientY - pointerStartPos.current.y);
+    if (dist < 6) {
+      // Tap / click detected!
       toggleExploded();
     } else {
-      // If user manually rotated, wait 2.5s then resume smooth continuous 360 spin
+      // Drag detected: wait 2.5s then resume auto 360 spin
       if (resumeTimer.current) clearTimeout(resumeTimer.current);
       resumeTimer.current = setTimeout(() => {
-        setIsDraggingTilt(false);
+        setIsAutoRotating(true);
       }, 2500);
     }
   };
 
   const toggleExploded = () => {
-    setIsDraggingTilt(false);
-    if (isExploded) {
-      setIsExploded(false);
-      setIsAutoRotating(true);
-      setTilt({ x: 8, y: -15 });
-    } else {
-      setIsExploded(true);
-      setIsAutoRotating(false);
-      setTilt({ x: 12, y: -10 });
+    setIsExploded(prev => {
+      const next = !prev;
+      if (next) {
+        currentTilt.current = { x: 12, y: -10 };
+      } else {
+        currentTilt.current = { x: 8, y: -15 };
+        setIsAutoRotating(true);
+      }
+      return next;
+    });
+  };
+
+  const resetView = () => {
+    currentTilt.current = isExploded ? { x: 12, y: -10 } : { x: 8, y: -15 };
+    setIsAutoRotating(true);
+    if (modelRef.current) {
+      modelRef.current.style.transform = `rotateX(${currentTilt.current.x}deg) rotateY(${currentTilt.current.y}deg)`;
     }
   };
 
@@ -697,10 +758,9 @@ export default function Home() {
                     <button
                       onClick={() => {
                         if (isExploded) {
-                          setIsExploded(false);
+                          toggleExploded();
+                        } else {
                           setIsAutoRotating(true);
-                          setIsDraggingTilt(false);
-                          setTilt({ x: 8, y: -15 });
                         }
                       }}
                       className={`px-3 py-1.5 rounded-lg text-[11px] font-bold uppercase transition-all flex items-center gap-1.5 cursor-pointer ${
@@ -716,10 +776,7 @@ export default function Home() {
                     <button
                       onClick={() => {
                         if (!isExploded) {
-                          setIsExploded(true);
-                          setIsAutoRotating(false);
-                          setIsDraggingTilt(false);
-                          setTilt({ x: 12, y: -10 });
+                          toggleExploded();
                         }
                       }}
                       className={`px-3 py-1.5 rounded-lg text-[11px] font-bold uppercase transition-all flex items-center gap-1.5 cursor-pointer ${
@@ -746,10 +803,7 @@ export default function Home() {
                     )}
 
                     <button
-                      onClick={() => {
-                        setIsDraggingTilt(false);
-                        setTilt(isExploded ? { x: 12, y: -10 } : { x: 8, y: -15 });
-                      }}
+                      onClick={resetView}
                       title="Réinitialiser l'angle"
                       className="px-2 py-1 rounded-lg bg-black/40 text-[#a1a1aa] border border-white/10 hover:text-white text-[10px] uppercase font-semibold cursor-pointer"
                     >
@@ -758,11 +812,12 @@ export default function Home() {
                   </div>
                 </div>
 
-                {/* 3D PERSPECTIVE STAGE */}
+                {/* 3D PERSPECTIVE STAGE (TOUCH-ACTION NONE FOR FLAWLESS MOBILE ROTATION) */}
                 <div
                   onPointerDown={handlePointerDown}
                   onPointerMove={handlePointerMove}
                   onPointerUp={handlePointerUp}
+                  style={{ touchAction: "none" }}
                   className={`burger-3d-stage relative w-full flex items-center justify-center cursor-grab active:cursor-grabbing select-none transition-all duration-500 ${
                     isExploded ? "h-[390px] sm:h-[430px]" : "h-[320px] sm:h-[350px]"
                   }`}
@@ -770,18 +825,12 @@ export default function Home() {
                   {/* Dynamic Realistic Contact Shadow */}
                   <div className={`burger-contact-shadow ${isExploded ? "exploded" : ""}`} />
 
-                  {/* 3D BURGER MODEL CONTAINER */}
+                  {/* 3D BURGER MODEL CONTAINER (HIGH-PERFORMANCE DIRECT DOM TRANSFORM) */}
                   <div
+                    ref={modelRef}
                     className={`burger-3d-model relative w-[280px] sm:w-[320px] h-[280px] sm:h-[320px] flex items-center justify-center cursor-pointer ${
-                      isExploded
-                        ? "exploded"
-                        : (!isDraggingTilt && isAutoRotating ? "burger-spin-360" : "")
+                      isExploded ? "exploded" : ""
                     }`}
-                    style={{
-                      transform: isExploded || isDraggingTilt
-                        ? `rotateX(${tilt.x}deg) rotateY(${tilt.y}deg)`
-                        : undefined
-                    }}
                   >
                     {!isExploded ? (
                       /* MODE 1: CONTINUOUS 360 ROTATION OF THE ASSEMBLED BURGER */
@@ -994,7 +1043,7 @@ export default function Home() {
 
               </div>
 
-              {/* ALL 7 BURGERS SWITCHER SELECTOR (CLEAR 7-ITEM WRAPPED GRID - NO HIDDEN SCROLL) */}
+              {/* ALL 7 BURGERS SWITCHER SELECTOR (7-ITEM RESPONSIVE WRAPPED GRID) */}
               <div className="w-full max-w-[620px] mt-5">
                 <div className="flex items-center justify-between mb-3 px-1">
                   <span className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">

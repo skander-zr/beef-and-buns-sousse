@@ -135,7 +135,6 @@ button, a { -webkit-tap-highlight-color: transparent; }
 
 .burger-3d-model {
   transform-style: preserve-3d;
-  transition: transform 0.15s cubic-bezier(0.2, 0, 0, 1);
   will-change: transform;
 }
 
@@ -463,12 +462,4 @@ button, a { -webkit-tap-highlight-color: transparent; }
   }
 }
 
-.burger-spin-360 {
-  animation: bb-spin-360 14s linear infinite;
-  will-change: transform;
-}
 
-.burger-spin-360:hover,
-.burger-spin-360.paused {
-  animation-play-state: paused;
-}
