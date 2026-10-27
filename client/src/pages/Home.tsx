@@ -1256,34 +1256,103 @@ export default function Home() {
                         </div>
                       </div>
                     ) : (
-                      /* MODE 2: OFFICIAL 3D RESTAURANT PHOTO — PREMIUM INTERACTIVE DISPLAY */
+                      /* MODE 2: REAL BURGER WITH 3D INGREDIENT HOTSPOTS (1-5) */
                       <div
-                        onClick={toggleExploded}
-                        className="w-full h-full relative flex items-center justify-center group/exploded cursor-pointer"
-                        title="Cliquez pour revenir au 360°"
+                        className="w-full h-full relative flex items-center justify-center group/exploded select-none"
                       >
-                        {/* MAIN 3D PHOTO — OFFICIAL RESTAURANT RENDER */}
+                        {/* MAIN BURGER PHOTO — REAL HIGH-RES AUTHENTIC PHOTO (SAME AS 360°) */}
                         <img
-                          key={activeBurger.id + '-3d'}
-                          src={activeBurger.explodedImage}
-                          alt={activeBurger.name + ' — Vue 3D officielle'}
-                          className="w-full h-full object-contain transition-all duration-700 group-hover/exploded:scale-[1.04] animate-in fade-in zoom-in-95 duration-500"
+                          key={activeBurger.id + '-real-3d'}
+                          src={activeBurger.image}
+                          alt={activeBurger.name + ' — Vue 3D Réaliste'}
+                          className="w-full h-full object-contain transition-all duration-700 group-hover/exploded:scale-[1.04] animate-in fade-in zoom-in-95 duration-300 pointer-events-none"
                           style={{
-                            filter: 'drop-shadow(0 30px 60px rgba(0,0,0,0.95)) drop-shadow(0 0 30px rgba(255,59,48,0.15))',
-                            imageRendering: 'crisp-edges'
+                            filter: 'drop-shadow(0 25px 45px rgba(0,0,0,0.92)) drop-shadow(0 0 30px rgba(255,59,48,0.25))'
+                          }}
+                        />
+
+                        {/* SCANNING LASER / LAYER HIGHLIGHT INDICATOR */}
+                        <div
+                          className="absolute left-4 right-4 h-[2px] bg-gradient-to-r from-transparent via-[#ff3b30] to-transparent pointer-events-none transition-all duration-500 shadow-[0_0_15px_#ff3b30]"
+                          style={{
+                            top: ['18%', '34%', '50%', '66%', '82%'][activeLayerIndex] || '50%'
                           }}
                         />
 
                         {/* BURGER NAME BADGE */}
-                        <div className="absolute top-2 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-black/70 border border-[#ff3b30]/50 text-[10px] font-black text-[#ff3b30] uppercase tracking-widest backdrop-blur-md pointer-events-none whitespace-nowrap">
-                          ✦ {activeBurger.name} — Vue 3D Officielle
+                        <div className="absolute top-2 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-black/80 border border-[#ff3b30]/60 text-[10px] font-black text-[#ff3b30] uppercase tracking-widest backdrop-blur-md pointer-events-none whitespace-nowrap shadow-xl">
+                          ✦ {activeBurger.name} — Vue 3D Ingrédients
                         </div>
 
-                        {/* CLICK TO RETURN PILL */}
-                        <div className="absolute bottom-1 left-1/2 -translate-x-1/2 px-3.5 py-1 rounded-full bg-black/80 border border-white/20 text-[10px] text-zinc-300 flex items-center gap-1.5 shadow-xl backdrop-blur-md opacity-80 group-hover/exploded:opacity-100 group-hover/exploded:border-[#ff3b30]/40 transition-all pointer-events-none whitespace-nowrap">
+                        {/* 5 INTERACTIVE NUMBERED HOTSPOTS (1 À 5) OVERLAID ALONG THE BURGER */}
+                        {((activeBurger?.layers && activeBurger.layers.length > 0) ? activeBurger.layers : DEFAULT_BURGER_LAYERS).map((layer, idx) => {
+                          const isCurrent = idx === activeLayerIndex;
+                          const pinPositions = [
+                            { top: '15%', left: '8%', side: 'left' },
+                            { top: '31%', right: '8%', side: 'right' },
+                            { top: '47%', left: '8%', side: 'left' },
+                            { top: '63%', right: '8%', side: 'right' },
+                            { top: '79%', left: '8%', side: 'left' }
+                          ];
+                          const pin = pinPositions[idx] || { top: `${15 + idx * 16}%`, left: '8%', side: 'left' };
+
+                          return (
+                            <button
+                              key={layer.num}
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setActiveLayerIndex(idx);
+                              }}
+                              title={`Couche #${layer.num} : ${layer.name}`}
+                              className={`absolute flex items-center gap-1.5 transition-all duration-300 cursor-pointer z-20 ${
+                                isCurrent
+                                  ? "scale-110 z-30 opacity-100"
+                                  : "scale-95 opacity-85 hover:opacity-100 hover:scale-105"
+                              }`}
+                              style={{
+                                top: pin.top,
+                                ...(pin.side === 'left' ? { left: pin.left } : { right: pin.right }),
+                                flexDirection: pin.side === 'left' ? 'row' : 'row-reverse'
+                              }}
+                            >
+                              {/* Pulsing Number Pin */}
+                              <div
+                                className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-black transition-all shadow-xl ${
+                                  isCurrent
+                                    ? "bg-gradient-to-r from-[#ff3b30] to-[#e11d48] text-white ring-4 ring-[#ff3b30]/40 shadow-[0_0_15px_rgba(255,59,48,0.8)]"
+                                    : "bg-black/85 text-zinc-300 border border-white/20 hover:border-[#ff3b30] hover:text-white"
+                                }`}
+                              >
+                                #{layer.num}
+                              </div>
+
+                              {/* Layer Name Pill */}
+                              <span
+                                className={`px-2.5 py-1 rounded-lg text-[10px] font-bold backdrop-blur-md border transition-all whitespace-nowrap shadow-md ${
+                                  isCurrent
+                                    ? "bg-black/90 text-white border-[#ff3b30]/80 shadow-[0_0_10px_rgba(255,59,48,0.3)]"
+                                    : "bg-black/75 text-zinc-300 border-white/10 hover:text-white hidden sm:inline-block"
+                                }`}
+                              >
+                                {layer.label}
+                              </span>
+                            </button>
+                          );
+                        })}
+
+                        {/* SWITCH BACK TO 360 PILL */}
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            toggleExploded();
+                          }}
+                          className="absolute bottom-1 left-1/2 -translate-x-1/2 px-3.5 py-1 rounded-full bg-black/85 border border-white/20 hover:border-[#f59e0b] text-[10px] text-zinc-300 hover:text-white flex items-center gap-1.5 shadow-xl backdrop-blur-md transition-all cursor-pointer whitespace-nowrap"
+                        >
                           <RotateCw className="w-3 h-3 text-[#f59e0b]" />
-                          <span>Cliquez pour la rotation 360°</span>
-                        </div>
+                          <span>Revenir au mode 360°</span>
+                        </button>
                       </div>
                     )}
                   </div>
