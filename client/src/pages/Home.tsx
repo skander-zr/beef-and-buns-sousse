@@ -24,7 +24,9 @@ import {
   Truck,
   Store,
   CheckCircle2,
-  AlertCircle
+  AlertCircle,
+  ChevronLeft,
+  ChevronRight
 } from "lucide-react";
 
 // The 7 Official Burgers from the Drive Menu
