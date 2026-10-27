@@ -578,6 +578,16 @@ export const AVAILABLE_EXTRAS: CustomExtra[] = [
   { id: "pickles", name: "Pickles Croquants Extra", price: 2.0 }
 ];
 
+export const REMOVABLE_INGREDIENTS = [
+  "Sans Oignons",
+  "Sans Pickles (Cornichons)",
+  "Sans Sauce Signature / Mayo",
+  "Sans Fromage",
+  "Sans Piments Jalapeños",
+  "Sans Salade / Roquette",
+  "Sans Tomates"
+];
+
 export interface CartItem {
   id: string;
   name: string;
@@ -587,6 +597,7 @@ export interface CartItem {
   image?: string;
   pattiesCount?: number;
   selectedExtras?: CustomExtra[];
+  removedIngredients?: string[];
   totalPrice: number;
 }
 
@@ -743,13 +754,13 @@ export default function Home() {
     image?: string;
   } | null>(null);
 
-  const [customPatties, setCustomPatties] = useState(2); // 1 = simple, 2 = double, 3 = triple (+6 DT)
   const [selectedExtras, setSelectedExtras] = useState<CustomExtra[]>([]);
+  const [removedIngredients, setRemovedIngredients] = useState<string[]>([]);
 
   const openCustomizer = (name: string, category: string, basePrice: number, image?: string) => {
     setCustomizerItem({ name, category, basePrice, image });
-    setCustomPatties(category === "Smash Burgers" ? 2 : 1);
     setSelectedExtras([]);
+    setRemovedIngredients([]);
   };
 
   const handleToggleExtra = (extra: CustomExtra) => {
@@ -760,13 +771,15 @@ export default function Home() {
     );
   };
 
+  const handleToggleRemovedIngredient = (ing: string) => {
+    setRemovedIngredients(prev =>
+      prev.includes(ing) ? prev.filter(i => i !== ing) : [...prev, ing]
+    );
+  };
+
   const calculateCustomizerTotal = () => {
     if (!customizerItem) return 0;
     let total = customizerItem.basePrice;
-    if (customizerItem.category === "Smash Burgers") {
-      if (customPatties === 3) total += 6.0;
-      if (customPatties === 1) total -= 4.0;
-    }
     selectedExtras.forEach(e => {
       total += e.price;
     });
@@ -783,8 +796,8 @@ export default function Home() {
       basePrice: customizerItem.basePrice,
       quantity: 1,
       image: customizerItem.image,
-      pattiesCount: customizerItem.category === "Smash Burgers" ? customPatties : undefined,
       selectedExtras: [...selectedExtras],
+      removedIngredients: [...removedIngredients],
       totalPrice: unitPrice
     };
 
@@ -1243,23 +1256,56 @@ export default function Home() {
                         </div>
                       </div>
                     ) : (
-                      /* MODE 2: 4K ISOLATED 3D EXPLODED BURGER (DYNAMIC FOR THIS EXACT BURGER) */
+                      /* MODE 2: TRUE INTERACTIVE 3D EXPLODED VIEW WITH 5 FLOATING LAYERS SPECIFIC TO THIS BURGER */
                       <div
                         onClick={toggleExploded}
-                        className="w-full h-full relative flex items-center justify-center p-2 group/exploded cursor-pointer"
+                        className="exploded w-full h-full relative cursor-pointer"
                         title="Cliquez pour rassembler le burger en rotation 360°"
                       >
-                        <img
-                          key={activeBurger.id + '-3d-exploded'}
-                          src={activeBurger.explodedImage}
-                          alt={activeBurger.name + ' Vue 3D Éclatée'}
-                          className="max-h-[380px] sm:max-h-[420px] max-w-full object-contain filter drop-shadow-[0_25px_45px_rgba(0,0,0,0.95)] transition-all duration-300 group-hover/exploded:scale-105 pointer-events-none select-none"
-                        />
+                        {(activeBurger.layers || DEFAULT_BURGER_LAYERS).map((layer, idx) => {
+                          const layerClasses = [
+                            "layer-top-bun",
+                            "layer-toppings",
+                            "layer-patty1",
+                            "layer-patty2",
+                            "layer-bottom-bun"
+                          ];
+                          const layerClass = layerClasses[idx] || "layer-patty1";
+                          const isLayerActive = activeLayerIndex === idx;
+
+                          return (
+                            <div
+                              key={`${activeBurger.id}-layer-${idx}`}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setActiveLayerIndex(idx);
+                              }}
+                              className={`burger-layer ${layerClass} ${isLayerActive ? "active-layer" : ""}`}
+                            >
+                              <img
+                                src={layer.image}
+                                alt={layer.name}
+                                className="w-full h-full object-contain filter drop-shadow-[0_15px_25px_rgba(0,0,0,0.85)] pointer-events-none transition-all duration-300"
+                              />
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setActiveLayerIndex(idx);
+                                }}
+                                className={`layer-float-pin ${isLayerActive ? "active" : ""}`}
+                                title={`Couche ${layer.num} : ${layer.label}`}
+                              >
+                                {layer.num}
+                              </button>
+                            </div>
+                          );
+                        })}
 
                         {/* INSTRUCTION PILL */}
-                        <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 px-3.5 py-1 rounded-full bg-black/85 border border-[#ff3b30]/40 text-[10px] text-zinc-300 flex items-center gap-1.5 shadow-xl backdrop-blur-md opacity-90 group-hover/exploded:opacity-100 transition-all pointer-events-none whitespace-nowrap">
+                        <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 px-3.5 py-1 rounded-full bg-black/85 border border-[#ff3b30]/40 text-[10px] text-zinc-300 flex items-center gap-1.5 shadow-xl backdrop-blur-md opacity-90 group-hover:opacity-100 transition-all pointer-events-none whitespace-nowrap z-30">
                           <RotateCw className="w-3 h-3 text-[#f59e0b]" />
-                          <span>Cliquez pour la rotation 360°</span>
+                          <span>Cliquez pour rassembler en 360°</span>
                         </div>
                       </div>
                     )}
@@ -1847,48 +1893,43 @@ export default function Home() {
               </div>
             </div>
 
-            {customizerItem.category === "Smash Burgers" && (
-              <div className="mb-6">
-                <label className="block text-xs font-bold uppercase tracking-wider text-white mb-2">
-                  Nombre de Steaks Smash (Pur Bœuf)
-                </label>
-                <div className="grid grid-cols-3 gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setCustomPatties(1)}
-                    className={`py-3 px-2 rounded-xl border text-center text-xs font-bold transition-all cursor-pointer ${
-                      customPatties === 1
-                        ? "bg-[#ff3b30] text-white border-[#ff3b30]"
-                        : "bg-white/5 text-[#a1a1aa] border-white/10 hover:text-white"
-                    }`}
-                  >
-                    Simple (-4 DT)
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setCustomPatties(2)}
-                    className={`py-3 px-2 rounded-xl border text-center text-xs font-bold transition-all cursor-pointer ${
-                      customPatties === 2
-                        ? "bg-[#ff3b30] text-white border-[#ff3b30]"
-                        : "bg-white/5 text-[#a1a1aa] border-white/10 hover:text-white"
-                    }`}
-                  >
-                    Double (Signature)
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setCustomPatties(3)}
-                    className={`py-3 px-2 rounded-xl border text-center text-xs font-bold transition-all cursor-pointer ${
-                      customPatties === 3
-                        ? "bg-[#ff3b30] text-white border-[#ff3b30]"
-                        : "bg-white/5 text-[#a1a1aa] border-white/10 hover:text-white"
-                    }`}
-                  >
-                    Triple (+6 DT) 🔥
-                  </button>
-                </div>
+            {/* INGRÉDIENTS À RETIRER (OPTIONNEL - SANS FRAIS) */}
+            <div className="mb-6">
+              <label className="block text-xs font-bold uppercase tracking-wider text-white mb-1">
+                Ingrédients à retirer (Optionnel)
+              </label>
+              <p className="text-[11px] text-[#a1a1aa] mb-2.5">
+                Cochez pour préparer votre burger sur mesure sans certains ingrédients :
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-48 overflow-y-auto pr-1">
+                {REMOVABLE_INGREDIENTS.map((ing) => {
+                  const isRemoved = removedIngredients.includes(ing);
+                  return (
+                    <div
+                      key={ing}
+                      onClick={() => handleToggleRemovedIngredient(ing)}
+                      className={`flex items-center justify-between p-2.5 rounded-xl border text-xs cursor-pointer transition-all ${
+                        isRemoved
+                          ? "bg-red-500/20 border-red-500 text-white font-semibold"
+                          : "bg-white/5 border-white/5 text-[#a1a1aa] hover:bg-white/10"
+                      }`}
+                    >
+                      <div className="flex items-center gap-2">
+                        <div
+                          className={`w-4 h-4 rounded-md border flex items-center justify-center text-[10px] font-black ${
+                            isRemoved ? "bg-red-500 border-red-500 text-white" : "border-white/20"
+                          }`}
+                        >
+                          {isRemoved ? "✕" : ""}
+                        </div>
+                        <span className={isRemoved ? "line-through text-red-300" : ""}>{ing}</span>
+                      </div>
+                      <span className="text-[10px] uppercase font-bold text-zinc-400">0 DT</span>
+                    </div>
+                  );
+                })}
               </div>
-            )}
+            </div>
 
             <div className="mb-6">
               <label className="block text-xs font-bold uppercase tracking-wider text-white mb-2">
@@ -1989,6 +2030,11 @@ export default function Home() {
                           )}
                         </div>
 
+                        {item.removedIngredients && item.removedIngredients.length > 0 && (
+                          <div className="text-[10px] text-red-400 mt-1 font-medium">
+                            Sans : {item.removedIngredients.join(", ")}
+                          </div>
+                        )}
                         {item.selectedExtras && item.selectedExtras.length > 0 && (
                           <div className="text-[10px] text-[#a1a1aa] mt-1 space-y-0.5">
                             {item.selectedExtras.map((e) => (
