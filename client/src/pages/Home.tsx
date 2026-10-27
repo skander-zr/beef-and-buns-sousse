@@ -1256,56 +1256,33 @@ export default function Home() {
                         </div>
                       </div>
                     ) : (
-                      /* MODE 2: TRUE INTERACTIVE 3D EXPLODED VIEW WITH 5 FLOATING LAYERS SPECIFIC TO THIS BURGER */
+                      /* MODE 2: OFFICIAL 3D RESTAURANT PHOTO — PREMIUM INTERACTIVE DISPLAY */
                       <div
                         onClick={toggleExploded}
-                        className="exploded w-full h-full relative cursor-pointer"
-                        title="Cliquez pour rassembler le burger en rotation 360°"
+                        className="w-full h-full relative flex items-center justify-center group/exploded cursor-pointer"
+                        title="Cliquez pour revenir au 360°"
                       >
-                        {(activeBurger.layers || DEFAULT_BURGER_LAYERS).map((layer, idx) => {
-                          const layerClasses = [
-                            "layer-top-bun",
-                            "layer-toppings",
-                            "layer-patty1",
-                            "layer-patty2",
-                            "layer-bottom-bun"
-                          ];
-                          const layerClass = layerClasses[idx] || "layer-patty1";
-                          const isLayerActive = activeLayerIndex === idx;
+                        {/* MAIN 3D PHOTO — OFFICIAL RESTAURANT RENDER */}
+                        <img
+                          key={activeBurger.id + '-3d'}
+                          src={activeBurger.explodedImage}
+                          alt={activeBurger.name + ' — Vue 3D officielle'}
+                          className="w-full h-full object-contain transition-all duration-700 group-hover/exploded:scale-[1.04] animate-in fade-in zoom-in-95 duration-500"
+                          style={{
+                            filter: 'drop-shadow(0 30px 60px rgba(0,0,0,0.95)) drop-shadow(0 0 30px rgba(255,59,48,0.15))',
+                            imageRendering: 'crisp-edges'
+                          }}
+                        />
 
-                          return (
-                            <div
-                              key={`${activeBurger.id}-layer-${idx}`}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setActiveLayerIndex(idx);
-                              }}
-                              className={`burger-layer ${layerClass} ${isLayerActive ? "active-layer" : ""}`}
-                            >
-                              <img
-                                src={layer.image}
-                                alt={layer.name}
-                                className="w-full h-full object-contain filter drop-shadow-[0_15px_25px_rgba(0,0,0,0.85)] pointer-events-none transition-all duration-300"
-                              />
-                              <button
-                                type="button"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setActiveLayerIndex(idx);
-                                }}
-                                className={`layer-float-pin ${isLayerActive ? "active" : ""}`}
-                                title={`Couche ${layer.num} : ${layer.label}`}
-                              >
-                                {layer.num}
-                              </button>
-                            </div>
-                          );
-                        })}
+                        {/* BURGER NAME BADGE */}
+                        <div className="absolute top-2 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-black/70 border border-[#ff3b30]/50 text-[10px] font-black text-[#ff3b30] uppercase tracking-widest backdrop-blur-md pointer-events-none whitespace-nowrap">
+                          ✦ {activeBurger.name} — Vue 3D Officielle
+                        </div>
 
-                        {/* INSTRUCTION PILL */}
-                        <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 px-3.5 py-1 rounded-full bg-black/85 border border-[#ff3b30]/40 text-[10px] text-zinc-300 flex items-center gap-1.5 shadow-xl backdrop-blur-md opacity-90 group-hover:opacity-100 transition-all pointer-events-none whitespace-nowrap z-30">
+                        {/* CLICK TO RETURN PILL */}
+                        <div className="absolute bottom-1 left-1/2 -translate-x-1/2 px-3.5 py-1 rounded-full bg-black/80 border border-white/20 text-[10px] text-zinc-300 flex items-center gap-1.5 shadow-xl backdrop-blur-md opacity-80 group-hover/exploded:opacity-100 group-hover/exploded:border-[#ff3b30]/40 transition-all pointer-events-none whitespace-nowrap">
                           <RotateCw className="w-3 h-3 text-[#f59e0b]" />
-                          <span>Cliquez pour rassembler en 360°</span>
+                          <span>Cliquez pour la rotation 360°</span>
                         </div>
                       </div>
                     )}
