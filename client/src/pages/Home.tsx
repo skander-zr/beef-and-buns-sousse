@@ -36,43 +36,49 @@ export interface BurgerLayerInfo {
   name: string;
   description: string;
   tag: string;
+  image: string;
 }
 
 export const DEFAULT_BURGER_LAYERS: BurgerLayerInfo[] = [
   {
     num: 1,
     label: "Bun Supérieur",
-    name: "Brioche Potato Bun Doré",
-    description: "Bun artisanal new-yorkais aérien et toasté au beurre doux sur plaque chaude.",
-    tag: "PAIN ARTISANAL"
+    name: "Pain Brioché Doré (Dessus)",
+    description: "Pain artisanal brioché ultra-moelleux toasté au beurre doux à la plancha.",
+    tag: "PAIN ARTISANAL",
+    image: "/burgers/layers/top-bun.png"
   },
   {
     num: 2,
     label: "Garniture & Sauce",
     name: "Sauce Signature & Garniture Fraîche",
-    description: "Sauce maison secrète, pickles croquants et oignons caramélisés.",
-    tag: "SIGNATURE"
+    description: "Sauce secrète maison, pickles croquants et oignons caramélisés.",
+    tag: "SIGNATURE",
+    image: "/burgers/layers/toppings.png"
   },
   {
     num: 3,
-    label: "1er Steak",
-    name: "Steak Pur Bœuf Smashé & Cheddar",
+    label: "1er Steak Smash",
+    name: "Steak Pur Bœuf Smashé & American Cheese",
     description: "Viande bœuf écrasée minute à 240°C avec double fromage américain fondant.",
-    tag: "CROÛTE MAILLARD"
+    tag: "CROÛTE MAILLARD",
+    image: "/burgers/layers/cheese-patty1.png"
   },
   {
     num: 4,
-    label: "2ème Steak",
-    name: "Deuxième Palet Croûté",
-    description: "Deuxième steak croustillant caramélisé sous la presse d'acier brûlante.",
-    tag: "PUR JUS"
+    label: "2ème Steak Smash",
+    name: "Deuxième Steak Pur Bœuf Smashé",
+    description: "Deuxième steak bœuf croustillant caramélisé sous la presse d'acier brûlante.",
+    tag: "PUR JUS",
+    image: "/burgers/layers/patty2.png"
   },
   {
     num: 5,
     label: "Bun Inférieur",
-    name: "Base Briochée Toastée",
-    description: "Base moelleuse dorée maintenant le jus savoureux et la sauce.",
-    tag: "BASE"
+    name: "Pain Brioché Doré (Dessous)",
+    description: "Base briochée toastée retenant les sucs de cuisson et la sauce.",
+    tag: "BASE",
+    image: "/burgers/layers/bottom-bun.png"
   }
 ];
 
@@ -92,385 +98,412 @@ export interface BurgerItem {
     garniture: string;
   };
   layers: BurgerLayerInfo[];
-  explodedImage: string;
 }
 
 export const ALL_7_BURGERS: BurgerItem[] = [
   {
     id: "truffle-mushroom",
-    explodedImage: "/burgers/exploded/truffle-mushroom-3d.jpg",
     name: "Truffle Mushroom",
     category: "Smash Burgers",
     badge: "BEST SELLER #1",
     price: 29.5,
     image: "/burgers/truffle-mushroom.png",
-    description: "Double smash patty de bœuf pur jus, champignons de Paris sautés à la plancha, sauce truffe noire onctueuse, roquette fraîche et double cheddar fondant dans notre potato bun doré.",
+    description: "Double steak bœuf smashé, double fromage fumé, champignons sautés, oignons croustillants, roquette fraîche et mayonnaise à la truffe dans son pain brioché.",
     specs: {
-      bun: "Potato Bun Artisanal toasté au beurre doux",
-      patty: "Double steak smash pur bœuf croustillant",
-      cheese: "Double American Cheese affiné fondant",
-      sauce: "Mayonnaise artisanale à la truffe noire d'Italie",
-      garniture: "Champignons frais sautés à la plancha & roquette croquante"
+      bun: "Pain brioché artisanal toasté",
+      patty: "Double steak bœuf smashé minute",
+      cheese: "Double fromage fumé fondant",
+      sauce: "Mayonnaise artisanale à la truffe noire",
+      garniture: "Champignons sautés, roquette fraîche & oignons croustillants"
     },
     layers: [
       {
         num: 1,
         label: "Bun Supérieur",
-        name: "Brioche Potato Bun Doré",
-        description: "Bun artisanal new-yorkais aérien et toasté au beurre doux sur plaque chaude.",
-        tag: "PAIN ARTISANAL"
+        name: "Pain Brioché (Dessus)",
+        description: "Brioche dorée artisanale toastée au beurre doux.",
+        tag: "BRIOCHE BUN",
+        image: "/burgers/layers/top-bun.png"
       },
       {
         num: 2,
-        label: "Garniture & Sauce",
-        name: "Sauce Truffe Noire & Champignons Sautés",
-        description: "Sauce onctueuse à la truffe noire d'Italie, champignons de Paris frais sautés minute et roquette croquante.",
-        tag: "SIGNATURE TRUFFE"
+        label: "Sauce & Roquette",
+        name: "Truffle Mayo & Roquette Fraîche",
+        description: "Mayonnaise onctueuse à la truffe et feuilles de roquette fraîche poivrée.",
+        tag: "TRUFFLE & ROCKET",
+        image: "/burgers/layers/toppings.png"
       },
       {
         num: 3,
-        label: "1er Steak Smash",
-        name: "Smash Beef & Double American Cheese",
-        description: "Steak pur bœuf écrasé ultra-fin à 240°C avec double cheddar américain affiné fondant.",
-        tag: "CROÛTE MAILLARD"
+        label: "Champignons & Oignons",
+        name: "Champignons Sautés & Oignons Croustillants",
+        description: "Champignons de Paris sautés et oignons croustillants dorés.",
+        tag: "MUSHROOM & CRISPY ONION",
+        image: "/burgers/layers/hot-toppings.png"
       },
       {
         num: 4,
-        label: "2ème Steak Smash",
-        name: "Deuxième Smash Patty Pur Bœuf",
-        description: "Deuxième steak bœuf croustillant caramélisé sous la presse d'acier brûlante.",
-        tag: "100% PUR BŒUF"
+        label: "Steaks & Fromage",
+        name: "Double Steak Smash & Fromage Fumé",
+        description: "Double steak de bœuf smashé à 240°C avec double fromage fumé fondant.",
+        tag: "SMASHED BEEF & SMOKED CHEESE",
+        image: "/burgers/layers/cheese-patty1.png"
       },
       {
         num: 5,
         label: "Bun Inférieur",
-        name: "Base Briochée Toastée",
-        description: "Base moelleuse dorée absorbant les sucs de cuisson savoureux et la sauce truffe.",
-        tag: "BASE"
+        name: "Pain Brioché (Dessous) & Truffle Mayo",
+        description: "Base briochée toastée avec une généreuse touche de mayonnaise à la truffe.",
+        tag: "BASE & TRUFFLE",
+        image: "/burgers/layers/bottom-bun.png"
       }
     ]
   },
   {
     id: "og-smash",
-    explodedImage: "/burgers/exploded/og-smash-3d.jpg",
     name: "The OG Smash",
     category: "Smash Burgers",
     badge: "CLASSIQUE INCONTOURNABLE",
     price: 22.7,
     image: "/burgers/og-smash.png",
-    description: "L'essence même du smash burger : double steak écrasé ultra-fin avec croûte caramélisée à 240°C, oignons fondants, double American cheese et notre mythique sauce secrète OG.",
+    description: "Double steak bœuf smashé, double fromage américain, oignons caramélisés fondants, pickles croquants et sauce OG signature dans son pain brioché.",
     specs: {
-      bun: "Potato Bun New-Yorkais toasté à cœur",
-      patty: "Double smash patty 100% bœuf croûte Maillard intense",
-      cheese: "Double American cheese fondu",
-      sauce: "Sauce secrète OG signature",
-      garniture: "Oignons caramélisés & pickles croquants"
+      bun: "Pain brioché toasté",
+      patty: "Double steak de bœuf smashé pur bœuf",
+      cheese: "Double fromage américain fondu",
+      sauce: "Sauce OG signature maison",
+      garniture: "Oignons caramélisés & pickles américains"
     },
     layers: [
       {
         num: 1,
         label: "Bun Supérieur",
-        name: "Potato Bun New-Yorkais",
-        description: "Brioche ultra-moelleuse dorée à cœur au beurre fondu.",
-        tag: "PAIN"
+        name: "Pain Brioché (Dessus)",
+        description: "Pain brioché new-yorkais aérien et doré au beurre.",
+        tag: "BRIOCHE BUN",
+        image: "/burgers/layers/top-bun.png"
       },
       {
         num: 2,
-        label: "Garniture & Sauce",
-        name: "Sauce Secrète OG & Pickles Croquants",
-        description: "Sauce secrète OG maison, oignons caramélisés fondants et pickles américains croquants.",
-        tag: "RECETTE OG"
+        label: "Sauce & Pickles",
+        name: "Sauce OG Signature & Cornichons Pickles",
+        description: "Sauce secrète OG signature et pickles croquants tranchés finement.",
+        tag: "OG SAUCE & PICKLES",
+        image: "/burgers/layers/toppings.png"
       },
       {
         num: 3,
-        label: "1er Steak Smash",
-        name: "Smash Patty & American Cheese Fondu",
-        description: "Bœuf sélectionné écrasé à 240°C sous presse d'acier et double fromage américain fondu.",
-        tag: "CROÛTE CARAMÉLISÉE"
+        label: "Oignons Caramélisés",
+        name: "Oignons Caramélisés Fondants",
+        description: "Oignons doux mijotés longuement à la plancha jusqu'à caramélisation parfaite.",
+        tag: "CARAMELISED ONIONS",
+        image: "/burgers/layers/hot-toppings.png"
       },
       {
         num: 4,
-        label: "2ème Steak Smash",
-        name: "Deuxième Steak Smash Pur Bœuf",
-        description: "Deuxième palet de bœuf ultra-croustillant aux sucs concentrés.",
-        tag: "100% BŒUF"
+        label: "Steaks & Fromage",
+        name: "Double Steak Smash & American Cheese",
+        description: "Double steak smash pur bœuf croûte Maillard avec double fromage américain ultra fondant.",
+        tag: "SMASHED BEEF & CHEESE",
+        image: "/burgers/layers/cheese-patty1.png"
       },
       {
         num: 5,
         label: "Bun Inférieur",
-        name: "Base Potato Bun Toastée",
-        description: "Fond de pain toasté maintenant la structure et tout le fondant.",
-        tag: "BASE"
+        name: "Pain Brioché (Dessous) & Sauce OG",
+        description: "Base briochée toastée nappée de sauce OG.",
+        tag: "BASE BRIOCHÉE",
+        image: "/burgers/layers/bottom-bun.png"
       }
     ]
   },
   {
     id: "og-smash-oklahoma",
-    explodedImage: "/burgers/exploded/og-smash-oklahoma-3d.jpg",
     name: "OG Smash Oklahoma",
     category: "Smash Burgers",
     badge: "TECHNIQUE OKLAHOMA 1926",
     price: 22.7,
     image: "/burgers/og-smash-oklahoma.png",
-    description: "La technique légendaire : de très fines lamelles d'oignons doux écrasées directement sur le bœuf brûlant, caramélisant ensemble à 240°C sous la presse d'acier.",
+    description: "Double steak bœuf smashé avec fines lamelles d'oignons doux écrasées directement dans la viande à 240°C, double fromage américain, sauce OG et pickles.",
     specs: {
-      bun: "Potato Bun moelleux aérien toasté",
-      patty: "Double smash patty infusé aux oignons doux",
-      cheese: "Double American cheese ultra fondant",
-      sauce: "Sauce signature OG relevée",
-      garniture: "Oignons caramélisés fusionnés à la viande"
+      bun: "Pain brioché toasté",
+      patty: "Double steak smash infusé aux oignons",
+      cheese: "Double fromage américain fondu",
+      sauce: "Sauce OG signature",
+      garniture: "Oignons écrasés dans la viande & pickles"
     },
     layers: [
       {
         num: 1,
         label: "Bun Supérieur",
-        name: "Potato Bun Moelleux Aérien",
-        description: "Pain brioché toasté délicatement au beurre doux.",
-        tag: "PAIN"
+        name: "Pain Brioché (Dessus)",
+        description: "Pain brioché moelleux toasté délicatement.",
+        tag: "BRIOCHE BUN",
+        image: "/burgers/layers/top-bun.png"
       },
       {
         num: 2,
-        label: "Garniture & Sauce",
-        name: "Sauce Signature Oklahoma & Pickles",
-        description: "Sauce signature OG relevée et pickles croquants tranchés très fins.",
-        tag: "GARNITURE"
+        label: "Sauce & Pickles",
+        name: "Sauce OG & Cornichons Pickles",
+        description: "Sauce OG signature et tranches de pickles croquants marinés.",
+        tag: "OG SAUCE & PICKLES",
+        image: "/burgers/layers/toppings.png"
       },
       {
         num: 3,
-        label: "1er Steak Smash",
-        name: "Bœuf & Oignons Incrustés à 240°C",
-        description: "Fines lamelles d'oignons doux écrasées directement DANS le steak sous la presse en acier.",
-        tag: "LÉGENDE 1926"
+        label: "1er Steak Oklahoma",
+        name: "Steak Smash Écrasé avec Oignons & Cheese",
+        description: "Oignons doux tranchés ultra-fins écrasés directement DANS la viande brûlante avec fromage américain.",
+        tag: "OKLAHOMA PATTY 1",
+        image: "/burgers/layers/cheese-patty1.png"
       },
       {
         num: 4,
-        label: "2ème Steak Smash",
-        name: "Deuxième Patty & Fromage Fondu",
-        description: "Deuxième smash patty infusé aux sucs d'oignons caramélisés et double cheese fondant.",
-        tag: "FUSION UNIQUE"
+        label: "2ème Steak Oklahoma",
+        name: "2ème Steak Smash avec Oignons & Cheese",
+        description: "Deuxième palet caramélisé aux sucs d'oignons doux et fromage fondant.",
+        tag: "OKLAHOMA PATTY 2",
+        image: "/burgers/layers/patty2.png"
       },
       {
         num: 5,
         label: "Bun Inférieur",
-        name: "Base Potato Bun Toastée",
-        description: "Base dorée retenant les sucs caramélisés d'oignons doux.",
-        tag: "BASE"
+        name: "Pain Brioché (Dessous) & Sauce OG",
+        description: "Base briochée maintenant le tout et les sucs caramélisés.",
+        tag: "BASE",
+        image: "/burgers/layers/bottom-bun.png"
       }
     ]
   },
   {
     id: "hot-smash",
-    explodedImage: "/burgers/exploded/hot-smash-3d.jpg",
     name: "Hot Smash",
     category: "Smash Burgers",
     badge: "SPICY LOVERS 🔥",
     price: 25.0,
     image: "/burgers/hot-smash.png",
-    description: "Pour les amateurs de sensations fortes : double smash patty croustillant, piments jalapeños croquants marinés, notre sauce piquante aux piments fumés et oignons caramélisés.",
+    description: "Double steak bœuf smashé, double fromage américain, rondelles de jalapeños pimentés, oignons croustillants, sauce piquante et sauce OG dans son pain brioché.",
     specs: {
-      bun: "Potato Bun artisanal toasté au beurre",
-      patty: "Double steak smash bœuf pur jus",
-      cheese: "Double American cheese fondant",
-      sauce: "Hot Sauce artisanale aux piments fumés",
-      garniture: "Piments jalapeños marinés & oignons grillés"
+      bun: "Pain brioché toasté",
+      patty: "Double steak bœuf smashé pur jus",
+      cheese: "Double fromage américain",
+      sauce: "Sauce piquante Hot Sauce & Sauce OG",
+      garniture: "Jalapeños marinés & oignons croustillants"
     },
     layers: [
       {
         num: 1,
         label: "Bun Supérieur",
-        name: "Potato Bun Artisanal Toasté",
-        description: "Pain brioché toasté au beurre doré parsemé d'épices douces.",
-        tag: "PAIN"
+        name: "Pain Brioché (Dessus)",
+        description: "Pain brioché toasté sur plaque chaude.",
+        tag: "BRIOCHE BUN",
+        image: "/burgers/layers/top-bun.png"
       },
       {
         num: 2,
-        label: "Garniture & Sauce",
-        name: "Hot Sauce & Jalapeños Marinés",
-        description: "Sauce piquante artisanale aux piments fumés, jalapeños croquants et oignons grillés.",
-        tag: "SPICY 🔥"
+        label: "Sauce & Piments",
+        name: "Hot Sauce & Piments Jalapeños",
+        description: "Sauce piquante maison relevée et rondelles de jalapeños croquants.",
+        tag: "HOT SAUCE & JALAPEÑOS 🔥",
+        image: "/burgers/layers/hot-toppings.png"
       },
       {
         num: 3,
-        label: "1er Steak Smash",
-        name: "Smash Patty & Cheddar Épicé",
-        description: "Steak pur bœuf croûte caramélisée et fromage américain fondant.",
-        tag: "VIANDE & FROMAGE"
+        label: "Oignons Croustillants",
+        name: "Oignons Croustillants Frits",
+        description: "Fils d'oignons frits ultra-croustillants apportant un croquant irrésistible.",
+        tag: "CRISPY ONIONS",
+        image: "/burgers/layers/toppings.png"
       },
       {
         num: 4,
-        label: "2ème Steak Smash",
-        name: "Deuxième Smash Patty Croustillant",
-        description: "Deuxième palet de bœuf écrasé minute pour une intensité maximale.",
-        tag: "100% BŒUF"
+        label: "Steaks & Fromage",
+        name: "Double Steak Smash & American Cheese",
+        description: "Double steak smash pur bœuf à croûte Maillard intense et double cheddar fondant.",
+        tag: "DOUBLE SMASH & CHEESE",
+        image: "/burgers/layers/cheese-patty1.png"
       },
       {
         num: 5,
         label: "Bun Inférieur",
-        name: "Base Potato Bun Toastée",
-        description: "Base moelleuse et dorée pour absorber le feu des sauces pimentées.",
-        tag: "BASE"
+        name: "Pain Brioché (Dessous) & Sauce OG",
+        description: "Base briochée dorée nappée de sauce OG.",
+        tag: "BASE",
+        image: "/burgers/layers/bottom-bun.png"
       }
     ]
   },
   {
     id: "og-chicken",
-    explodedImage: "/burgers/exploded/og-chicken-3d.jpg",
     name: "OG Crispy Chicken",
     category: "Crispy Chicken",
     badge: "POULET SIGNATURE",
     price: 17.5,
     image: "/burgers/og-chicken.png",
-    description: "Généreux suprême de poulet mariné aux épices, pané minute pour un croustillant légendaire, salade coleslaw fraîche crémeuse et sauce signature OG.",
+    description: "Généreux filet de poulet croustillant pané minute, salade de chou coleslaw fraîche crémeuse, fromage américain fondant et sauce OG dans son pain brioché.",
     specs: {
-      bun: "Potato Bun toasté crousti-moelleux",
-      patty: "Filet de poulet panure dorée ultra-croustillante",
-      cheese: "Sauce onctueuse signature",
-      sauce: "Sauce OG douce, fumée et relevée",
-      garniture: "Coleslaw frais maison préparé le matin"
+      bun: "Pain brioché artisanal toasté",
+      patty: "Filet de poulet croustillant extra-crispy",
+      cheese: "Fromage américain fondant",
+      sauce: "Sauce OG signature",
+      garniture: "Coleslaw crémeux maison"
     },
     layers: [
       {
         num: 1,
         label: "Bun Supérieur",
-        name: "Potato Bun Toasté Crousti-Moelleux",
-        description: "Bun brioché moelleux toasté au beurre doux à la plancha.",
-        tag: "PAIN"
+        name: "Pain Brioché (Dessus)",
+        description: "Pain brioché aérien toasté au beurre doux.",
+        tag: "BRIOCHE BUN",
+        image: "/burgers/layers/top-bun.png"
       },
       {
         num: 2,
-        label: "Garniture & Sauce",
-        name: "Coleslaw Maison & Sauce OG",
-        description: "Salade coleslaw fraîche crémeuse préparée le matin et sauce signature OG secrète.",
-        tag: "FRAÎCHEUR"
+        label: "Coleslaw Maison",
+        name: "Coleslaw Frais Crémeux",
+        description: "Salade de chou blanc et rouge râpée minute avec carottes et sauce crémeuse.",
+        tag: "COLESLAW FRAIS",
+        image: "/burgers/layers/coleslaw.png"
       },
       {
         num: 3,
-        label: "Poulet Croustillant",
-        name: "Suprême de Poulet Extra-Crispy",
-        description: "Filet de poulet mariné 24h aux épices, panure dorée croustillante minute ultra-légère.",
-        tag: "POULET CROUSTILLANT"
+        label: "Fromage Fondu",
+        name: "Fromage Américain Fondant",
+        description: "Tranche d'American Cheese fondant nappant le poulet chaud.",
+        tag: "AMERICAN CHEESE",
+        image: "/burgers/layers/cheese-patty1.png"
       },
       {
         num: 4,
-        label: "Fromage Fondu",
-        name: "Fromage Fondu Fondant",
-        description: "Tranche de fromage américain fondu nappant délicatement le poulet chaud.",
-        tag: "FROMAGE"
+        label: "Poulet Croustillant",
+        name: "Suprême de Poulet Extra-Croustillant",
+        description: "Filet de poulet mariné 24h et pané minute dans une chapelure ultra-dorée et croustillante.",
+        tag: "CRISPY CHICKEN",
+        image: "/burgers/layers/crispy-chicken.png"
       },
       {
         num: 5,
         label: "Bun Inférieur",
-        name: "Base Potato Bun Toastée",
-        description: "Base briochée crousti-fondante préservant le croustillant de la panure.",
-        tag: "BASE"
+        name: "Pain Brioché (Dessous) & Sauce OG",
+        description: "Base briochée toastée avec la sauce signature OG.",
+        tag: "BASE & SAUCE OG",
+        image: "/burgers/layers/bottom-bun.png"
       }
     ]
   },
   {
     id: "classic-chicken",
-    explodedImage: "/burgers/exploded/classic-chicken-3d.jpg",
     name: "Classic Chicken",
     category: "Crispy Chicken",
     badge: "LE FRAIS & CROUSTILLANT",
     price: 17.5,
     image: "/burgers/classic-chicken.png",
-    description: "Filet de poulet pané minute doré et juteux, salade croquante, tranches de tomates fraîches, oignons rouges et mayonnaise maison dans son potato bun.",
+    description: "Filet de poulet pané croustillant, rondelles de tomate fraîche, oignons rouges, laitue croquante, fromage américain et sauce OG dans son pain brioché.",
     specs: {
-      bun: "Potato Bun classique toasté",
-      patty: "Filet de poulet mariné ultra-croustillant",
-      cheese: "Fromage doux crémeux",
-      sauce: "Mayonnaise maison onctueuse",
-      garniture: "Salade croquante, rondelles de tomate & oignons rouges"
+      bun: "Pain brioché artisanal toasté",
+      patty: "Filet de poulet croustillant mariné",
+      cheese: "Fromage américain fondu",
+      sauce: "Sauce OG signature",
+      garniture: "Tomate fraîche, oignons & laitue"
     },
     layers: [
       {
         num: 1,
         label: "Bun Supérieur",
-        name: "Potato Bun Classique Toasté",
-        description: "Pain brioché doré toasté au beurre sur plaque chaude.",
-        tag: "PAIN"
+        name: "Pain Brioché (Dessus)",
+        description: "Pain brioché toasté au beurre doré.",
+        tag: "BRIOCHE BUN",
+        image: "/burgers/layers/top-bun.png"
       },
       {
         num: 2,
-        label: "Garniture & Sauce",
-        name: "Salade, Tomate & Mayo Maison",
-        description: "Feuilles de salade croquante, rondelles de tomates fraîches, oignons rouges et mayonnaise onctueuse.",
-        tag: "FRAÎCHEUR"
+        label: "Crudités Fraîches",
+        name: "Tomate, Oignons & Laitue Croquante",
+        description: "Tranches de tomates fraîches juteuses, rondelles d'oignons rouges et feuilles de laitue croquante.",
+        tag: "TOMATO, ONION & LETTUCE",
+        image: "/burgers/layers/toppings.png"
       },
       {
         num: 3,
-        label: "Poulet Croustillant",
-        name: "Filet de Poulet Doré & Juteux",
-        description: "Poulet mariné pané minute aux herbes et épices douces, doré et juteux.",
-        tag: "CRISPY"
+        label: "Fromage Fondu",
+        name: "Fromage Américain Fondant",
+        description: "Tranche d'American Cheese fondu sur le poulet croustillant.",
+        tag: "AMERICAN CHEESE",
+        image: "/burgers/layers/cheese-patty1.png"
       },
       {
         num: 4,
-        label: "Fromage Doux",
-        name: "Cheddar Américain Doux",
-        description: "Fromage américain délicatement fondu sur le poulet croustillant.",
-        tag: "FROMAGE"
+        label: "Poulet Croustillant",
+        name: "Filet de Poulet Pané Croustillant",
+        description: "Poulet pané doré et juteux aux herbes et épices douces.",
+        tag: "CRISPY CHICKEN",
+        image: "/burgers/layers/crispy-chicken.png"
       },
       {
         num: 5,
         label: "Bun Inférieur",
-        name: "Base Potato Bun Moelleuse",
-        description: "Base moelleuse maintenant la fraîcheur des crudités et le croquant.",
-        tag: "BASE"
+        name: "Pain Brioché (Dessous) & Sauce OG",
+        description: "Base briochée moelleuse nappée de sauce OG.",
+        tag: "BASE & SAUCE OG",
+        image: "/burgers/layers/bottom-bun.png"
       }
     ]
   },
   {
     id: "hot-chicken",
-    explodedImage: "/burgers/exploded/hot-chicken-3d.jpg",
     name: "Hot Chicken",
     category: "Crispy Chicken",
     badge: "ÉPICÉ & CROUSTILLANT 🔥",
     price: 20.0,
     image: "/burgers/hot-chicken.png",
-    description: "Filet de poulet pané relevé aux épices fumées, rondelles de jalapeños marinés, sauce hot épicée maison et coleslaw crémeux pour équilibrer le piquant.",
+    description: "Filet de poulet pané croustillant pimenté, sauce piquante, piments jalapeños marinés, oignons caramélisés, fromage fumé et sauce OG dans son pain brioché.",
     specs: {
-      bun: "Potato Bun toasté au beurre",
-      patty: "Filet de poulet panure pimentée croustillante",
-      cheese: "Fromage fondant",
-      sauce: "Hot Sauce maison aux piments fumés",
-      garniture: "Jalapeños marinés & salade coleslaw crémeuse"
+      bun: "Pain brioché artisanal toasté",
+      patty: "Filet de poulet croustillant spicy",
+      cheese: "Fromage fumé fondant",
+      sauce: "Sauce piquante Hot Sauce & Sauce OG",
+      garniture: "Jalapeños marinés & oignons caramélisés"
     },
     layers: [
       {
         num: 1,
         label: "Bun Supérieur",
-        name: "Potato Bun Pimenté Toasté",
-        description: "Bun brioché toasté au beurre et relevé d'une touche de paprika fumé.",
-        tag: "PAIN"
+        name: "Pain Brioché (Dessus)",
+        description: "Pain brioché toasté au paprika fumé doux.",
+        tag: "BRIOCHE BUN",
+        image: "/burgers/layers/top-bun.png"
       },
       {
         num: 2,
-        label: "Garniture & Sauce",
-        name: "Hot Sauce, Jalapeños & Coleslaw",
-        description: "Sauce hot maison aux piments fumés, rondelles de jalapeños et coleslaw crémeux rafraîchissant.",
-        tag: "SPICY & FRESH 🔥"
+        label: "Sauce & Jalapeños",
+        name: "Hot Sauce & Piments Jalapeños",
+        description: "Sauce piquante artisanale aux piments et rondelles de jalapeños.",
+        tag: "HOT SAUCE & JALAPEÑOS 🔥",
+        image: "/burgers/layers/hot-toppings.png"
       },
       {
         num: 3,
-        label: "Poulet Nashville",
-        name: "Poulet Pané Façon Nashville",
-        description: "Filet de poulet pané croustillant relevé aux piments de Cayenne et épices secrètes.",
-        tag: "NASHVILLE SPICY"
+        label: "Oignons Caramélisés",
+        name: "Oignons Caramélisés & Fromage Fumé",
+        description: "Oignons fondants caramélisés à la plancha et fromage fumé savoureux.",
+        tag: "CARAMELISED ONIONS & SMOKED CHEESE",
+        image: "/burgers/layers/cheese-patty1.png"
       },
       {
         num: 4,
-        label: "Fromage Fondu",
-        name: "Double Fromage Doux Fondu",
-        description: "Fromage américain fondant pour adoucir parfaitement le feu du piment.",
-        tag: "FROMAGE"
+        label: "Poulet Pimenté",
+        name: "Filet de Poulet Extra-Crispy Spicy",
+        description: "Filet de poulet mariné pané relevé aux épices fumées et piment de Cayenne.",
+        tag: "CRISPY CHICKEN SPICY",
+        image: "/burgers/layers/crispy-chicken.png"
       },
       {
         num: 5,
         label: "Bun Inférieur",
-        name: "Base Potato Bun Toastée",
-        description: "Base toastée dorée assurant une prise en main parfaite.",
-        tag: "BASE"
+        name: "Pain Brioché (Dessous) & Sauce OG",
+        description: "Base briochée toastée avec sauce OG.",
+        tag: "BASE & SAUCE OG",
+        image: "/burgers/layers/bottom-bun.png"
       }
     ]
   }
@@ -1202,21 +1235,56 @@ export default function Home() {
                         </div>
                       </div>
                     ) : (
-                      /* MODE 2: OFFICIAL 3D EXPLODED POSTER VIEW (OFFICIAL RESTAURANT 3D) */
-                      <div 
+                      /* MODE 2: DYNAMIC 3D EXPLODED VIEW WITH SEPARATED 3D FLOATING LAYERS */
+                      <div
                         onClick={toggleExploded}
-                        className="w-full h-full relative flex items-center justify-center p-1 group/exploded cursor-pointer"
-                        title="Cliquez pour revenir à la rotation 360°"
+                        className="exploded w-full h-full relative cursor-pointer"
+                        title="Cliquez pour rassembler le burger en 360°"
                       >
-                        <img
-                          key={activeBurger.id + '-exploded'}
-                          src={activeBurger.explodedImage}
-                          alt={activeBurger.name + ' 3D'}
-                          className="max-h-full max-w-full object-contain filter drop-shadow-[0_20px_35px_rgba(0,0,0,0.9)] rounded-2xl pointer-events-none transition-all duration-300 group-hover/exploded:scale-105"
-                        />
-                        <div className="absolute -bottom-2 px-3.5 py-1 rounded-full bg-black/85 border border-[#ff3b30]/50 text-[10px] text-zinc-300 flex items-center gap-1.5 shadow-xl backdrop-blur-md opacity-90 group-hover/exploded:opacity-100 transition-all pointer-events-none">
+                        {(activeBurger?.layers || DEFAULT_BURGER_LAYERS).map((layer, idx) => {
+                          const layerClasses = [
+                            "layer-top-bun",
+                            "layer-toppings",
+                            "layer-patty1",
+                            "layer-patty2",
+                            "layer-bottom-bun"
+                          ];
+                          const isLayerActive = activeLayerIndex === idx;
+
+                          return (
+                            <div
+                              key={layer.num}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setActiveLayerIndex(idx);
+                              }}
+                              className={`burger-layer ${layerClasses[idx] || ""} ${
+                                isLayerActive ? "active-layer" : ""
+                              }`}
+                            >
+                              <img
+                                src={layer.image}
+                                alt={layer.name}
+                                className="transition-transform duration-300 filter drop-shadow-[0_15px_30px_rgba(0,0,0,0.85)]"
+                              />
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setActiveLayerIndex(idx);
+                                }}
+                                className={`layer-float-pin ${isLayerActive ? "active" : ""}`}
+                                title={`Couche ${layer.num} : ${layer.name}`}
+                              >
+                                {layer.num}
+                              </button>
+                            </div>
+                          );
+                        })}
+
+                        {/* INSTRUCTION PILL TO REASSEMBLE */}
+                        <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 px-3.5 py-1 rounded-full bg-black/85 border border-white/15 text-[10px] text-zinc-300 flex items-center gap-1.5 shadow-xl backdrop-blur-md opacity-90 transition-all pointer-events-none whitespace-nowrap">
                           <RotateCw className="w-3 h-3 text-[#f59e0b]" />
-                          <span>Cliquez pour revenir au 360° continu</span>
+                          <span>Cliquez pour la rotation 360°</span>
                         </div>
                       </div>
                     )}
