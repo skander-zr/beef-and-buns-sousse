@@ -1227,7 +1227,7 @@ export default function Home() {
                   onPointerUp={handlePointerUp}
                   style={{ touchAction: "none" }}
                   className={`burger-3d-stage relative w-full flex items-center justify-center cursor-grab active:cursor-grabbing select-none transition-all duration-500 ${
-                    isExploded ? "h-[360px] sm:h-[400px]" : "h-[320px] sm:h-[350px]"
+                    isExploded ? "h-[450px] sm:h-[490px]" : "h-[320px] sm:h-[350px]"
                   }`}
                 >
                   {/* Dynamic Realistic Contact Shadow */}
@@ -1236,7 +1236,7 @@ export default function Home() {
                   {/* 3D BURGER MODEL CONTAINER (HIGH-PERFORMANCE DIRECT DOM TRANSFORM) */}
                   <div
                     ref={modelRef}
-                    className={`burger-3d-model relative flex items-center justify-center cursor-pointer ${isExploded ? "w-[290px] sm:w-[330px] h-[290px] sm:h-[330px]" : "w-[280px] sm:w-[320px] h-[280px] sm:h-[320px]"} ${
+                    className={`burger-3d-model relative flex items-center justify-center cursor-pointer w-[280px] sm:w-[320px] h-[280px] sm:h-[320px] ${
                       isExploded ? "exploded" : ""
                     }`}
                   >
@@ -1256,84 +1256,78 @@ export default function Home() {
                         </div>
                       </div>
                     ) : (
-                      /* MODE 2: REAL BURGER 3D INTERACTIVE INGREDIENT EXPLORER — ZERO AI, ZERO TEXT COLLISION */
+                      /* MODE 2: TRUE DECOMPOSED 3D BURGER (5 FLOATING PHYSICAL LAYERS WITH ANCHORED PINS) */
                       <div
-                        className="w-full h-full relative flex items-center justify-center select-none"
-                        onClick={(e) => e.stopPropagation()}
+                        onClick={toggleExploded}
+                        className="exploded w-full h-full relative cursor-pointer select-none"
+                        title="Cliquez pour rassembler le burger en rotation 360°"
                       >
-                        {/* REAL BURGER PHOTO — 100% AUTHENTIC MENU PHOTO (NO AI) */}
-                        <img
-                          key={activeBurger.id + '-real-burger-3d'}
-                          src={activeBurger.image}
-                          alt={activeBurger.name}
-                          className="w-full h-full object-contain filter drop-shadow-[0_25px_45px_rgba(0,0,0,0.95)] drop-shadow-[0_0_30px_rgba(255,59,48,0.2)] transition-all duration-500 scale-105 pointer-events-none"
-                        />
+                        {(activeBurger.layers || DEFAULT_BURGER_LAYERS).map((layer, idx) => {
+                          const layerClasses = [
+                            "layer-top-bun",
+                            "layer-toppings",
+                            "layer-patty1",
+                            "layer-patty2",
+                            "layer-bottom-bun"
+                          ];
+                          const layerClass = layerClasses[idx] || "layer-patty1";
+                          const isLayerActive = activeLayerIndex === idx;
 
-                        {/* LASER SCAN HIGHLIGHT ON ACTIVE LAYER */}
-                        <div
-                          className="absolute left-3 right-16 sm:right-28 h-[2px] bg-gradient-to-r from-transparent via-[#ff3b30] to-transparent pointer-events-none transition-all duration-500 shadow-[0_0_16px_#ff3b30] z-20"
-                          style={{
-                            top: ['18%', '34%', '50%', '68%', '84%'][activeLayerIndex] || '50%'
-                          }}
-                        />
+                          return (
+                            <div
+                              key={`${activeBurger.id}-layer-${idx}`}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setActiveLayerIndex(idx);
+                              }}
+                              className={`burger-layer ${layerClass} ${isLayerActive ? "active-layer" : ""}`}
+                            >
+                              {/* ACTUAL INGREDIENT LAYER IMAGE */}
+                              <img
+                                src={layer.image}
+                                alt={layer.name}
+                                className="w-full h-full object-contain filter drop-shadow-[0_15px_25px_rgba(0,0,0,0.85)] pointer-events-none transition-all duration-300"
+                              />
 
-                        {/* 5 INTERACTIVE NUMBERED HOTSPOTS (1 À 5) — CLEANLY POSITIONED ON THE RIGHT */}
-                        <div className="absolute right-0 top-3 bottom-3 w-auto flex flex-col justify-between py-1 z-30 pointer-events-auto">
-                          {((activeBurger?.layers && activeBurger.layers.length > 0) ? activeBurger.layers : DEFAULT_BURGER_LAYERS).map((layer, idx) => {
-                            const isCurrent = idx === activeLayerIndex;
-                            return (
-                              <button
-                                key={layer.num}
-                                type="button"
+                              {/* PIN ANCHORED DIRECTLY TO THIS LAYER (MOVES AT EXACT LAYER ELEVATION) */}
+                              <div
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   setActiveLayerIndex(idx);
                                 }}
-                                title={`Couche #${layer.num} : ${layer.name}`}
-                                className={`flex items-center gap-1.5 transition-all duration-300 cursor-pointer ${
-                                  isCurrent
-                                    ? "scale-105 opacity-100"
-                                    : "opacity-75 hover:opacity-100 hover:scale-102"
+                                className={`absolute right-[-14px] sm:right-[-35px] top-1/2 -translate-y-1/2 flex items-center gap-1.5 cursor-pointer z-30 transition-all duration-300 pointer-events-auto ${
+                                  isLayerActive ? "scale-110 opacity-100" : "scale-95 opacity-80 hover:opacity-100"
                                 }`}
+                                style={{ transform: `translateZ(${isLayerActive ? 55 : 30}px)` }}
                               >
-                                {/* Pulsing Number Pin */}
                                 <div
-                                  className={`w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center text-[10px] sm:text-xs font-black transition-all shadow-xl shrink-0 ${
-                                    isCurrent
-                                      ? "bg-gradient-to-r from-[#ff3b30] to-[#e11d48] text-white ring-4 ring-[#ff3b30]/40 shadow-[0_0_18px_rgba(255,59,48,0.9)] animate-pulse"
+                                  className={`w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center text-xs font-black shadow-lg transition-all ${
+                                    isLayerActive
+                                      ? "bg-gradient-to-r from-[#ff3b30] to-[#e11d48] text-white ring-4 ring-[#ff3b30]/40 shadow-[0_0_15px_rgba(255,59,48,0.8)] animate-pulse"
                                       : "bg-black/90 text-zinc-300 border border-white/20 hover:border-[#ff3b30] hover:text-white"
                                   }`}
                                 >
                                   #{layer.num}
                                 </div>
-
-                                {/* Layer Name Pill */}
                                 <span
-                                  className={`px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-lg text-[9px] sm:text-[10px] font-bold backdrop-blur-md border transition-all whitespace-nowrap shadow-md ${
-                                    isCurrent
-                                      ? "bg-black/95 text-white border-[#ff3b30]/80 shadow-[0_0_12px_rgba(255,59,48,0.35)]"
-                                      : "bg-black/80 text-zinc-300 border-white/10 hover:text-white hidden sm:inline-block"
+                                  className={`px-2 py-0.5 rounded text-[10px] font-bold backdrop-blur-md border transition-all whitespace-nowrap shadow-md ${
+                                    isLayerActive
+                                      ? "bg-black/95 text-white border-[#ff3b30]/80 shadow-[0_0_10px_rgba(255,59,48,0.3)]"
+                                      : "bg-black/80 text-zinc-300 border-white/10 hidden sm:inline-block"
                                   }`}
                                 >
                                   {layer.label}
                                 </span>
-                              </button>
-                            );
-                          })}
-                        </div>
+                              </div>
+                            </div>
+                          );
+                        })}
 
                         {/* RETURN TO 360 PILL */}
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            toggleExploded();
-                          }}
-                          className="absolute -bottom-4 left-1/2 -translate-x-1/2 px-3.5 py-1 rounded-full bg-black/90 border border-white/20 hover:border-[#f59e0b] text-[10px] text-zinc-200 hover:text-white flex items-center gap-1.5 shadow-2xl backdrop-blur-md transition-all cursor-pointer whitespace-nowrap z-40"
-                        >
+                        <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 px-3.5 py-1 rounded-full bg-black/85 border border-white/20 hover:border-[#f59e0b] text-[10px] text-zinc-300 hover:text-white flex items-center gap-1.5 shadow-xl backdrop-blur-md transition-all cursor-pointer whitespace-nowrap z-30">
                           <RotateCw className="w-3 h-3 text-[#f59e0b]" />
-                          <span>Revenir au mode 360°</span>
-                        </button>
+                          <span>Rassembler en 360°</span>
+                        </div>
                       </div>
                     )}
                   </div>
