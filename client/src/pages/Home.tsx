@@ -1156,7 +1156,7 @@ export default function Home() {
                       }`}
                     >
                       <Layers className="w-3 h-3 text-[#f59e0b]" />
-                      <span>Vue 3D</span>
+                      <span>Anatomie 3D</span>
                     </button>
                   </div>
 
@@ -1227,7 +1227,7 @@ export default function Home() {
                   onPointerUp={handlePointerUp}
                   style={{ touchAction: "none" }}
                   className={`burger-3d-stage relative w-full flex items-center justify-center cursor-grab active:cursor-grabbing select-none transition-all duration-500 ${
-                    isExploded ? "h-[350px] sm:h-[390px]" : "h-[320px] sm:h-[350px]"
+                    isExploded ? "h-[360px] sm:h-[400px]" : "h-[320px] sm:h-[350px]"
                   }`}
                 >
                   {/* Dynamic Realistic Contact Shadow */}
@@ -1256,29 +1256,34 @@ export default function Home() {
                         </div>
                       </div>
                     ) : (
-                      /* MODE 2: 4K REAL BURGER INGREDIENT EXPLORER — ZERO TEXT OVERLAY ON BURGER */
+                      /* MODE 2: 4K CINEMATIC MACRO EXPLORER — REAL BURGER, ZERO AI, ZERO TEXT ON BURGER */
                       <div
-                        className="w-full h-full relative flex items-center justify-center select-none"
+                        className="w-full h-full relative flex items-center justify-center select-none overflow-hidden rounded-2xl"
                         onClick={(e) => e.stopPropagation()}
                       >
-                        {/* 4K REAL BURGER PHOTO — 100% AUTHENTIC (EXACT SAME AS 360, ZERO AI) */}
+                        {/* 4K REAL BURGER PHOTO WITH DYNAMIC CINEMATIC MACRO ZOOM ON ACTIVE LAYER */}
                         <img
-                          key={activeBurger.id + '-real-4k'}
+                          key={activeBurger.id + '-real-macro-4k'}
                           src={activeBurger.image}
                           alt={activeBurger.name}
-                          className="w-full h-full object-contain filter drop-shadow-[0_25px_45px_rgba(0,0,0,0.92)] drop-shadow-[0_0_25px_rgba(255,59,48,0.22)] transition-all duration-500 scale-105 pointer-events-none"
-                        />
-
-                        {/* LASER SCAN HIGHLIGHT ON ACTIVE ÉTAGE (CLEAN HORIZONTAL BEAM) */}
-                        <div
-                          className="absolute left-2 right-12 sm:right-16 h-[2px] bg-gradient-to-r from-transparent via-[#ff3b30] to-transparent pointer-events-none transition-all duration-500 shadow-[0_0_16px_#ff3b30] z-20"
+                          className="w-full h-full object-contain pointer-events-none transition-all duration-700 ease-out"
                           style={{
-                            top: ['16%', '32%', '50%', '68%', '84%'][activeLayerIndex] || '50%'
+                            transformOrigin: ['50% 20%', '50% 35%', '50% 50%', '50% 68%', '50% 84%'][activeLayerIndex] || '50% 50%',
+                            transform: 'scale(1.28)',
+                            filter: 'drop-shadow(0 25px 45px rgba(0,0,0,0.95)) drop-shadow(0 0 30px rgba(255,59,48,0.25))'
                           }}
                         />
 
-                        {/* ÉTAGE SELECTOR PINS (CLEANLY POSITIONED OUTSIDE THE BURGER ON THE RIGHT) */}
-                        <div className="absolute right-0 top-3 bottom-3 flex flex-col justify-between py-1 z-30 pointer-events-auto">
+                        {/* LASER SCAN HIGHLIGHT ON ACTIVE ÉTAGE */}
+                        <div
+                          className="absolute left-3 right-12 sm:right-16 h-[2px] bg-gradient-to-r from-transparent via-[#ff3b30] to-transparent pointer-events-none transition-all duration-500 shadow-[0_0_18px_#ff3b30] z-20"
+                          style={{
+                            top: ['18%', '34%', '50%', '68%', '84%'][activeLayerIndex] || '50%'
+                          }}
+                        />
+
+                        {/* ÉTAGE SELECTOR PINS (CLEANLY ALIGNED OUTSIDE THE BURGER ON THE RIGHT) */}
+                        <div className="absolute right-1 top-4 bottom-4 flex flex-col justify-between py-1 z-30 pointer-events-auto">
                           {((activeBurger?.layers && activeBurger.layers.length > 0) ? activeBurger.layers : DEFAULT_BURGER_LAYERS).map((layer, idx) => {
                             const isCurrent = idx === activeLayerIndex;
                             return (
@@ -1290,9 +1295,9 @@ export default function Home() {
                                   setActiveLayerIndex(idx);
                                 }}
                                 title={`Étage #${layer.num} : ${layer.name}`}
-                                className={`w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center text-[10px] sm:text-xs font-black transition-all cursor-pointer shadow-lg ${
+                                className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-[10px] sm:text-xs font-black transition-all cursor-pointer shadow-xl ${
                                   isCurrent
-                                    ? "bg-gradient-to-r from-[#ff3b30] to-[#e11d48] text-white ring-4 ring-[#ff3b30]/40 shadow-[0_0_15px_rgba(255,59,48,0.8)] scale-110"
+                                    ? "bg-gradient-to-r from-[#ff3b30] to-[#e11d48] text-white ring-4 ring-[#ff3b30]/40 shadow-[0_0_18px_rgba(255,59,48,0.9)] scale-110"
                                     : "bg-black/90 text-zinc-300 border border-white/20 hover:border-[#ff3b30] hover:text-white"
                                 }`}
                               >
