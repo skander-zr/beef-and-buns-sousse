@@ -98,11 +98,13 @@ export interface BurgerItem {
     garniture: string;
   };
   layers: BurgerLayerInfo[];
+  explodedImage: string;
 }
 
 export const ALL_7_BURGERS: BurgerItem[] = [
   {
     id: "truffle-mushroom",
+    explodedImage: "/burgers/exploded-3d/truffle-mushroom-3d.png",
     name: "Truffle Mushroom",
     category: "Smash Burgers",
     badge: "BEST SELLER #1",
@@ -161,6 +163,7 @@ export const ALL_7_BURGERS: BurgerItem[] = [
   },
   {
     id: "og-smash",
+    explodedImage: "/burgers/exploded-3d/og-smash-3d.png",
     name: "The OG Smash",
     category: "Smash Burgers",
     badge: "CLASSIQUE INCONTOURNABLE",
@@ -219,6 +222,7 @@ export const ALL_7_BURGERS: BurgerItem[] = [
   },
   {
     id: "og-smash-oklahoma",
+    explodedImage: "/burgers/exploded-3d/og-smash-oklahoma-3d.png",
     name: "OG Smash Oklahoma",
     category: "Smash Burgers",
     badge: "TECHNIQUE OKLAHOMA 1926",
@@ -277,6 +281,7 @@ export const ALL_7_BURGERS: BurgerItem[] = [
   },
   {
     id: "hot-smash",
+    explodedImage: "/burgers/exploded-3d/hot-smash-3d.png",
     name: "Hot Smash",
     category: "Smash Burgers",
     badge: "SPICY LOVERS 🔥",
@@ -335,6 +340,7 @@ export const ALL_7_BURGERS: BurgerItem[] = [
   },
   {
     id: "og-chicken",
+    explodedImage: "/burgers/exploded-3d/og-chicken-3d.png",
     name: "OG Crispy Chicken",
     category: "Crispy Chicken",
     badge: "POULET SIGNATURE",
@@ -393,6 +399,7 @@ export const ALL_7_BURGERS: BurgerItem[] = [
   },
   {
     id: "classic-chicken",
+    explodedImage: "/burgers/exploded-3d/classic-chicken-3d.png",
     name: "Classic Chicken",
     category: "Crispy Chicken",
     badge: "LE FRAIS & CROUSTILLANT",
@@ -451,6 +458,7 @@ export const ALL_7_BURGERS: BurgerItem[] = [
   },
   {
     id: "hot-chicken",
+    explodedImage: "/burgers/exploded-3d/hot-chicken-3d.png",
     name: "Hot Chicken",
     category: "Crispy Chicken",
     badge: "ÉPICÉ & CROUSTILLANT 🔥",
@@ -1235,54 +1243,21 @@ export default function Home() {
                         </div>
                       </div>
                     ) : (
-                      /* MODE 2: DYNAMIC 3D EXPLODED VIEW WITH SEPARATED 3D FLOATING LAYERS */
+                      /* MODE 2: 4K ISOLATED 3D EXPLODED BURGER (DYNAMIC FOR THIS EXACT BURGER) */
                       <div
                         onClick={toggleExploded}
-                        className="exploded w-full h-full relative cursor-pointer"
-                        title="Cliquez pour rassembler le burger en 360°"
+                        className="w-full h-full relative flex items-center justify-center p-2 group/exploded cursor-pointer"
+                        title="Cliquez pour rassembler le burger en rotation 360°"
                       >
-                        {(activeBurger?.layers || DEFAULT_BURGER_LAYERS).map((layer, idx) => {
-                          const layerClasses = [
-                            "layer-top-bun",
-                            "layer-toppings",
-                            "layer-patty1",
-                            "layer-patty2",
-                            "layer-bottom-bun"
-                          ];
-                          const isLayerActive = activeLayerIndex === idx;
+                        <img
+                          key={activeBurger.id + '-3d-exploded'}
+                          src={activeBurger.explodedImage}
+                          alt={activeBurger.name + ' Vue 3D Éclatée'}
+                          className="max-h-[380px] sm:max-h-[420px] max-w-full object-contain filter drop-shadow-[0_25px_45px_rgba(0,0,0,0.95)] transition-all duration-300 group-hover/exploded:scale-105 pointer-events-none select-none"
+                        />
 
-                          return (
-                            <div
-                              key={layer.num}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setActiveLayerIndex(idx);
-                              }}
-                              className={`burger-layer ${layerClasses[idx] || ""} ${
-                                isLayerActive ? "active-layer" : ""
-                              }`}
-                            >
-                              <img
-                                src={layer.image}
-                                alt={layer.name}
-                                className="transition-transform duration-300 filter drop-shadow-[0_15px_30px_rgba(0,0,0,0.85)]"
-                              />
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setActiveLayerIndex(idx);
-                                }}
-                                className={`layer-float-pin ${isLayerActive ? "active" : ""}`}
-                                title={`Couche ${layer.num} : ${layer.name}`}
-                              >
-                                {layer.num}
-                              </button>
-                            </div>
-                          );
-                        })}
-
-                        {/* INSTRUCTION PILL TO REASSEMBLE */}
-                        <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 px-3.5 py-1 rounded-full bg-black/85 border border-white/15 text-[10px] text-zinc-300 flex items-center gap-1.5 shadow-xl backdrop-blur-md opacity-90 transition-all pointer-events-none whitespace-nowrap">
+                        {/* INSTRUCTION PILL */}
+                        <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 px-3.5 py-1 rounded-full bg-black/85 border border-[#ff3b30]/40 text-[10px] text-zinc-300 flex items-center gap-1.5 shadow-xl backdrop-blur-md opacity-90 group-hover/exploded:opacity-100 transition-all pointer-events-none whitespace-nowrap">
                           <RotateCw className="w-3 h-3 text-[#f59e0b]" />
                           <span>Cliquez pour la rotation 360°</span>
                         </div>
