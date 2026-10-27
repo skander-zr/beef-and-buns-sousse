@@ -1227,7 +1227,7 @@ export default function Home() {
                   onPointerUp={handlePointerUp}
                   style={{ touchAction: "none" }}
                   className={`burger-3d-stage relative w-full flex items-center justify-center cursor-grab active:cursor-grabbing select-none transition-all duration-500 ${
-                    isExploded ? "h-[450px] sm:h-[490px]" : "h-[320px] sm:h-[350px]"
+                    isExploded ? "h-[360px] sm:h-[400px]" : "h-[320px] sm:h-[350px]"
                   }`}
                 >
                   {/* Dynamic Realistic Contact Shadow */}
@@ -1236,7 +1236,7 @@ export default function Home() {
                   {/* 3D BURGER MODEL CONTAINER (HIGH-PERFORMANCE DIRECT DOM TRANSFORM) */}
                   <div
                     ref={modelRef}
-                    className={`burger-3d-model relative flex items-center justify-center cursor-pointer ${isExploded ? "w-[310px] sm:w-[360px] h-[400px] sm:h-[440px]" : "w-[280px] sm:w-[320px] h-[280px] sm:h-[320px]"} ${
+                    className={`burger-3d-model relative flex items-center justify-center cursor-pointer ${isExploded ? "w-[290px] sm:w-[330px] h-[290px] sm:h-[330px]" : "w-[280px] sm:w-[320px] h-[280px] sm:h-[320px]"} ${
                       isExploded ? "exploded" : ""
                     }`}
                   >
@@ -1256,32 +1256,29 @@ export default function Home() {
                         </div>
                       </div>
                     ) : (
-                      /* MODE 2: TRUE HIGH-RES EXPLODED 3D BURGER (SEPARATED LAYERS WITH ZERO TEXT COLLISION) */
+                      /* MODE 2: REAL BURGER 3D INTERACTIVE INGREDIENT EXPLORER — ZERO AI, ZERO TEXT COLLISION */
                       <div
                         className="w-full h-full relative flex items-center justify-center select-none"
                         onClick={(e) => e.stopPropagation()}
                       >
-                        {/* MAIN EXPLODED 3D BURGER IMAGE (AUTHENTIC ISOLATED PNG FOR THIS BURGER) */}
+                        {/* REAL BURGER PHOTO — 100% AUTHENTIC MENU PHOTO (NO AI) */}
                         <img
-                          key={activeBurger.id + '-exploded-3d'}
-                          src={activeBurger.explodedImage}
-                          alt={`${activeBurger.name} — Vue 3D Décomposée`}
-                          className="h-full w-auto max-w-[76%] sm:max-w-[72%] object-contain transition-all duration-700 animate-in fade-in zoom-in-95 duration-400 pointer-events-none"
-                          style={{
-                            filter: 'drop-shadow(0 20px 35px rgba(0,0,0,0.92)) drop-shadow(0 0 25px rgba(255,59,48,0.22))'
-                          }}
+                          key={activeBurger.id + '-real-burger-3d'}
+                          src={activeBurger.image}
+                          alt={activeBurger.name}
+                          className="w-full h-full object-contain filter drop-shadow-[0_25px_45px_rgba(0,0,0,0.95)] drop-shadow-[0_0_30px_rgba(255,59,48,0.2)] transition-all duration-500 scale-105 pointer-events-none"
                         />
 
                         {/* LASER SCAN HIGHLIGHT ON ACTIVE LAYER */}
                         <div
-                          className="absolute left-4 right-16 sm:right-28 h-[2px] bg-gradient-to-r from-transparent via-[#ff3b30] to-transparent pointer-events-none transition-all duration-500 shadow-[0_0_15px_#ff3b30] z-20"
+                          className="absolute left-3 right-16 sm:right-28 h-[2px] bg-gradient-to-r from-transparent via-[#ff3b30] to-transparent pointer-events-none transition-all duration-500 shadow-[0_0_16px_#ff3b30] z-20"
                           style={{
-                            top: ['10%', '28%', '48%', '68%', '88%'][activeLayerIndex] || '50%'
+                            top: ['18%', '34%', '50%', '68%', '84%'][activeLayerIndex] || '50%'
                           }}
                         />
 
-                        {/* 5 INTERACTIVE NUMBERED HOTSPOTS (1 À 5) — CLEANLY POSITIONED ON THE RIGHT WITH ZERO COLLISION */}
-                        <div className="absolute right-0 top-1 bottom-1 w-auto flex flex-col justify-between py-1 z-30 pointer-events-auto">
+                        {/* 5 INTERACTIVE NUMBERED HOTSPOTS (1 À 5) — CLEANLY POSITIONED ON THE RIGHT */}
+                        <div className="absolute right-0 top-3 bottom-3 w-auto flex flex-col justify-between py-1 z-30 pointer-events-auto">
                           {((activeBurger?.layers && activeBurger.layers.length > 0) ? activeBurger.layers : DEFAULT_BURGER_LAYERS).map((layer, idx) => {
                             const isCurrent = idx === activeLayerIndex;
                             return (
@@ -1325,17 +1322,17 @@ export default function Home() {
                           })}
                         </div>
 
-                        {/* RETURN TO 360 PILL (BOTTOM WITH AMPLE CLEARANCE) */}
+                        {/* RETURN TO 360 PILL */}
                         <button
                           type="button"
                           onClick={(e) => {
                             e.stopPropagation();
                             toggleExploded();
                           }}
-                          className="absolute -bottom-6 left-1/2 -translate-x-1/2 px-3.5 py-1 rounded-full bg-black/90 border border-white/20 hover:border-[#f59e0b] text-[10px] text-zinc-200 hover:text-white flex items-center gap-1.5 shadow-2xl backdrop-blur-md transition-all cursor-pointer whitespace-nowrap z-40"
+                          className="absolute -bottom-4 left-1/2 -translate-x-1/2 px-3.5 py-1 rounded-full bg-black/90 border border-white/20 hover:border-[#f59e0b] text-[10px] text-zinc-200 hover:text-white flex items-center gap-1.5 shadow-2xl backdrop-blur-md transition-all cursor-pointer whitespace-nowrap z-40"
                         >
                           <RotateCw className="w-3 h-3 text-[#f59e0b]" />
-                          <span>Rassembler en 360°</span>
+                          <span>Revenir au mode 360°</span>
                         </button>
                       </div>
                     )}
