@@ -1227,7 +1227,7 @@ export default function Home() {
                   onPointerUp={handlePointerUp}
                   style={{ touchAction: "none" }}
                   className={`burger-3d-stage relative w-full flex items-center justify-center cursor-grab active:cursor-grabbing select-none transition-all duration-500 ${
-                    isExploded ? "h-[390px] sm:h-[430px]" : "h-[320px] sm:h-[350px]"
+                    isExploded ? "h-[450px] sm:h-[490px]" : "h-[320px] sm:h-[350px]"
                   }`}
                 >
                   {/* Dynamic Realistic Contact Shadow */}
@@ -1236,7 +1236,7 @@ export default function Home() {
                   {/* 3D BURGER MODEL CONTAINER (HIGH-PERFORMANCE DIRECT DOM TRANSFORM) */}
                   <div
                     ref={modelRef}
-                    className={`burger-3d-model relative w-[280px] sm:w-[320px] h-[280px] sm:h-[320px] flex items-center justify-center cursor-pointer ${
+                    className={`burger-3d-model relative flex items-center justify-center cursor-pointer ${isExploded ? "w-[310px] sm:w-[360px] h-[400px] sm:h-[440px]" : "w-[280px] sm:w-[320px] h-[280px] sm:h-[320px]"} ${
                       isExploded ? "exploded" : ""
                     }`}
                   >
@@ -1256,86 +1256,52 @@ export default function Home() {
                         </div>
                       </div>
                     ) : (
-                      /* MODE 2: TRUE 3D EXPLODED BURGER (5 FLOATING PHYSICAL LAYERS OF THE REAL BURGER) */
+                      /* MODE 2: TRUE HIGH-RES EXPLODED 3D BURGER (SEPARATED LAYERS WITH ZERO TEXT COLLISION) */
                       <div
                         className="w-full h-full relative flex items-center justify-center select-none"
-                        style={{ perspective: 1200, transformStyle: "preserve-3d" }}
+                        onClick={(e) => e.stopPropagation()}
                       >
-                        {/* 5 FLOATING 3D SLICES DECOMPOSED IN VERTICAL SPACE */}
-                        {((activeBurger?.layers && activeBurger.layers.length > 0) ? activeBurger.layers : DEFAULT_BURGER_LAYERS).map((layer, idx) => {
-                          const isCurrent = idx === activeLayerIndex;
-                          const sliceConfigs = [
-                            { clip: "polygon(0% 0%, 100% 0%, 100% 36%, 0% 36%)", ty: -105, tz: 55, rx: 12, pinSide: "left", pinTop: "6%" },
-                            { clip: "polygon(0% 28%, 100% 28%, 100% 48%, 0% 48%)", ty: -52, tz: 35, rx: 7, pinSide: "right", pinTop: "26%" },
-                            { clip: "polygon(0% 42%, 100% 42%, 100% 64%, 0% 64%)", ty: 0, tz: 18, rx: 2, pinSide: "left", pinTop: "48%" },
-                            { clip: "polygon(0% 56%, 100% 56%, 100% 78%, 0% 78%)", ty: 52, tz: -5, rx: -6, pinSide: "right", pinTop: "70%" },
-                            { clip: "polygon(0% 72%, 100% 72%, 100% 100%, 0% 100%)", ty: 105, tz: -25, rx: -12, pinSide: "left", pinTop: "90%" }
-                          ];
-                          const cfg = sliceConfigs[idx] || sliceConfigs[0];
-                          const transformStr = `translateY(${cfg.ty + (isCurrent ? (cfg.ty < 0 ? -12 : cfg.ty > 0 ? 12 : 0) : 0)}px) translateZ(${cfg.tz + (isCurrent ? 35 : 0)}px) rotateX(${cfg.rx}deg) scale(${isCurrent ? 1.06 : 1})`;
+                        {/* MAIN EXPLODED 3D BURGER IMAGE (AUTHENTIC ISOLATED PNG FOR THIS BURGER) */}
+                        <img
+                          key={activeBurger.id + '-exploded-3d'}
+                          src={activeBurger.explodedImage}
+                          alt={`${activeBurger.name} — Vue 3D Décomposée`}
+                          className="h-full w-auto max-w-[76%] sm:max-w-[72%] object-contain transition-all duration-700 animate-in fade-in zoom-in-95 duration-400 pointer-events-none"
+                          style={{
+                            filter: 'drop-shadow(0 20px 35px rgba(0,0,0,0.92)) drop-shadow(0 0 25px rgba(255,59,48,0.22))'
+                          }}
+                        />
 
-                          return (
-                            <div
-                              key={`${activeBurger.id}-slice-${idx}`}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setActiveLayerIndex(idx);
-                              }}
-                              className={`absolute inset-0 flex items-center justify-center cursor-pointer transition-all duration-500 ease-out ${
-                                isCurrent ? "z-30" : "z-20 hover:scale-[1.02]"
-                              }`}
-                              style={{
-                                transform: transformStr,
-                                transformStyle: "preserve-3d"
-                              }}
-                            >
-                              {/* 3D FLOATING HOLOGRAPHIC PROJECTION RING UNDER LAYER */}
-                              <div
-                                className={`absolute w-[240px] sm:w-[270px] h-[70px] rounded-full border transition-all duration-500 pointer-events-none ${
-                                  isCurrent
-                                    ? "border-[#ff3b30]/80 bg-[#ff3b30]/15 shadow-[0_0_30px_rgba(255,59,48,0.45)] scale-105"
-                                    : "border-white/10 bg-white/[0.02] shadow-[0_10px_20px_rgba(0,0,0,0.6)]"
-                                }`}
-                                style={{
-                                  transform: "translateY(35px) rotateX(65deg)",
-                                  filter: "blur(0.5px)"
-                                }}
-                              />
+                        {/* LASER SCAN HIGHLIGHT ON ACTIVE LAYER */}
+                        <div
+                          className="absolute left-4 right-16 sm:right-28 h-[2px] bg-gradient-to-r from-transparent via-[#ff3b30] to-transparent pointer-events-none transition-all duration-500 shadow-[0_0_15px_#ff3b30] z-20"
+                          style={{
+                            top: ['10%', '28%', '48%', '68%', '88%'][activeLayerIndex] || '50%'
+                          }}
+                        />
 
-                              {/* BURGER SLICE IMAGE */}
-                              <img
-                                src={activeBurger.image}
-                                alt={`${activeBurger.name} — ${layer.name}`}
-                                className="w-full h-full object-contain pointer-events-none select-none transition-all duration-500"
-                                style={{
-                                  clipPath: cfg.clip,
-                                  WebkitClipPath: cfg.clip,
-                                  filter: isCurrent
-                                    ? "drop-shadow(0 0 22px rgba(255,59,48,0.95)) drop-shadow(0 20px 25px rgba(0,0,0,0.9)) brightness(1.15)"
-                                    : "drop-shadow(0 15px 25px rgba(0,0,0,0.85)) brightness(0.98)"
-                                }}
-                              />
-
-                              {/* FLOATING 3D INTERACTIVE PIN #1..#5 */}
+                        {/* 5 INTERACTIVE NUMBERED HOTSPOTS (1 À 5) — CLEANLY POSITIONED ON THE RIGHT WITH ZERO COLLISION */}
+                        <div className="absolute right-0 top-1 bottom-1 w-auto flex flex-col justify-between py-1 z-30 pointer-events-auto">
+                          {((activeBurger?.layers && activeBurger.layers.length > 0) ? activeBurger.layers : DEFAULT_BURGER_LAYERS).map((layer, idx) => {
+                            const isCurrent = idx === activeLayerIndex;
+                            return (
                               <button
+                                key={layer.num}
                                 type="button"
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   setActiveLayerIndex(idx);
                                 }}
                                 title={`Couche #${layer.num} : ${layer.name}`}
-                                className={`absolute flex items-center gap-1.5 transition-all duration-300 cursor-pointer pointer-events-auto ${
-                                  isCurrent ? "scale-115 opacity-100 z-40" : "scale-95 opacity-85 hover:opacity-100 hover:scale-105 z-30"
+                                className={`flex items-center gap-1.5 transition-all duration-300 cursor-pointer ${
+                                  isCurrent
+                                    ? "scale-105 opacity-100"
+                                    : "opacity-75 hover:opacity-100 hover:scale-102"
                                 }`}
-                                style={{
-                                  top: cfg.pinTop,
-                                  ...(cfg.pinSide === "left" ? { left: "-14px" } : { right: "-14px" }),
-                                  flexDirection: cfg.pinSide === "left" ? "row" : "row-reverse",
-                                  transform: `translateZ(${isCurrent ? 50 : 25}px)`
-                                }}
                               >
+                                {/* Pulsing Number Pin */}
                                 <div
-                                  className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-black transition-all shadow-xl ${
+                                  className={`w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center text-[10px] sm:text-xs font-black transition-all shadow-xl shrink-0 ${
                                     isCurrent
                                       ? "bg-gradient-to-r from-[#ff3b30] to-[#e11d48] text-white ring-4 ring-[#ff3b30]/40 shadow-[0_0_18px_rgba(255,59,48,0.9)] animate-pulse"
                                       : "bg-black/90 text-zinc-300 border border-white/20 hover:border-[#ff3b30] hover:text-white"
@@ -1343,8 +1309,10 @@ export default function Home() {
                                 >
                                   #{layer.num}
                                 </div>
+
+                                {/* Layer Name Pill */}
                                 <span
-                                  className={`px-2.5 py-1 rounded-lg text-[10px] font-bold backdrop-blur-md border transition-all whitespace-nowrap shadow-md ${
+                                  className={`px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-lg text-[9px] sm:text-[10px] font-bold backdrop-blur-md border transition-all whitespace-nowrap shadow-md ${
                                     isCurrent
                                       ? "bg-black/95 text-white border-[#ff3b30]/80 shadow-[0_0_12px_rgba(255,59,48,0.35)]"
                                       : "bg-black/80 text-zinc-300 border-white/10 hover:text-white hidden sm:inline-block"
@@ -1353,26 +1321,21 @@ export default function Home() {
                                   {layer.label}
                                 </span>
                               </button>
-                            </div>
-                          );
-                        })}
-
-                        {/* BURGER NAME BADGE (TOP) */}
-                        <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-black/85 border border-[#ff3b30]/60 text-[10px] font-black text-[#ff3b30] uppercase tracking-widest backdrop-blur-md pointer-events-none whitespace-nowrap shadow-xl z-40">
-                          ✦ {activeBurger.name} — 5 Couches Décomposées 3D
+                            );
+                          })}
                         </div>
 
-                        {/* RETURN TO 360 PILL (BOTTOM) */}
+                        {/* RETURN TO 360 PILL (BOTTOM WITH AMPLE CLEARANCE) */}
                         <button
                           type="button"
                           onClick={(e) => {
                             e.stopPropagation();
                             toggleExploded();
                           }}
-                          className="absolute -bottom-3 left-1/2 -translate-x-1/2 px-3.5 py-1 rounded-full bg-black/85 border border-white/20 hover:border-[#f59e0b] text-[10px] text-zinc-300 hover:text-white flex items-center gap-1.5 shadow-xl backdrop-blur-md transition-all cursor-pointer whitespace-nowrap z-40"
+                          className="absolute -bottom-6 left-1/2 -translate-x-1/2 px-3.5 py-1 rounded-full bg-black/90 border border-white/20 hover:border-[#f59e0b] text-[10px] text-zinc-200 hover:text-white flex items-center gap-1.5 shadow-2xl backdrop-blur-md transition-all cursor-pointer whitespace-nowrap z-40"
                         >
                           <RotateCw className="w-3 h-3 text-[#f59e0b]" />
-                          <span>Rassembler le burger (360°)</span>
+                          <span>Rassembler en 360°</span>
                         </button>
                       </div>
                     )}
