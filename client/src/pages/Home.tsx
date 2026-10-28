@@ -1292,23 +1292,67 @@ export default function Home() {
                                 }}
                               >
                                 {/* LAYER IMAGE — left side */}
-                                <div style={{ width: '175px', flexShrink: 0, filter: isActive
-                                    ? 'drop-shadow(0 0 16px rgba(255,59,48,0.9)) drop-shadow(0 6px 18px rgba(0,0,0,0.9)) brightness(1.08)'
-                                    : 'drop-shadow(0 3px 10px rgba(0,0,0,0.7)) brightness(0.75)' }}>
-                                  <img
-                                    src={layer.image}
-                                    alt={layer.name}
-                                    draggable={false}
-                                    style={{
-                                      width: '100%',
-                                      objectFit: 'contain',
-                                      pointerEvents: 'none',
-                                      userSelect: 'none',
-                                      transition: 'transform 0.45s cubic-bezier(0.34,1.56,0.64,1)',
-                                      transform: isActive ? 'scaleX(1.07)' : 'scaleX(1)',
-                                      display: 'block',
-                                    }}
-                                  />
+                                <div style={{ width: '175px', flexShrink: 0, position: 'relative', filter: isActive
+                                    ? 'drop-shadow(0 0 16px rgba(255,59,48,0.9)) drop-shadow(0 6px 18px rgba(0,0,0,0.9)) brightness(1.12)'
+                                    : 'drop-shadow(0 3px 10px rgba(0,0,0,0.7)) brightness(0.85)' }}>
+                                  {activeBurger.id === 'truffle-mushroom' ? (
+                                    /* DÉCOUPE EXACTE DEMANDÉE VIA CLIP-PATH DANS LES ESPACES NOIRS */
+                                    <div
+                                      style={{
+                                        width: '175px',
+                                        height: '65px',
+                                        position: 'relative',
+                                        overflow: 'hidden',
+                                        mixBlendMode: 'screen',
+                                        transition: 'transform 0.45s cubic-bezier(0.34,1.56,0.64,1)',
+                                        transform: isActive ? 'scale(1.08)' : 'scale(1)',
+                                      }}
+                                    >
+                                      <img
+                                        src="/burgers/truffle-exploded-source.jpg"
+                                        alt={layer.name}
+                                        draggable={false}
+                                        style={{
+                                          width: '100%',
+                                          height: 'auto',
+                                          position: 'absolute',
+                                          left: 0,
+                                          top: [
+                                            '0%',     /* Couche #1 : Bun Supérieur (0% - 24%) */
+                                            '-55%',   /* Couche #2 : Sauce & Roquette (24% - 41%) */
+                                            '-105%',  /* Couche #3 : Champignons & Oignons (41% - 56%) */
+                                            '-150%',  /* Couche #4 : Steaks & Fromage (56% - 78%) */
+                                            '-218%'   /* Couche #5 : Bun Inférieur (78% - 100%) */
+                                          ][idx] || '0%',
+                                          clipPath: [
+                                            'inset(0% 0% 76% 0%)',
+                                            'inset(24% 0% 59% 0%)',
+                                            'inset(41% 0% 44% 0%)',
+                                            'inset(56% 0% 22% 0%)',
+                                            'inset(78% 0% 0% 0%)'
+                                          ][idx] || 'none',
+                                          pointerEvents: 'none',
+                                          userSelect: 'none',
+                                          display: 'block',
+                                        }}
+                                      />
+                                    </div>
+                                  ) : (
+                                    <img
+                                      src={layer.image}
+                                      alt={layer.name}
+                                      draggable={false}
+                                      style={{
+                                        width: '100%',
+                                        objectFit: 'contain',
+                                        pointerEvents: 'none',
+                                        userSelect: 'none',
+                                        transition: 'transform 0.45s cubic-bezier(0.34,1.56,0.64,1)',
+                                        transform: isActive ? 'scaleX(1.07)' : 'scaleX(1)',
+                                        display: 'block',
+                                      }}
+                                    />
+                                  )}
                                 </div>
 
                                 {/* INGREDIENT LABEL — right side, neatly spaced, zero overlap with burger */}
