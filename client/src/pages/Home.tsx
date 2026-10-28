@@ -377,7 +377,7 @@ export const ALL_7_BURGERS: BurgerItem[] = [
         name: "Fromage Américain Fondant",
         description: "Tranche d'American Cheese fondant nappant le poulet chaud.",
         tag: "AMERICAN CHEESE",
-        image: "/burgers/layers/cheese-patty1.png"
+        image: "/burgers/layers/crispy-chicken-layer.png"
       },
       {
         num: 4,
@@ -436,7 +436,7 @@ export const ALL_7_BURGERS: BurgerItem[] = [
         name: "Fromage Américain Fondant",
         description: "Tranche d'American Cheese fondu sur le poulet croustillant.",
         tag: "AMERICAN CHEESE",
-        image: "/burgers/layers/cheese-patty1.png"
+        image: "/burgers/layers/crispy-chicken-layer.png"
       },
       {
         num: 4,
@@ -495,7 +495,7 @@ export const ALL_7_BURGERS: BurgerItem[] = [
         name: "Oignons Caramélisés & Fromage Fumé",
         description: "Oignons fondants caramélisés à la plancha et fromage fumé savoureux.",
         tag: "CARAMELISED ONIONS & SMOKED CHEESE",
-        image: "/burgers/layers/cheese-patty1.png"
+        image: "/burgers/layers/crispy-chicken-layer.png"
       },
       {
         num: 4,
