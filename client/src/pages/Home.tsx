@@ -240,42 +240,42 @@ export const ALL_7_BURGERS: BurgerItem[] = [
       {
         num: 1,
         label: "Bun Supérieur",
-        name: "Pain Brioché (Dessus)",
-        description: "Pain brioché moelleux toasté délicatement.",
+        name: "Pain Brioché Toasté (Dessus)",
+        description: "Pain brioché artisanal toasté au beurre doré.",
         tag: "BRIOCHE BUN",
-        image: "/burgers/layers/top-bun.png"
+        image: "/burgers/oklahoma-layers/oklahoma_couche_1.png"
       },
       {
         num: 2,
-        label: "Sauce & Pickles",
-        name: "Sauce OG & Cornichons Pickles",
-        description: "Sauce OG signature et tranches de pickles croquants marinés.",
-        tag: "OG SAUCE & PICKLES",
-        image: "/burgers/layers/toppings.png"
+        label: "Sauce OG & Cornichons",
+        name: "Pickles Croquants & Sauce OG",
+        description: "Rondelles de pickles marinés et sauce signature OG maison.",
+        tag: "PICKLES & SAUCE OG",
+        image: "/burgers/oklahoma-layers/oklahoma_couche_2.png"
       },
       {
         num: 3,
         label: "1er Steak Oklahoma",
-        name: "Steak Smash Écrasé avec Oignons & Cheese",
-        description: "Oignons doux tranchés ultra-fins écrasés directement DANS la viande brûlante avec fromage américain.",
-        tag: "OKLAHOMA PATTY 1",
-        image: "/burgers/layers/cheese-patty1.png"
+        name: "1er Steak Smashé aux Oignons & Fromage Américain",
+        description: "Steak pur bœuf écrasé directement sur oignons émincés caramélisés avec American cheese fondant.",
+        tag: "OKLAHOMA SMASH #1",
+        image: "/burgers/oklahoma-layers/oklahoma_couche_3.png"
       },
       {
         num: 4,
         label: "2ème Steak Oklahoma",
-        name: "2ème Steak Smash avec Oignons & Cheese",
-        description: "Deuxième palet caramélisé aux sucs d'oignons doux et fromage fondant.",
-        tag: "OKLAHOMA PATTY 2",
-        image: "/burgers/layers/patty2.png"
+        name: "2ème Steak Smashé aux Oignons & Fromage Américain",
+        description: "Deuxième steak pur bœuf caramélisé aux oignons fondants et fromage américain.",
+        tag: "OKLAHOMA SMASH #2",
+        image: "/burgers/oklahoma-layers/oklahoma_couche_4.png"
       },
       {
         num: 5,
-        label: "Bun Inférieur",
+        label: "Bun Inférieur & Sauce OG",
         name: "Pain Brioché (Dessous) & Sauce OG",
-        description: "Base briochée maintenant le tout et les sucs caramélisés.",
-        tag: "BASE",
-        image: "/burgers/layers/bottom-bun.png"
+        description: "Base briochée moelleuse toastée et nappée de sauce OG.",
+        tag: "BASE & SAUCE OG",
+        image: "/burgers/oklahoma-layers/oklahoma_couche_5.png"
       }
     ]
   },
