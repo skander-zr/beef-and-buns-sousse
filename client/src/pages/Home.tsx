@@ -358,42 +358,42 @@ export const ALL_7_BURGERS: BurgerItem[] = [
       {
         num: 1,
         label: "Bun Supérieur",
-        name: "Pain Brioché (Dessus)",
-        description: "Pain brioché aérien toasté au beurre doux.",
+        name: "Pain Brioché Artisanal (Dessus)",
+        description: "Pain brioché artisanal toasté au beurre doux.",
         tag: "BRIOCHE BUN",
-        image: "/burgers/layers/top-bun.png"
+        image: "/burgers/chicken-layers/chicken_couche_1.png"
       },
       {
         num: 2,
         label: "Coleslaw Maison",
-        name: "Coleslaw Frais Crémeux",
-        description: "Salade de chou blanc et rouge râpée minute avec carottes et sauce crémeuse.",
-        tag: "COLESLAW FRAIS",
-        image: "/burgers/layers/coleslaw.png"
+        name: "Coleslaw (Salade de chou crémeuse)",
+        description: "Salade de chou blanc et carottes râpées minute avec sauce crémeuse maison.",
+        tag: "CREAMY COLESLAW",
+        image: "/burgers/chicken-layers/chicken_couche_2.png"
       },
       {
         num: 3,
-        label: "Fromage Fondu",
-        name: "Fromage Américain Fondant",
-        description: "Tranche d'American Cheese fondant nappant le poulet chaud.",
-        tag: "AMERICAN CHEESE",
-        image: "/burgers/layers/crispy-chicken-layer.png"
+        label: "Poulet & Fromage",
+        name: "Filet de Poulet Croustillant & Fromage Américain",
+        description: "Généreux suprême de poulet mariné ultra-croustillant nappé d'American cheese fondant.",
+        tag: "CRISPY CHICKEN & CHEESE",
+        image: "/burgers/chicken-layers/chicken_couche_3.png"
       },
       {
         num: 4,
-        label: "Poulet Croustillant",
-        name: "Suprême de Poulet Extra-Croustillant",
-        description: "Filet de poulet mariné 24h et pané minute dans une chapelure ultra-dorée et croustillante.",
-        tag: "CRISPY CHICKEN",
-        image: "/burgers/layers/crispy-chicken.png"
+        label: "Sauce OG & Salade",
+        name: "Sauce OG Signature & Salade Fraîche",
+        description: "Feuille de batavia croquante nappée de sauce signature OG.",
+        tag: "OG SAUCE & LETTUCE",
+        image: "/burgers/chicken-layers/chicken_couche_4.png"
       },
       {
         num: 5,
         label: "Bun Inférieur",
-        name: "Pain Brioché (Dessous) & Sauce OG",
-        description: "Base briochée toastée avec la sauce signature OG.",
-        tag: "BASE & SAUCE OG",
-        image: "/burgers/layers/bottom-bun.png"
+        name: "Pain Brioché Artisanal (Dessous)",
+        description: "Base briochée moelleuse toastée à la perfection.",
+        tag: "BASE BRIOCHÉE",
+        image: "/burgers/chicken-layers/chicken_couche_5.png"
       }
     ]
   },
