@@ -1256,18 +1256,18 @@ export default function Home() {
                         </div>
                       </div>
                     ) : (
-                      /* MODE 2: TRUE 3D EXPLODED BURGER — EACH LAYER FLOATS AT ITS OWN HEIGHT */
+                      /* MODE 2: TRUE 3D EXPLODED BURGER — EACH LAYER FLOATS + LABELED */
                       <div
                         className="w-full h-full flex items-center justify-center select-none"
                         onClick={(e) => e.stopPropagation()}
                         style={{ perspective: '900px', perspectiveOrigin: '50% 45%' }}
                       >
-                        {/* EXPLODED 3D STACK */}
+                        {/* EXPLODED 3D STACK WITH LABELS ON RIGHT */}
                         <div
                           className="relative"
                           style={{
-                            width: '220px',
-                            height: '280px',
+                            width: '340px',
+                            height: '290px',
                             transformStyle: 'preserve-3d',
                           }}
                         >
@@ -1283,31 +1283,72 @@ export default function Home() {
                                 type="button"
                                 onClick={(e) => { e.stopPropagation(); setActiveLayerIndex(idx); }}
                                 title={layer.name}
-                                className="absolute left-0 right-0 flex items-center justify-center cursor-pointer border-0 bg-transparent p-0"
+                                className="absolute left-0 right-0 flex items-center cursor-pointer border-0 bg-transparent p-0"
                                 style={{
                                   bottom: `${baseY + extraY}px`,
                                   transition: 'all 0.45s cubic-bezier(0.34,1.56,0.64,1)',
                                   transform: `translateZ(${zDepth}px)`,
                                   zIndex: isActive ? 20 : total - idx,
-                                  filter: isActive
-                                    ? 'drop-shadow(0 0 18px rgba(255,59,48,0.9)) drop-shadow(0 6px 20px rgba(0,0,0,0.9)) brightness(1.08)'
-                                    : 'drop-shadow(0 4px 12px rgba(0,0,0,0.75)) brightness(0.78)',
                                 }}
                               >
-                                <img
-                                  src={layer.image}
-                                  alt={layer.name}
-                                  draggable={false}
+                                {/* LAYER IMAGE — left side */}
+                                <div style={{ width: '175px', flexShrink: 0, filter: isActive
+                                    ? 'drop-shadow(0 0 16px rgba(255,59,48,0.9)) drop-shadow(0 6px 18px rgba(0,0,0,0.9)) brightness(1.08)'
+                                    : 'drop-shadow(0 3px 10px rgba(0,0,0,0.7)) brightness(0.75)' }}>
+                                  <img
+                                    src={layer.image}
+                                    alt={layer.name}
+                                    draggable={false}
+                                    style={{
+                                      width: '100%',
+                                      objectFit: 'contain',
+                                      pointerEvents: 'none',
+                                      userSelect: 'none',
+                                      transition: 'transform 0.45s cubic-bezier(0.34,1.56,0.64,1)',
+                                      transform: isActive ? 'scaleX(1.07)' : 'scaleX(1)',
+                                      display: 'block',
+                                    }}
+                                  />
+                                </div>
+
+                                {/* INGREDIENT LABEL — right side, attached to the layer */}
+                                <div
                                   style={{
-                                    width: '100%',
-                                    maxWidth: idx === 0 || idx === total - 1 ? '195px' : '170px',
-                                    objectFit: 'contain',
-                                    pointerEvents: 'none',
-                                    userSelect: 'none',
-                                    transition: 'transform 0.45s cubic-bezier(0.34,1.56,0.64,1)',
-                                    transform: isActive ? 'scaleX(1.06)' : 'scaleX(1)',
+                                    marginLeft: '8px',
+                                    transition: 'all 0.35s ease',
+                                    opacity: isActive ? 1 : 0.45,
+                                    transform: isActive ? 'translateX(0px)' : 'translateX(-4px)',
                                   }}
-                                />
+                                  className="flex flex-col items-start gap-0.5 pointer-events-none"
+                                >
+                                  <span
+                                    className="text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded"
+                                    style={{
+                                      background: isActive ? 'rgba(255,59,48,0.25)' : 'rgba(255,255,255,0.06)',
+                                      color: isActive ? '#ff3b30' : '#a1a1aa',
+                                      border: isActive ? '1px solid rgba(255,59,48,0.5)' : '1px solid rgba(255,255,255,0.08)',
+                                    }}
+                                  >
+                                    #{layer.num}
+                                  </span>
+                                  <span
+                                    className="text-[10px] font-bold leading-tight whitespace-nowrap"
+                                    style={{
+                                      color: isActive ? '#ffffff' : '#71717a',
+                                      textShadow: isActive ? '0 0 12px rgba(255,59,48,0.6)' : 'none',
+                                    }}
+                                  >
+                                    {layer.label}
+                                  </span>
+                                  {isActive && (
+                                    <span
+                                      className="text-[9px] leading-tight"
+                                      style={{ color: '#f59e0b', maxWidth: '130px', whiteSpace: 'normal', lineHeight: '1.2' }}
+                                    >
+                                      {layer.tag}
+                                    </span>
+                                  )}
+                                </div>
                               </button>
                             );
                           })}
