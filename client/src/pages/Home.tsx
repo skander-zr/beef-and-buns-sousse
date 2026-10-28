@@ -1311,39 +1311,41 @@ export default function Home() {
                                   />
                                 </div>
 
-                                {/* INGREDIENT LABEL — right side, attached to the layer */}
+                                {/* INGREDIENT LABEL — right side, neatly spaced, zero overlap with burger */}
                                 <div
                                   style={{
-                                    marginLeft: '8px',
-                                    transition: 'all 0.35s ease',
-                                    opacity: isActive ? 1 : 0.45,
-                                    transform: isActive ? 'translateX(0px)' : 'translateX(-4px)',
+                                    marginLeft: '12px',
+                                    transition: 'all 0.35s cubic-bezier(0.16, 1, 0.3, 1)',
+                                    opacity: isActive ? 1 : 0.5,
+                                    transform: isActive ? 'translateX(4px)' : 'translateX(0px)',
                                   }}
-                                  className="flex flex-col items-start gap-0.5 pointer-events-none"
+                                  className="flex flex-col items-start gap-1 pointer-events-none"
                                 >
-                                  <span
-                                    className="text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded"
-                                    style={{
-                                      background: isActive ? 'rgba(255,59,48,0.25)' : 'rgba(255,255,255,0.06)',
-                                      color: isActive ? '#ff3b30' : '#a1a1aa',
-                                      border: isActive ? '1px solid rgba(255,59,48,0.5)' : '1px solid rgba(255,255,255,0.08)',
-                                    }}
-                                  >
-                                    #{layer.num}
-                                  </span>
-                                  <span
-                                    className="text-[10px] font-bold leading-tight whitespace-nowrap"
-                                    style={{
-                                      color: isActive ? '#ffffff' : '#71717a',
-                                      textShadow: isActive ? '0 0 12px rgba(255,59,48,0.6)' : 'none',
-                                    }}
-                                  >
-                                    {layer.label}
-                                  </span>
+                                  <div className="flex items-center gap-1.5">
+                                    <span
+                                      className="text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-full"
+                                      style={{
+                                        background: isActive ? '#ff3b30' : 'rgba(255,255,255,0.08)',
+                                        color: '#ffffff',
+                                        boxShadow: isActive ? '0 0 10px rgba(255,59,48,0.6)' : 'none',
+                                      }}
+                                    >
+                                      #{layer.num}
+                                    </span>
+                                    <span
+                                      className="text-[11px] font-bold leading-tight whitespace-nowrap"
+                                      style={{
+                                        color: isActive ? '#ffffff' : '#a1a1aa',
+                                        textShadow: isActive ? '0 0 8px rgba(255,59,48,0.5)' : 'none',
+                                      }}
+                                    >
+                                      {layer.label}
+                                    </span>
+                                  </div>
                                   {isActive && (
                                     <span
-                                      className="text-[9px] leading-tight"
-                                      style={{ color: '#f59e0b', maxWidth: '130px', whiteSpace: 'normal', lineHeight: '1.2' }}
+                                      className="text-[10px] font-semibold leading-tight text-[#f59e0b] px-1 py-0.5 rounded bg-black/60 border border-[#f59e0b]/30"
+                                      style={{ maxWidth: '150px' }}
                                     >
                                       {layer.tag}
                                     </span>
