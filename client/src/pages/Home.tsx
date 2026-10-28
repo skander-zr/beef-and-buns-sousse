@@ -417,42 +417,42 @@ export const ALL_7_BURGERS: BurgerItem[] = [
       {
         num: 1,
         label: "Bun Supérieur",
-        name: "Pain Brioché (Dessus)",
-        description: "Pain brioché toasté au beurre doré.",
+        name: "Pain Brioché Artisanal (Dessus)",
+        description: "Pain brioché artisanal toasté parsemé de graines de sésame dorées.",
         tag: "BRIOCHE BUN",
-        image: "/burgers/layers/top-bun.png"
+        image: "/burgers/classic-chicken-layers/classic_chicken_couche_1.png"
       },
       {
         num: 2,
-        label: "Crudités Fraîches",
-        name: "Tomate, Oignons & Laitue Croquante",
-        description: "Tranches de tomates fraîches juteuses, rondelles d'oignons rouges et feuilles de laitue croquante.",
-        tag: "TOMATO, ONION & LETTUCE",
-        image: "/burgers/layers/toppings.png"
+        label: "Tomates & Oignons",
+        name: "Tomates Fraîches & Oignons Rouges",
+        description: "Rondelles de tomates fraîches juteuses et anneaux d'oignons rouges croquants.",
+        tag: "TOMATO & ONION",
+        image: "/burgers/classic-chicken-layers/classic_chicken_couche_2.png"
       },
       {
         num: 3,
-        label: "Fromage Fondu",
-        name: "Fromage Américain Fondant",
-        description: "Tranche d'American Cheese fondu sur le poulet croustillant.",
-        tag: "AMERICAN CHEESE",
-        image: "/burgers/layers/crispy-chicken-layer.png"
+        label: "Laitue Fraîche",
+        name: "Laitue Croquante Fraîche",
+        description: "Feuilles de salade verte croquante soigneusement sélectionnées.",
+        tag: "CRISP LETTUCE",
+        image: "/burgers/classic-chicken-layers/classic_chicken_couche_3.png"
       },
       {
         num: 4,
-        label: "Poulet Croustillant",
-        name: "Filet de Poulet Pané Croustillant",
-        description: "Poulet pané doré et juteux aux herbes et épices douces.",
-        tag: "CRISPY CHICKEN",
-        image: "/burgers/layers/crispy-chicken.png"
+        label: "Poulet & Fromage",
+        name: "Filet de Poulet Croustillant & Fromage Américain",
+        description: "Suprême de poulet mariné pané minute extra-croustillant nappé d'American cheese fondant.",
+        tag: "CRISPY CHICKEN & CHEESE",
+        image: "/burgers/classic-chicken-layers/classic_chicken_couche_4.png"
       },
       {
         num: 5,
-        label: "Bun Inférieur",
+        label: "Bun Inférieur & Sauce OG",
         name: "Pain Brioché (Dessous) & Sauce OG",
-        description: "Base briochée moelleuse nappée de sauce OG.",
+        description: "Base briochée moelleuse toastée et généreusement nappée de sauce OG.",
         tag: "BASE & SAUCE OG",
-        image: "/burgers/layers/bottom-bun.png"
+        image: "/burgers/classic-chicken-layers/classic_chicken_couche_5.png"
       }
     ]
   },
