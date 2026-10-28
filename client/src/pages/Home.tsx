@@ -1102,7 +1102,7 @@ export default function Home() {
             <div className="lg:col-span-7 flex flex-col items-center">
               
               {/* 3D STAGE CARD (NO overflow-hidden TO PRESERVE 3D DEPTH) */}
-              <div className="relative w-full max-w-[580px] rounded-3xl bg-gradient-to-b from-[#14141a]/95 to-[#0e0e12]/98 border border-white/10 p-5 sm:p-6 flex flex-col items-center justify-between shadow-2xl group">
+              <div className="relative w-full max-w-[580px] rounded-3xl bg-gradient-to-b from-[#14141a]/95 to-[#0e0e12]/98 border border-white/10 p-3.5 sm:p-6 flex flex-col items-center justify-between shadow-2xl group">
                 
                 {/* AMBIENT RADIAL GLOW */}
                 <div
@@ -1236,7 +1236,9 @@ export default function Home() {
                   {/* 3D BURGER MODEL CONTAINER (HIGH-PERFORMANCE DIRECT DOM TRANSFORM) */}
                   <div
                     ref={modelRef}
-                    className={`burger-3d-model relative flex items-center justify-center cursor-pointer w-[280px] sm:w-[320px] h-[280px] sm:h-[320px] ${
+                    className={`burger-3d-model relative flex items-center justify-center cursor-pointer ${
+                      isExploded ? "w-full max-w-[480px] h-[330px] sm:h-[360px]" : "w-[280px] sm:w-[320px] h-[280px] sm:h-[320px]"
+                    } ${
                       isExploded ? "exploded" : ""
                     }`}
                   >
@@ -1293,13 +1295,10 @@ export default function Home() {
                                   zIndex: isActive ? 30 : total - idx,
                                 }}
                               >
-                                {/* 5 TRANSPARENT PNG LAYERS (280px, height: auto, NO background, NO overflow hidden) */}
+                                {/* 5 TRANSPARENT PNG LAYERS (Responsive width, height: auto, NO background, NO overflow hidden) */}
                                 <div
+                                  className="w-[165px] min-[380px]:w-[190px] min-[440px]:w-[220px] sm:w-[260px] md:w-[280px] shrink-0 relative transition-transform duration-500"
                                   style={{
-                                    width: '280px',
-                                    flexShrink: 0,
-                                    position: 'relative',
-                                    transition: 'transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1)',
                                     transform: isActive ? 'scale(1.08)' : 'scale(1)',
                                   }}
                                 >
@@ -1307,35 +1306,29 @@ export default function Home() {
                                     src={layer.image}
                                     alt={layer.name}
                                     draggable={false}
+                                    className="w-full h-auto object-contain block pointer-events-none select-none"
                                     style={{
-                                      width: '280px',
-                                      height: 'auto',
-                                      objectFit: 'contain',
                                       filter: isActive
                                         ? 'drop-shadow(0 20px 30px rgba(0,0,0,0.8)) drop-shadow(0 0 20px rgba(255,59,48,0.85)) brightness(1.1)'
                                         : 'drop-shadow(0 15px 25px rgba(0,0,0,0.6))',
-                                      pointerEvents: 'none',
-                                      userSelect: 'none',
-                                      display: 'block',
                                     }}
                                   />
                                 </div>
 
-                                {/* INGREDIENT LABEL — right side, cleanly aligned outside burger */}
+                                {/* INGREDIENT LABEL — right side, responsive & never cut off */}
                                 <div
                                   style={{
-                                    marginLeft: '14px',
                                     transition: 'all 0.35s cubic-bezier(0.16, 1, 0.3, 1)',
-                                    opacity: isActive ? 1 : 0.5,
-                                    transform: isActive ? 'translateX(6px)' : 'translateX(0px)',
+                                    opacity: isActive ? 1 : 0.65,
+                                    transform: isActive ? 'translateX(4px)' : 'translateX(0px)',
                                   }}
-                                  className="flex flex-col items-start gap-1 pointer-events-none pr-2"
+                                  className="flex flex-col items-start gap-0.5 sm:gap-1 pointer-events-none flex-1 min-w-0 pl-1.5 sm:pl-3.5 pr-0.5 sm:pr-2"
                                 >
-                                  <div className="flex items-center gap-1.5">
+                                  <div className="flex items-center gap-1 sm:gap-1.5 w-full min-w-0">
                                     <span
-                                      className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full"
+                                      className="text-[9px] sm:text-[10px] font-black uppercase tracking-wider px-1.5 sm:px-2 py-0.5 rounded-full shrink-0"
                                       style={{
-                                        background: isActive ? '#ff3b30' : 'rgba(255,255,255,0.08)',
+                                        background: isActive ? '#ff3b30' : 'rgba(255,255,255,0.1)',
                                         color: '#ffffff',
                                         boxShadow: isActive ? '0 0 12px rgba(255,59,48,0.7)' : 'none',
                                       }}
@@ -1343,7 +1336,7 @@ export default function Home() {
                                       #{layer.num}
                                     </span>
                                     <span
-                                      className="text-xs font-bold leading-tight whitespace-nowrap"
+                                      className="text-[11px] sm:text-xs font-bold leading-tight truncate sm:whitespace-nowrap"
                                       style={{
                                         color: isActive ? '#ffffff' : '#a1a1aa',
                                         textShadow: isActive ? '0 0 10px rgba(255,59,48,0.6)' : 'none',
@@ -1354,8 +1347,7 @@ export default function Home() {
                                   </div>
                                   {isActive && (
                                     <span
-                                      className="text-[10px] font-semibold leading-tight text-[#f59e0b] px-1.5 py-0.5 rounded bg-black/70 border border-[#f59e0b]/30 shadow-md"
-                                      style={{ maxWidth: '160px' }}
+                                      className="text-[9px] sm:text-[10px] font-semibold leading-tight text-[#f59e0b] px-1.5 py-0.5 rounded bg-black/70 border border-[#f59e0b]/30 shadow-md truncate max-w-[120px] sm:max-w-[180px]"
                                     >
                                       {layer.tag}
                                     </span>
