@@ -299,42 +299,42 @@ export const ALL_7_BURGERS: BurgerItem[] = [
       {
         num: 1,
         label: "Bun Supérieur",
-        name: "Pain Brioché (Dessus)",
-        description: "Pain brioché toasté sur plaque chaude.",
+        name: "Pain Brioché Toasté (Dessus)",
+        description: "Pain brioché artisanal toasté au beurre doré.",
         tag: "BRIOCHE BUN",
-        image: "/burgers/layers/top-bun.png"
+        image: "/burgers/hot-layers/hot_couche_1.png"
       },
       {
         num: 2,
-        label: "Sauce & Piments",
-        name: "Hot Sauce & Piments Jalapeños",
-        description: "Sauce piquante maison relevée et rondelles de jalapeños croquants.",
-        tag: "HOT SAUCE & JALAPEÑOS 🔥",
-        image: "/burgers/layers/hot-toppings.png"
+        label: "Sauce Piquante & Jalapeños",
+        name: "Sauce Piquante Hot Sauce & Jalapeños",
+        description: "Piments jalapeños tranchés marinés nappés de sauce piquante artisanale.",
+        tag: "HOT SAUCE & JALAPEÑOS",
+        image: "/burgers/hot-layers/hot_couche_2.png"
       },
       {
         num: 3,
         label: "Oignons Croustillants",
-        name: "Oignons Croustillants Frits",
-        description: "Fils d'oignons frits ultra-croustillants apportant un croquant irrésistible.",
+        name: "Oignons Croustillants Dorés",
+        description: "Oignons frits ultra-croustillants apportant texture et gourmandise.",
         tag: "CRISPY ONIONS",
-        image: "/burgers/layers/toppings.png"
+        image: "/burgers/hot-layers/hot_couche_3.png"
       },
       {
         num: 4,
-        label: "Steaks & Fromage",
-        name: "Double Steak Smash & American Cheese",
-        description: "Double steak smash pur bœuf à croûte Maillard intense et double cheddar fondant.",
+        label: "Double Steak & Fromage",
+        name: "Double Steak Smash & Fromage Américain",
+        description: "Double steak smash pur bœuf avec double fromage fondu épicé.",
         tag: "DOUBLE SMASH & CHEESE",
-        image: "/burgers/layers/cheese-patty1.png"
+        image: "/burgers/hot-layers/hot_couche_4.png"
       },
       {
         num: 5,
-        label: "Bun Inférieur",
+        label: "Bun Inférieur & Sauce OG",
         name: "Pain Brioché (Dessous) & Sauce OG",
-        description: "Base briochée dorée nappée de sauce OG.",
-        tag: "BASE",
-        image: "/burgers/layers/bottom-bun.png"
+        description: "Base briochée toastée généreusement nappée de sauce OG.",
+        tag: "BASE & SAUCE OG",
+        image: "/burgers/hot-layers/hot_couche_5.png"
       }
     ]
   },
