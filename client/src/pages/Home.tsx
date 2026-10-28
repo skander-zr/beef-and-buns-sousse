@@ -1376,7 +1376,7 @@ export default function Home() {
                         <span className="text-white font-semibold line-clamp-1">{activeBurger.specs.bun}</span>
                       </div>
                       <div>
-                        <span className="text-[#a1a1aa] block text-[9px] uppercase font-bold">Viande</span>
+                        <span className="text-[#a1a1aa] block text-[9px] uppercase font-bold">{activeBurger.category.toLowerCase().includes('chicken') ? 'Poulet' : 'Viande'}</span>
                         <span className="text-white font-semibold line-clamp-1">{activeBurger.specs.patty}</span>
                       </div>
                       <div>
