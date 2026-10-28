@@ -125,7 +125,7 @@ export const ALL_7_BURGERS: BurgerItem[] = [
         name: "Pain Brioché (Dessus)",
         description: "Brioche dorée artisanale toastée au beurre doux.",
         tag: "BRIOCHE BUN",
-        image: "/burgers/layers/top-bun.png"
+        image: "/burgers/truffle-layers/couche_1.png"
       },
       {
         num: 2,
@@ -133,7 +133,7 @@ export const ALL_7_BURGERS: BurgerItem[] = [
         name: "Truffle Mayo & Roquette Fraîche",
         description: "Mayonnaise onctueuse à la truffe et feuilles de roquette fraîche poivrée.",
         tag: "TRUFFLE & ROCKET",
-        image: "/burgers/layers/toppings.png"
+        image: "/burgers/truffle-layers/couche_2.png"
       },
       {
         num: 3,
@@ -141,7 +141,7 @@ export const ALL_7_BURGERS: BurgerItem[] = [
         name: "Champignons Sautés & Oignons Croustillants",
         description: "Champignons de Paris sautés et oignons croustillants dorés.",
         tag: "MUSHROOM & CRISPY ONION",
-        image: "/burgers/layers/hot-toppings.png"
+        image: "/burgers/truffle-layers/couche_3.png"
       },
       {
         num: 4,
@@ -149,7 +149,7 @@ export const ALL_7_BURGERS: BurgerItem[] = [
         name: "Double Steak Smash & Fromage Fumé",
         description: "Double steak de bœuf smashé à 240°C avec double fromage fumé fondant.",
         tag: "SMASHED BEEF & SMOKED CHEESE",
-        image: "/burgers/layers/cheese-patty1.png"
+        image: "/burgers/truffle-layers/couche_4.png"
       },
       {
         num: 5,
@@ -157,7 +157,7 @@ export const ALL_7_BURGERS: BurgerItem[] = [
         name: "Pain Brioché (Dessous) & Truffle Mayo",
         description: "Base briochée toastée avec une généreuse touche de mayonnaise à la truffe.",
         tag: "BASE & TRUFFLE",
-        image: "/burgers/layers/bottom-bun.png"
+        image: "/burgers/truffle-layers/couche_5.png"
       }
     ]
   },
@@ -1256,131 +1256,97 @@ export default function Home() {
                         </div>
                       </div>
                     ) : (
-                      /* MODE 2: TRUE 3D EXPLODED BURGER — EACH LAYER FLOATS + LABELED */
+                      /* MODE 2: TRUE 3D EXPLODED BURGER — 5 TRANSPARENT PNG LAYERS */
                       <div
                         className="w-full h-full flex items-center justify-center select-none"
                         onClick={(e) => e.stopPropagation()}
-                        style={{ perspective: '900px', perspectiveOrigin: '50% 45%' }}
+                        style={{ perspective: '1000px', perspectiveOrigin: '50% 45%' }}
                       >
-                        {/* EXPLODED 3D STACK WITH LABELS ON RIGHT */}
+                        {/* EXPLODED 3D STACK - WIDE CONTAINER WITHOUT OVERFLOW HIDDEN */}
                         <div
-                          className="relative"
+                          className="relative flex items-center justify-center"
                           style={{
-                            width: '340px',
-                            height: '290px',
+                            width: '100%',
+                            maxWidth: '480px',
+                            height: '320px',
                             transformStyle: 'preserve-3d',
                           }}
                         >
                           {(activeBurger?.layers || DEFAULT_BURGER_LAYERS).map((layer, idx) => {
                             const total = (activeBurger?.layers || DEFAULT_BURGER_LAYERS).length;
                             const isActive = idx === activeLayerIndex;
-                            const baseY = (total - 1 - idx) * 44;
-                            const extraY = isActive ? -20 : 0;
-                            const zDepth = (total - 1 - idx) * 8;
+                            /* Espacement vertical propre pour 5 couches sans collision */
+                            const baseY = (total - 1 - idx) * 52;
+                            const extraY = isActive ? -22 : 0;
+                            const zDepth = (total - 1 - idx) * 10;
                             return (
                               <button
                                 key={layer.num}
                                 type="button"
                                 onClick={(e) => { e.stopPropagation(); setActiveLayerIndex(idx); }}
                                 title={layer.name}
-                                className="absolute left-0 right-0 flex items-center cursor-pointer border-0 bg-transparent p-0"
+                                className="absolute left-0 right-0 flex items-center justify-between cursor-pointer border-0 bg-transparent p-0"
                                 style={{
                                   bottom: `${baseY + extraY}px`,
-                                  transition: 'all 0.45s cubic-bezier(0.34,1.56,0.64,1)',
+                                  transition: 'all 0.45s cubic-bezier(0.34, 1.56, 0.64, 1)',
                                   transform: `translateZ(${zDepth}px)`,
-                                  zIndex: isActive ? 20 : total - idx,
+                                  zIndex: isActive ? 30 : total - idx,
                                 }}
                               >
-                                {/* LAYER IMAGE — left side */}
-                                <div style={{ width: '175px', flexShrink: 0, position: 'relative', filter: isActive
-                                    ? 'drop-shadow(0 0 16px rgba(255,59,48,0.9)) drop-shadow(0 6px 18px rgba(0,0,0,0.9)) brightness(1.12)'
-                                    : 'drop-shadow(0 3px 10px rgba(0,0,0,0.7)) brightness(0.85)' }}>
-                                  {activeBurger.id === 'truffle-mushroom' ? (
-                                    /* DÉCOUPE EXACTE DEMANDÉE VIA CLIP-PATH DANS LES ESPACES NOIRS */
-                                    <div
-                                      style={{
-                                        width: '175px',
-                                        height: '65px',
-                                        position: 'relative',
-                                        overflow: 'hidden',
-                                        mixBlendMode: 'screen',
-                                        transition: 'transform 0.45s cubic-bezier(0.34,1.56,0.64,1)',
-                                        transform: isActive ? 'scale(1.08)' : 'scale(1)',
-                                      }}
-                                    >
-                                      <img
-                                        src="/burgers/truffle-exploded-source.jpg"
-                                        alt={layer.name}
-                                        draggable={false}
-                                        style={{
-                                          width: '100%',
-                                          height: 'auto',
-                                          position: 'absolute',
-                                          left: 0,
-                                          top: [
-                                            '0%',     /* Couche #1 : Bun Supérieur (0% - 24%) */
-                                            '-55%',   /* Couche #2 : Sauce & Roquette (24% - 41%) */
-                                            '-105%',  /* Couche #3 : Champignons & Oignons (41% - 56%) */
-                                            '-150%',  /* Couche #4 : Steaks & Fromage (56% - 78%) */
-                                            '-218%'   /* Couche #5 : Bun Inférieur (78% - 100%) */
-                                          ][idx] || '0%',
-                                          clipPath: [
-                                            'inset(0% 0% 76% 0%)',
-                                            'inset(24% 0% 59% 0%)',
-                                            'inset(41% 0% 44% 0%)',
-                                            'inset(56% 0% 22% 0%)',
-                                            'inset(78% 0% 0% 0%)'
-                                          ][idx] || 'none',
-                                          pointerEvents: 'none',
-                                          userSelect: 'none',
-                                          display: 'block',
-                                        }}
-                                      />
-                                    </div>
-                                  ) : (
-                                    <img
-                                      src={layer.image}
-                                      alt={layer.name}
-                                      draggable={false}
-                                      style={{
-                                        width: '100%',
-                                        objectFit: 'contain',
-                                        pointerEvents: 'none',
-                                        userSelect: 'none',
-                                        transition: 'transform 0.45s cubic-bezier(0.34,1.56,0.64,1)',
-                                        transform: isActive ? 'scaleX(1.07)' : 'scaleX(1)',
-                                        display: 'block',
-                                      }}
-                                    />
-                                  )}
-                                </div>
-
-                                {/* INGREDIENT LABEL — right side, neatly spaced, zero overlap with burger */}
+                                {/* 5 TRANSPARENT PNG LAYERS (280px, height: auto, NO background, NO overflow hidden) */}
                                 <div
                                   style={{
-                                    marginLeft: '12px',
+                                    width: '280px',
+                                    flexShrink: 0,
+                                    position: 'relative',
+                                    transition: 'transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                                    transform: isActive ? 'scale(1.08)' : 'scale(1)',
+                                  }}
+                                >
+                                  <img
+                                    src={layer.image}
+                                    alt={layer.name}
+                                    draggable={false}
+                                    style={{
+                                      width: '280px',
+                                      height: 'auto',
+                                      objectFit: 'contain',
+                                      filter: isActive
+                                        ? 'drop-shadow(0 20px 30px rgba(0,0,0,0.8)) drop-shadow(0 0 20px rgba(255,59,48,0.85)) brightness(1.1)'
+                                        : 'drop-shadow(0 15px 25px rgba(0,0,0,0.6))',
+                                      pointerEvents: 'none',
+                                      userSelect: 'none',
+                                      display: 'block',
+                                    }}
+                                  />
+                                </div>
+
+                                {/* INGREDIENT LABEL — right side, cleanly aligned outside burger */}
+                                <div
+                                  style={{
+                                    marginLeft: '14px',
                                     transition: 'all 0.35s cubic-bezier(0.16, 1, 0.3, 1)',
                                     opacity: isActive ? 1 : 0.5,
-                                    transform: isActive ? 'translateX(4px)' : 'translateX(0px)',
+                                    transform: isActive ? 'translateX(6px)' : 'translateX(0px)',
                                   }}
-                                  className="flex flex-col items-start gap-1 pointer-events-none"
+                                  className="flex flex-col items-start gap-1 pointer-events-none pr-2"
                                 >
                                   <div className="flex items-center gap-1.5">
                                     <span
-                                      className="text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-full"
+                                      className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full"
                                       style={{
                                         background: isActive ? '#ff3b30' : 'rgba(255,255,255,0.08)',
                                         color: '#ffffff',
-                                        boxShadow: isActive ? '0 0 10px rgba(255,59,48,0.6)' : 'none',
+                                        boxShadow: isActive ? '0 0 12px rgba(255,59,48,0.7)' : 'none',
                                       }}
                                     >
                                       #{layer.num}
                                     </span>
                                     <span
-                                      className="text-[11px] font-bold leading-tight whitespace-nowrap"
+                                      className="text-xs font-bold leading-tight whitespace-nowrap"
                                       style={{
                                         color: isActive ? '#ffffff' : '#a1a1aa',
-                                        textShadow: isActive ? '0 0 8px rgba(255,59,48,0.5)' : 'none',
+                                        textShadow: isActive ? '0 0 10px rgba(255,59,48,0.6)' : 'none',
                                       }}
                                     >
                                       {layer.label}
@@ -1388,8 +1354,8 @@ export default function Home() {
                                   </div>
                                   {isActive && (
                                     <span
-                                      className="text-[10px] font-semibold leading-tight text-[#f59e0b] px-1 py-0.5 rounded bg-black/60 border border-[#f59e0b]/30"
-                                      style={{ maxWidth: '150px' }}
+                                      className="text-[10px] font-semibold leading-tight text-[#f59e0b] px-1.5 py-0.5 rounded bg-black/70 border border-[#f59e0b]/30 shadow-md"
+                                      style={{ maxWidth: '160px' }}
                                     >
                                       {layer.tag}
                                     </span>
