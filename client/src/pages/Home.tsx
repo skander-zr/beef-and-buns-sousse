@@ -181,42 +181,42 @@ export const ALL_7_BURGERS: BurgerItem[] = [
       {
         num: 1,
         label: "Bun Supérieur",
-        name: "Pain Brioché (Dessus)",
-        description: "Pain brioché new-yorkais aérien et doré au beurre.",
+        name: "Pain Brioché Toasté (Dessus)",
+        description: "Pain brioché artisanal doré et toasté au beurre doux.",
         tag: "BRIOCHE BUN",
-        image: "/burgers/layers/top-bun.png"
+        image: "/burgers/og-layers/og_couche_1.png"
       },
       {
         num: 2,
-        label: "Sauce & Pickles",
-        name: "Sauce OG Signature & Cornichons Pickles",
-        description: "Sauce secrète OG signature et pickles croquants tranchés finement.",
-        tag: "OG SAUCE & PICKLES",
-        image: "/burgers/layers/toppings.png"
+        label: "Sauce OG & Cornichons",
+        name: "Pickles Croquants & Sauce OG",
+        description: "Rondelles de cornichons marinés et sauce signature OG maison.",
+        tag: "PICKLES & SAUCE OG",
+        image: "/burgers/og-layers/og_couche_2.png"
       },
       {
         num: 3,
         label: "Oignons Caramélisés",
         name: "Oignons Caramélisés Fondants",
-        description: "Oignons doux mijotés longuement à la plancha jusqu'à caramélisation parfaite.",
-        tag: "CARAMELISED ONIONS",
-        image: "/burgers/layers/hot-toppings.png"
+        description: "Oignons fondants compotés lentement sur la plancha.",
+        tag: "CARAMELIZED ONIONS",
+        image: "/burgers/og-layers/og_couche_3.png"
       },
       {
         num: 4,
-        label: "Steaks & Fromage",
+        label: "Double Steak & Fromage",
         name: "Double Steak Smash & American Cheese",
-        description: "Double steak smash pur bœuf croûte Maillard avec double fromage américain ultra fondant.",
-        tag: "SMASHED BEEF & CHEESE",
-        image: "/burgers/layers/cheese-patty1.png"
+        description: "Deux steaks pur bœuf smashés minute à 240°C avec double fromage américain fondant.",
+        tag: "DOUBLE SMASH & CHEESE",
+        image: "/burgers/og-layers/og_couche_4.png"
       },
       {
         num: 5,
-        label: "Bun Inférieur",
+        label: "Bun Inférieur & Sauce OG",
         name: "Pain Brioché (Dessous) & Sauce OG",
-        description: "Base briochée toastée nappée de sauce OG.",
-        tag: "BASE BRIOCHÉE",
-        image: "/burgers/layers/bottom-bun.png"
+        description: "Base briochée toastée généreusement nappée de sauce OG.",
+        tag: "BASE & SAUCE OG",
+        image: "/burgers/og-layers/og_couche_5.png"
       }
     ]
   },
