@@ -1256,52 +1256,58 @@ export default function Home() {
                         </div>
                       </div>
                     ) : (
-                      /* MODE 2: 4K CINEMATIC MACRO EXPLORER — REAL BURGER, ZERO AI, ZERO TEXT ON BURGER */
+                      /* MODE 2: TRUE 3D EXPLODED BURGER — EACH LAYER FLOATS AT ITS OWN HEIGHT */
                       <div
-                        className="w-full h-full relative flex items-center justify-center select-none overflow-hidden rounded-2xl"
+                        className="w-full h-full flex items-center justify-center select-none"
                         onClick={(e) => e.stopPropagation()}
+                        style={{ perspective: '900px', perspectiveOrigin: '50% 45%' }}
                       >
-                        {/* 4K REAL BURGER PHOTO WITH DYNAMIC CINEMATIC MACRO ZOOM ON ACTIVE LAYER */}
-                        <img
-                          key={activeBurger.id + '-real-macro-4k'}
-                          src={activeBurger.image}
-                          alt={activeBurger.name}
-                          className="w-full h-full object-contain pointer-events-none transition-all duration-700 ease-out"
-                          style={{
-                            transformOrigin: ['50% 20%', '50% 35%', '50% 50%', '50% 68%', '50% 84%'][activeLayerIndex] || '50% 50%',
-                            transform: 'scale(1.28)',
-                            filter: 'drop-shadow(0 25px 45px rgba(0,0,0,0.95)) drop-shadow(0 0 30px rgba(255,59,48,0.25))'
-                          }}
-                        />
-
-                        {/* LASER SCAN HIGHLIGHT ON ACTIVE ÉTAGE */}
+                        {/* EXPLODED 3D STACK */}
                         <div
-                          className="absolute left-3 right-12 sm:right-16 h-[2px] bg-gradient-to-r from-transparent via-[#ff3b30] to-transparent pointer-events-none transition-all duration-500 shadow-[0_0_18px_#ff3b30] z-20"
+                          className="relative"
                           style={{
-                            top: ['18%', '34%', '50%', '68%', '84%'][activeLayerIndex] || '50%'
+                            width: '220px',
+                            height: '280px',
+                            transformStyle: 'preserve-3d',
                           }}
-                        />
-
-                        {/* ÉTAGE SELECTOR PINS (CLEANLY ALIGNED OUTSIDE THE BURGER ON THE RIGHT) */}
-                        <div className="absolute right-1 top-4 bottom-4 flex flex-col justify-between py-1 z-30 pointer-events-auto">
-                          {((activeBurger?.layers && activeBurger.layers.length > 0) ? activeBurger.layers : DEFAULT_BURGER_LAYERS).map((layer, idx) => {
-                            const isCurrent = idx === activeLayerIndex;
+                        >
+                          {(activeBurger?.layers || DEFAULT_BURGER_LAYERS).map((layer, idx) => {
+                            const total = (activeBurger?.layers || DEFAULT_BURGER_LAYERS).length;
+                            const isActive = idx === activeLayerIndex;
+                            const baseY = (total - 1 - idx) * 44;
+                            const extraY = isActive ? -20 : 0;
+                            const zDepth = (total - 1 - idx) * 8;
                             return (
                               <button
                                 key={layer.num}
                                 type="button"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setActiveLayerIndex(idx);
+                                onClick={(e) => { e.stopPropagation(); setActiveLayerIndex(idx); }}
+                                title={layer.name}
+                                className="absolute left-0 right-0 flex items-center justify-center cursor-pointer border-0 bg-transparent p-0"
+                                style={{
+                                  bottom: `${baseY + extraY}px`,
+                                  transition: 'all 0.45s cubic-bezier(0.34,1.56,0.64,1)',
+                                  transform: `translateZ(${zDepth}px)`,
+                                  zIndex: isActive ? 20 : total - idx,
+                                  filter: isActive
+                                    ? 'drop-shadow(0 0 18px rgba(255,59,48,0.9)) drop-shadow(0 6px 20px rgba(0,0,0,0.9)) brightness(1.08)'
+                                    : 'drop-shadow(0 4px 12px rgba(0,0,0,0.75)) brightness(0.78)',
                                 }}
-                                title={`Étage #${layer.num} : ${layer.name}`}
-                                className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-[10px] sm:text-xs font-black transition-all cursor-pointer shadow-xl ${
-                                  isCurrent
-                                    ? "bg-gradient-to-r from-[#ff3b30] to-[#e11d48] text-white ring-4 ring-[#ff3b30]/40 shadow-[0_0_18px_rgba(255,59,48,0.9)] scale-110"
-                                    : "bg-black/90 text-zinc-300 border border-white/20 hover:border-[#ff3b30] hover:text-white"
-                                }`}
                               >
-                                #{layer.num}
+                                <img
+                                  src={layer.image}
+                                  alt={layer.name}
+                                  draggable={false}
+                                  style={{
+                                    width: '100%',
+                                    maxWidth: idx === 0 || idx === total - 1 ? '195px' : '170px',
+                                    objectFit: 'contain',
+                                    pointerEvents: 'none',
+                                    userSelect: 'none',
+                                    transition: 'transform 0.45s cubic-bezier(0.34,1.56,0.64,1)',
+                                    transform: isActive ? 'scaleX(1.06)' : 'scaleX(1)',
+                                  }}
+                                />
                               </button>
                             );
                           })}
