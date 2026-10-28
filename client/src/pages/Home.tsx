@@ -476,42 +476,42 @@ export const ALL_7_BURGERS: BurgerItem[] = [
       {
         num: 1,
         label: "Bun Supérieur",
-        name: "Pain Brioché (Dessus)",
-        description: "Pain brioché toasté au paprika fumé doux.",
+        name: "Pain Brioché Artisanal (Dessus)",
+        description: "Pain brioché artisanal toasté au beurre doré.",
         tag: "BRIOCHE BUN",
-        image: "/burgers/layers/top-bun.png"
+        image: "/burgers/hot-chicken-layers/hot_chicken_couche_1.png"
       },
       {
         num: 2,
-        label: "Sauce & Jalapeños",
-        name: "Hot Sauce & Piments Jalapeños",
-        description: "Sauce piquante artisanale aux piments et rondelles de jalapeños.",
+        label: "Sauce Piquante & Jalapeños",
+        name: "Sauce Piquante Hot Sauce & Jalapeños",
+        description: "Piments jalapeños tranchés marinés nappés de sauce piquante artisanale bien relevée.",
         tag: "HOT SAUCE & JALAPEÑOS 🔥",
-        image: "/burgers/layers/hot-toppings.png"
+        image: "/burgers/hot-chicken-layers/hot_chicken_couche_2.png"
       },
       {
         num: 3,
         label: "Oignons Caramélisés",
-        name: "Oignons Caramélisés & Fromage Fumé",
-        description: "Oignons fondants caramélisés à la plancha et fromage fumé savoureux.",
-        tag: "CARAMELISED ONIONS & SMOKED CHEESE",
-        image: "/burgers/layers/crispy-chicken-layer.png"
+        name: "Oignons Caramélisés",
+        description: "Oignons doux compotés lentement à la plancha.",
+        tag: "CARAMELIZED ONIONS",
+        image: "/burgers/hot-chicken-layers/hot_chicken_couche_3.png"
       },
       {
         num: 4,
-        label: "Poulet Pimenté",
-        name: "Filet de Poulet Extra-Crispy Spicy",
-        description: "Filet de poulet mariné pané relevé aux épices fumées et piment de Cayenne.",
-        tag: "CRISPY CHICKEN SPICY",
-        image: "/burgers/layers/crispy-chicken.png"
+        label: "Poulet & Fromage Fumé",
+        name: "Filet de Poulet Croustillant & Fromage Fumé fondant",
+        description: "Suprême de poulet mariné pané pimenté extra-croquant nappé de fromage fumé ultra-fondant.",
+        tag: "HOT CRISPY CHICKEN & CHEESE",
+        image: "/burgers/hot-chicken-layers/hot_chicken_couche_4.png"
       },
       {
         num: 5,
-        label: "Bun Inférieur",
+        label: "Bun Inférieur & Sauce OG",
         name: "Pain Brioché (Dessous) & Sauce OG",
-        description: "Base briochée toastée avec sauce OG.",
+        description: "Base briochée toastée moelleuse généreusement garnie de sauce OG signature.",
         tag: "BASE & SAUCE OG",
-        image: "/burgers/layers/bottom-bun.png"
+        image: "/burgers/hot-chicken-layers/hot_chicken_couche_5.png"
       }
     ]
   }
