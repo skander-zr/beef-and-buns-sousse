@@ -800,6 +800,34 @@ export default function Home() {
 
   const activeBurger = ALL_7_BURGERS[selectedBurgerIndex];
 
+  // REAL VISITOR TRACKER (Records genuine site visits per session & syncs with /api/visit)
+  useEffect(() => {
+    try {
+      const todayStr = new Date().toISOString().slice(0, 10);
+      const sessionKey = "bb_visit_" + todayStr;
+      if (!sessionStorage.getItem(sessionKey)) {
+        sessionStorage.setItem(sessionKey, "1");
+
+        // Record locally in history
+        const raw = localStorage.getItem("beef_and_buns_real_visits");
+        const history = raw ? JSON.parse(raw) : {};
+        history[todayStr] = (Number(history[todayStr]) || 0) + 1;
+        localStorage.setItem("beef_and_buns_real_visits", JSON.stringify(history));
+
+        // Sync with API
+        fetch("/api/visit", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action: "record" })
+        }).catch(() => {});
+      }
+    } catch {
+      // storage unavailable
+    }
+  }, []);
+
+
+
   // Keep refs in sync for the high-performance rAF loop
   useEffect(() => {
     autoRotateRef.current = isAutoRotating;
