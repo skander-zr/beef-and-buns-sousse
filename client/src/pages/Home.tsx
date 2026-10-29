@@ -280,6 +280,65 @@ export const ALL_7_BURGERS: BurgerItem[] = [
     ]
   },
   {
+    id: "og-bacon",
+    explodedImage: "/burgers/og_bacon_burger_entier_4k.png",
+    name: "OG Bacon",
+    category: "Smash Burgers",
+    badge: "BACON & RUNNY EGG 🔥",
+    price: 27.5,
+    image: "/burgers/og_bacon_burger_entier_4k.png",
+    description: "Double steak bœuf smashé, double fromage américain fondant, tranches de bacon fumé grillé croustillant, œuf au plat coulant, oignons caramélisés, roquette fraîche et sauce OG dans son pain brioché toasté.",
+    specs: {
+      bun: "Brioche Potato Bun artisanal toasté",
+      patty: "Double steak de bœuf smashé minute",
+      cheese: "Double fromage américain fondant",
+      sauce: "Sauce OG signature maison",
+      garniture: "Œuf au plat coulant, bacon fumé grillé & roquette"
+    },
+    layers: [
+      {
+        num: 1,
+        label: "Brioche Potato Bun (Dessus)",
+        name: "Brioche Potato Bun (Dessus)",
+        description: "Brioche dorée artisanale toastée au beurre doux.",
+        tag: "POTATO BUN",
+        image: "/burgers/og-bacon-layers/og_bacon_couche_1.png"
+      },
+      {
+        num: 2,
+        label: "Sauce OG & Roquette fraîche",
+        name: "Sauce OG & Roquette fraîche",
+        description: "Feuilles de roquette fraîche poivrée et sauce signature OG maison.",
+        tag: "SAUCE OG & ROQUETTE",
+        image: "/burgers/og-bacon-layers/og_bacon_couche_2.png"
+      },
+      {
+        num: 3,
+        label: "Œuf au plat & Bacon fumé",
+        name: "Œuf au plat coulant & Bacon fumé grillé",
+        description: "Œuf au plat coulant doré et tranches de bacon de bœuf fumé ultra-croustillantes.",
+        tag: "RUNNY EGG & CRISPY BACON",
+        image: "/burgers/og-bacon-layers/og_bacon_couche_3.png"
+      },
+      {
+        num: 4,
+        label: "Steaks, Fromage & Oignons",
+        name: "Double Steak Smashé, Double Fromage Américain & Oignons Caramélisés",
+        description: "Double steak de bœuf smashé à 240°C avec double American cheese fondant et oignons caramélisés compotés.",
+        tag: "DOUBLE SMASH & CHEESE",
+        image: "/burgers/og-bacon-layers/og_bacon_couche_4.png"
+      },
+      {
+        num: 5,
+        label: "Bun Inférieur & Sauce OG",
+        name: "Brioche Potato Bun (Dessous) & Sauce OG",
+        description: "Base briochée toastée moelleuse généreusement garnie de sauce OG signature.",
+        tag: "BASE & SAUCE OG",
+        image: "/burgers/og-bacon-layers/og_bacon_couche_5.png"
+      }
+    ]
+  },
+  {
     id: "og-smash-oklahoma",
     explodedImage: "/burgers/exploded-3d/og-smash-oklahoma-3d.png",
     name: "OG Smash Oklahoma",
@@ -582,6 +641,7 @@ export const FULL_MENU_ITEMS = [
   { id: 1, category: "Smash Burgers", name: "Truffle Mushroom", description: "Double smash beef patty, american cheese, grilled mushrooms, truffle mayo, rocket salad, artisanal potato bun.", priceDt: 29.5, image: "/burgers/truffle-mushroom.png" },
   { id: 2, category: "Smash Burgers", name: "OG Smash", description: "Double smash beef patty, american cheese, grilled caramelized onions, signature OG sauce, pickles, artisanal potato bun.", priceDt: 22.7, image: "/burgers/og-smash.png" },
     { id: 28, category: "Smash Burgers", name: "OG Triple", description: "Triple smash beef patty, triple american cheese, oignons caramélisés fondants, pickles croquants, sauce OG, brioche potato bun.", priceDt: 27.5, image: "/burgers/og_triple_burger_entier_4k.png" },
+  { id: 29, category: "Smash Burgers", name: "OG Bacon", description: "Double smash beef patty, double american cheese, œuf au plat coulant, bacon fumé grillé, oignons caramélisés, roquette fraîche, sauce OG, potato bun.", priceDt: 27.5, image: "/burgers/og_bacon_burger_entier_4k.png" },
 { id: 3, category: "Smash Burgers", name: "OG Smash Oklahoma", description: "Double smash beef patty smashé avec fines lamelles d oignons caramélisés, double american cheese, sauce OG, potato bun.", priceDt: 22.7, image: "/burgers/og-smash-oklahoma.png" },
   { id: 4, category: "Smash Burgers", name: "Hot Smash", description: "Double smash beef patty, american cheese, jalapeños épicés, sauce hot épicée maison, oignons caramélisés, potato bun.", priceDt: 25.0, image: "/burgers/hot-smash.png" },
 
@@ -1593,7 +1653,7 @@ export default function Home() {
                 <div className="flex items-center justify-between mb-3 px-1">
                   <span className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
                     <Flame className="w-4 h-4 text-[#ff3b30]" />
-                    Les {ALL_7_BURGERS.length} Burgers Officiels du Menu (5 Bœuf + 3 Poulet)
+                    Les {ALL_7_BURGERS.length} Burgers Officiels du Menu (6 Bœuf + 3 Poulet)
                   </span>
                   <span className="text-[11px] font-black px-2 py-0.5 rounded-full bg-[#ff3b30]/20 text-[#ff3b30]">
                     {ALL_7_BURGERS.length} Burgers au total
