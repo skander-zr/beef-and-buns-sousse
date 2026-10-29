@@ -772,31 +772,32 @@ export const FULL_MENU_ITEMS = [
   { id: 7, category: "Crispy Chicken", name: "Hot Chicken", description: "Filet de poulet pané épicé croustillant, rondelles de jalapeños marinés, sauce hot épicée, coleslaw crémeux, potato bun.", priceDt: 20.0, image: "/burgers/hot-chicken.png" },
   { id: 31, category: "Crispy Chicken", name: "Kids Chicken", description: "Filet de poulet croustillant pané minute, fromage américain fondant, laitue fraîche, rondelles de tomate, oignons doux, sauce OG, brioche potato bun.", priceDt: 12.5, image: "/burgers/kids_chicken_burger_entier_4k.png" },
 
-  // --- CHICKEN TENDERS & SIDES ---
-  { id: 8, category: "Tenders & Frites", name: "Chicken Tenders (2 Pièces)", description: "2 aiguillettes de poulet marinées ultra-croustillantes dorées à la perfection avec 1 sauce au choix.", priceDt: 6.0, image: "/burgers/chicken-tenders.png" },
-  { id: 9, category: "Tenders & Frites", name: "Chicken Tenders (4 Pièces)", description: "4 aiguillettes de poulet marinées ultra-croustillantes dorées à la perfection avec 1 sauce au choix.", priceDt: 12.0, image: "/burgers/chicken-tenders.png" },
-  { id: 10, category: "Tenders & Frites", name: "Chicken Tenders (8 Pièces)", description: "8 aiguillettes de poulet marinées ultra-croustillantes dorées à la perfection avec 2 sauces au choix.", priceDt: 22.0, image: "/burgers/chicken-tenders.png" },
-  { id: 11, category: "Tenders & Frites", name: "Frites Crinkle Croustillantes", description: "Frites ondulées ultra-croustillantes et dorées, assaisonnées au sel d'épices maison Beef & Buns.", priceDt: 3.0, image: "/burgers/crinkle-fries.png" },
+  // --- CRISPY CHICKEN TENDERS & FRIES ---
+  { id: 8, category: "Tenders & Fries", name: "2 PIECES — 2x Crispy chicken tenders", description: "2x aiguillettes de poulet croustillantes marinées, dorées minute à la perfection.", priceDt: 6.0, image: "/burgers/tenders_2_pieces_4k.png" },
+  { id: 9, category: "Tenders & Fries", name: "4 PIECES — 4x chicken tenders + Coleslaw", description: "4x aiguillettes de poulet croustillantes avec salade de chou Coleslaw maison fraîche et crémeuse.", priceDt: 12.0, image: "/burgers/tenders_4_pieces_coleslaw_4k.png" },
+  { id: 10, category: "Tenders & Fries", name: "8 PIECES — 8x chicken tenders + Coleslaw", description: "8x aiguillettes de poulet croustillantes géantes servies avec salade de chou Coleslaw crémeuse.", priceDt: 22.0, image: "/burgers/tenders_8_pieces_coleslaw_4k.png" },
+  { id: 11, category: "Tenders & Fries", name: "FRIES — Classic Fries", description: "Portion généreuse de frites classiques dorées, croustillantes à l'extérieur et fondantes à l'intérieur.", priceDt: 3.0, image: "/burgers/classic_fries_4k.png" },
 
-  // --- EXTRAS & SAUCES ---
-  { id: 12, category: "Extras & Sauces", name: "Extra Smash Patty (Bœuf)", description: "Steak de bœuf smashé supplémentaire 100% pur bœuf.", priceDt: 6.0 },
-  { id: 13, category: "Extras & Sauces", name: "Bacon de Bœuf Croustillant", description: "Tranches de bacon de bœuf grillées croustillantes.", priceDt: 5.0 },
-  { id: 14, category: "Extras & Sauces", name: "Pastrami Bœuf Artisanal", description: "Tranches de pastrami de bœuf artisanal grillé à la plancha.", priceDt: 5.0 },
-  { id: 15, category: "Extras & Sauces", name: "Tranche American Cheese", description: "Fromage américain fondant supplémentaire.", priceDt: 3.0 },
-  { id: 16, category: "Extras & Sauces", name: "Smoked Cheese (Fumé)", description: "Tranche de fromage fumé crémeux.", priceDt: 3.0 },
-  { id: 17, category: "Extras & Sauces", name: "Champignons Sautés Grillés", description: "Portion de champignons frais revenus au beurre et herbes.", priceDt: 3.0 },
-  { id: 18, category: "Extras & Sauces", name: "Sauce Truffle Mayo Extra", description: "Mayonnaise onctueuse infusée à la truffe noire d'Italie.", priceDt: 3.0 },
-  { id: 19, category: "Extras & Sauces", name: "Sauce Hot Spicy Maison", description: "Sauce piquante artisanale aux piments fumés.", priceDt: 3.5 },
-  { id: 20, category: "Extras & Sauces", name: "Sauce OG Signature Extra", description: "Notre sauce secrète culte, douce, relevée et fumée.", priceDt: 2.5 },
-  { id: 21, category: "Extras & Sauces", name: "Jalapeños Épicés", description: "Rondelles de piments jalapeños croquants marinés.", priceDt: 2.5 },
-  { id: 22, category: "Extras & Sauces", name: "Pickles Croquants", description: "Cornichons marinés à l'aneth maison.", priceDt: 2.0 },
+  // --- EXTRAS ("What you can add?") ---
+  { id: 12, category: "Extras", name: "American cheese", description: "Tranche d'American cheese fondant.", priceDt: 3.0 },
+  { id: 13, category: "Extras", name: "Smoked cheese", description: "Tranche de fromage fumé crémeux.", priceDt: 3.0 },
+  { id: 14, category: "Extras", name: "Bacon", description: "Tranches de bacon de bœuf grillé croustillant.", priceDt: 5.0 },
+  { id: 15, category: "Extras", name: "Pastrami", description: "Tranches de pastrami artisanal de bœuf grillé.", priceDt: 5.0 },
+  { id: 16, category: "Extras", name: "Smashed beef", description: "Steak pur bœuf smashé minute supplémentaire.", priceDt: 6.0 },
+  { id: 17, category: "Extras", name: "Pickles", description: "Rondelles de pickles croquants marinés.", priceDt: 2.0 },
+  { id: 18, category: "Extras", name: "Jalapeños", description: "Rondelles de piments jalapeños pimentés.", priceDt: 2.5 },
+  { id: 19, category: "Extras", name: "Grilled mushrooms", description: "Champignons frais sautés et grillés au beurre doux.", priceDt: 3.0 },
+  { id: 20, category: "Extras", name: "Hot sauce", description: "Sauce artisanale pimentée Hot Sauce bien relevée.", priceDt: 3.5 },
+  { id: 21, category: "Extras", name: "OG sauce", description: "Sauce secrète culte signature OG maison.", priceDt: 2.5 },
+  { id: 22, category: "Extras", name: "Truffle mayo", description: "Mayonnaise onctueuse infusée à la truffe noire.", priceDt: 3.0 },
+  { id: 23, category: "Extras", name: "Heinz Mayonnaise", description: "Mayonnaise Heinz onctueuse classique.", priceDt: 2.5 },
+  { id: 24, category: "Extras", name: "Heinz Ketchup", description: "Ketchup Heinz riche en tomates savoureuses.", priceDt: 2.5 },
+  { id: 25, category: "Extras", name: "Fresh rocket", description: "Feuilles de roquette fraîche poivrée croquante.", priceDt: 2.5 },
 
-  // --- BOISSONS ---
-  { id: 23, category: "Boissons", name: "Coca-Cola / Zero (33cl)", description: "Canette fraîche 33cl servie très fraîche.", priceDt: 3.0 },
-  { id: 24, category: "Boissons", name: "Boga Cidre / Boga Lim (33cl)", description: "Boisson gazeuse tunisienne emblématique bien fraîche.", priceDt: 3.0 },
-  { id: 25, category: "Boissons", name: "Fanta Orange / Sprite (33cl)", description: "Canette fraîche 33cl.", priceDt: 3.0 },
-  { id: 26, category: "Boissons", name: "Eau Minérale 0.5L", description: "Bouteille 0.5L servie fraîche.", priceDt: 1.5 },
-  { id: 27, category: "Boissons", name: "Eau Minérale 1L", description: "Bouteille 1L servie fraîche.", priceDt: 3.0 }
+  // --- DRINKS ---
+  { id: 26, category: "Drinks", name: "Water 0.5 L", description: "Bouteille d'eau minérale 0.5L servie bien fraîche.", priceDt: 1.5 },
+  { id: 27, category: "Drinks", name: "Water 1 L", description: "Bouteille d'eau minérale 1L servie bien fraîche.", priceDt: 3.0 },
+  { id: 28, category: "Drinks", name: "Sodas", description: "Canette de soda fraîche 33cl au choix (Coca-Cola, Zero, Boga, Fanta, Sprite).", priceDt: 3.0 }
 ];
 
 // Available extras for customization
@@ -807,17 +808,20 @@ export interface CustomExtra {
 }
 
 export const AVAILABLE_EXTRAS: CustomExtra[] = [
-  { id: "patty", name: "Extra Smash Patty (Bœuf)", price: 6.0 },
-  { id: "bacon", name: "Bacon de Bœuf Croustillant", price: 5.0 },
-  { id: "pastrami", name: "Pastrami Bœuf Grillé", price: 5.0 },
-  { id: "cheddar", name: "Extra Tranche American Cheese", price: 3.0 },
-  { id: "smoked", name: "Fromage Fumé (Smoked Cheese)", price: 3.0 },
-  { id: "mushrooms", name: "Champignons Sautés Grillés", price: 3.0 },
-  { id: "truffle-mayo", name: "Sauce Truffle Mayo Extra", price: 3.0 },
-  { id: "hot-sauce", name: "Sauce Hot Spicy Extra", price: 3.5 },
-  { id: "jalapenos", name: "Piments Jalapeños Marinés", price: 2.5 },
-  { id: "og-sauce", name: "Sauce OG Signature Extra", price: 2.5 },
-  { id: "pickles", name: "Pickles Croquants Extra", price: 2.0 }
+  { id: "american-cheese", name: "American cheese", price: 3.0 },
+  { id: "smoked-cheese", name: "Smoked cheese", price: 3.0 },
+  { id: "bacon", name: "Bacon", price: 5.0 },
+  { id: "pastrami", name: "Pastrami", price: 5.0 },
+  { id: "smashed-beef", name: "Smashed beef", price: 6.0 },
+  { id: "pickles", name: "Pickles", price: 2.0 },
+  { id: "jalapenos", name: "Jalapeños", price: 2.5 },
+  { id: "grilled-mushrooms", name: "Grilled mushrooms", price: 3.0 },
+  { id: "hot-sauce", name: "Hot sauce", price: 3.5 },
+  { id: "og-sauce", name: "OG sauce", price: 2.5 },
+  { id: "truffle-mayo", name: "Truffle mayo", price: 3.0 },
+  { id: "heinz-mayo", name: "Heinz Mayonnaise", price: 2.5 },
+  { id: "heinz-ketchup", name: "Heinz Ketchup", price: 2.5 },
+  { id: "fresh-rocket", name: "Fresh rocket", price: 2.5 }
 ];
 
 export const REMOVABLE_INGREDIENTS = [
@@ -1001,7 +1005,7 @@ export default function Home() {
   const [selectedCategory, setSelectedCategory] = useState("Tous");
   const [searchQuery, setSearchQuery] = useState("");
 
-  const categories = ["Tous", "Smash Burgers", "Crispy Chicken", "Tenders & Frites", "Extras & Sauces", "Boissons"];
+  const categories = ["Tous", "Smash Burgers", "Crispy Chicken", "Tenders & Fries", "Extras", "Drinks"];
 
   const filteredMenuItems = useMemo(() => {
     return FULL_MENU_ITEMS.filter(item => {
@@ -2323,7 +2327,7 @@ export default function Home() {
 
             <div className="mb-6">
               <label className="block text-xs font-bold uppercase tracking-wider text-white mb-2">
-                Ajouter des Extras & Sauces Gourmets
+                What you can add? (Extras & Sauces)
               </label>
               <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
                 {AVAILABLE_EXTRAS.map((extra) => {
