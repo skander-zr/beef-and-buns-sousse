@@ -164,7 +164,7 @@ export const ALL_7_BURGERS: BurgerItem[] = [
   {
     id: "og-smash",
     explodedImage: "/burgers/exploded-3d/og-smash-3d.png",
-    name: "The OG Smash",
+    name: "OG Smash",
     category: "Smash Burgers",
     badge: "CLASSIQUE INCONTOURNABLE",
     price: 22.7,
@@ -341,7 +341,7 @@ export const ALL_7_BURGERS: BurgerItem[] = [
   {
     id: "og-chicken",
     explodedImage: "/burgers/exploded-3d/og-chicken-3d.png",
-    name: "OG Crispy Chicken",
+    name: "OG Chicken",
     category: "Crispy Chicken",
     badge: "POULET SIGNATURE",
     price: 17.5,
@@ -521,7 +521,7 @@ export const ALL_7_BURGERS: BurgerItem[] = [
 export const FULL_MENU_ITEMS = [
   // --- 4 SMASH BEEF BURGERS ---
   { id: 1, category: "Smash Burgers", name: "Truffle Mushroom", description: "Double smash beef patty, american cheese, grilled mushrooms, truffle mayo, rocket salad, artisanal potato bun.", priceDt: 29.5, image: "/burgers/truffle-mushroom.png" },
-  { id: 2, category: "Smash Burgers", name: "The OG Smash", description: "Double smash beef patty, american cheese, grilled caramelized onions, signature OG sauce, pickles, artisanal potato bun.", priceDt: 22.7, image: "/burgers/og-smash.png" },
+  { id: 2, category: "Smash Burgers", name: "OG Smash", description: "Double smash beef patty, american cheese, grilled caramelized onions, signature OG sauce, pickles, artisanal potato bun.", priceDt: 22.7, image: "/burgers/og-smash.png" },
   { id: 3, category: "Smash Burgers", name: "OG Smash Oklahoma", description: "Double smash beef patty smashé avec fines lamelles d oignons caramélisés, double american cheese, sauce OG, potato bun.", priceDt: 22.7, image: "/burgers/og-smash-oklahoma.png" },
   { id: 4, category: "Smash Burgers", name: "Hot Smash", description: "Double smash beef patty, american cheese, jalapeños épicés, sauce hot épicée maison, oignons caramélisés, potato bun.", priceDt: 25.0, image: "/burgers/hot-smash.png" },
 
