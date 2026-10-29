@@ -457,6 +457,65 @@ export const ALL_7_BURGERS: BurgerItem[] = [
     ]
   },
   {
+    id: "kids-beef",
+    explodedImage: "/burgers/kids_beef_burger_entier_4k.png",
+    name: "Kids Beef",
+    category: "Smash Burgers",
+    badge: "MENU KIDS & JUNIOR 🧒",
+    price: 15.0,
+    image: "/burgers/kids_beef_burger_entier_4k.png",
+    description: "Steak pur bœuf smashé minute, fromage américain fondant, laitue fraîche, rondelles de tomate, oignons doux et sauce signature OG dans un pain brioché moelleux adapté aux plus jeunes.",
+    specs: {
+      bun: "Brioche Potato Bun artisanal toasté",
+      patty: "Simple steak pur bœuf smashé minute",
+      cheese: "Fromage américain fondant",
+      sauce: "Sauce OG signature maison",
+      garniture: "Laitue fraîche croquante, tomate & oignons doux"
+    },
+    layers: [
+      {
+        num: 1,
+        label: "Brioche Potato Bun (Dessus)",
+        name: "Brioche Potato Bun (Dessus)",
+        description: "Pain brioché artisanal toasté au beurre doré, moelleux et savoureux.",
+        tag: "POTATO BUN",
+        image: "/burgers/kids-beef-layers/kids_beef_couche_1.png"
+      },
+      {
+        num: 2,
+        label: "Laitue fraîche & Sauce OG",
+        name: "Laitue fraîche & Sauce OG",
+        description: "Feuilles de laitue verte croquante fraîche avec sauce signature OG maison.",
+        tag: "LAITUE & SAUCE OG",
+        image: "/burgers/kids-beef-layers/kids_beef_couche_2.png"
+      },
+      {
+        num: 3,
+        label: "Tomates & Oignons",
+        name: "Tomates & Oignons",
+        description: "Rondelle de tomate fraîche juteuse et anneaux d'oignons doux.",
+        tag: "TOMATES & OIGNONS",
+        image: "/burgers/kids-beef-layers/kids_beef_couche_3.png"
+      },
+      {
+        num: 4,
+        label: "1x Steak & Fromage",
+        name: "1x Steak Smashé & 1x Fromage Américain",
+        description: "Steak pur bœuf croustillant caramélisé sous la presse avec fromage américain fondant.",
+        tag: "SMASHED BEEF & CHEESE",
+        image: "/burgers/kids-beef-layers/kids_beef_couche_4.png"
+      },
+      {
+        num: 5,
+        label: "Bun Inférieur & Sauce OG",
+        name: "Brioche Potato Bun (Dessous) & Sauce OG",
+        description: "Base briochée toastée moelleuse généreusement garnie de sauce OG signature.",
+        tag: "BASE & SAUCE OG",
+        image: "/burgers/kids-beef-layers/kids_beef_couche_5.png"
+      }
+    ]
+  },
+  {
     id: "og-chicken",
     explodedImage: "/burgers/exploded-3d/og-chicken-3d.png",
     name: "OG Chicken",
@@ -645,7 +704,9 @@ export const FULL_MENU_ITEMS = [
 { id: 3, category: "Smash Burgers", name: "OG Smash Oklahoma", description: "Double smash beef patty smashé avec fines lamelles d oignons caramélisés, double american cheese, sauce OG, potato bun.", priceDt: 22.7, image: "/burgers/og-smash-oklahoma.png" },
   { id: 4, category: "Smash Burgers", name: "Hot Smash", description: "Double smash beef patty, american cheese, jalapeños épicés, sauce hot épicée maison, oignons caramélisés, potato bun.", priceDt: 25.0, image: "/burgers/hot-smash.png" },
 
-  // --- 3 CRISPY CHICKEN BURGERS ---
+    { id: 30, category: "Smash Burgers", name: "Kids Beef", description: "Steak pur bœuf smashé, fromage américain, laitue fraîche, rondelles de tomate, oignons doux, sauce OG, brioche potato bun.", priceDt: 15.0, image: "/burgers/kids_beef_burger_entier_4k.png" },
+
+// --- 3 CRISPY CHICKEN BURGERS ---
   { id: 5, category: "Crispy Chicken", name: "OG Chicken", description: "Filet de poulet croustillant pané minute, coleslaw frais crémeux, sauce signature OG, artisanal potato bun.", priceDt: 17.5, image: "/burgers/og-chicken.png" },
   { id: 6, category: "Crispy Chicken", name: "Classic Chicken", description: "Filet de poulet pané croustillant, salade croquante, rondelles de tomate fraîche, oignons rouges, mayonnaise maison, potato bun.", priceDt: 17.5, image: "/burgers/classic-chicken.png" },
   { id: 7, category: "Crispy Chicken", name: "Hot Chicken", description: "Filet de poulet pané épicé croustillant, rondelles de jalapeños marinés, sauce hot épicée, coleslaw crémeux, potato bun.", priceDt: 20.0, image: "/burgers/hot-chicken.png" },
@@ -1653,7 +1714,7 @@ export default function Home() {
                 <div className="flex items-center justify-between mb-3 px-1">
                   <span className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
                     <Flame className="w-4 h-4 text-[#ff3b30]" />
-                    Les {ALL_7_BURGERS.length} Burgers Officiels du Menu (6 Bœuf + 3 Poulet)
+                    Les {ALL_7_BURGERS.length} Burgers Officiels du Menu (7 Bœuf + 3 Poulet)
                   </span>
                   <span className="text-[11px] font-black px-2 py-0.5 rounded-full bg-[#ff3b30]/20 text-[#ff3b30]">
                     {ALL_7_BURGERS.length} Burgers au total
