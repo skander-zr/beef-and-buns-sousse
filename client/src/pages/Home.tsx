@@ -808,6 +808,7 @@ export interface CustomExtra {
 }
 
 export const AVAILABLE_EXTRAS: CustomExtra[] = [
+  { id: "classic-fries", name: "Classic Fries (Portion frites)", price: 3.0 },
   { id: "american-cheese", name: "American cheese", price: 3.0 },
   { id: "smoked-cheese", name: "Smoked cheese", price: 3.0 },
   { id: "bacon", name: "Bacon", price: 5.0 },
@@ -914,16 +915,20 @@ export default function Home() {
       // Continuous 360 spin when auto-rotating and not actively dragging
       if (autoRotateRef.current && !isDragging.current) {
         if (!isExplodedRef.current) {
-          // Continuous 360 degree spin around Y axis
-          currentTilt.current.y = (currentTilt.current.y + dt * 28) % 360;
+          // Oscillation 3D fluide de gauche à droite (-22deg à 22deg) + léger tilt X
+          currentTilt.current.y = Math.sin(now * 0.0014) * 22;
+          currentTilt.current.x = 6 + Math.sin(now * 0.0018) * 3;
         } else {
-          // Subtle gentle sway in exploded view so layers retain 3D depth
+          // Léger balancement subtil en vue éclatée
           currentTilt.current.y = -10 + Math.sin(now * 0.001) * 12;
+          currentTilt.current.x = 10;
         }
       }
 
       if (modelRef.current) {
-        modelRef.current.style.transform = `rotateX(${currentTilt.current.x}deg) rotateY(${currentTilt.current.y}deg)`;
+        // Léger flottement vertical translateY pour garder le volume 4K sans écrasement
+        const floatY = !isExplodedRef.current ? Math.sin(now * 0.0022) * 6 : 0;
+        modelRef.current.style.transform = `translateY(${floatY}px) rotateX(${currentTilt.current.x}deg) rotateY(${currentTilt.current.y}deg)`;
       }
 
       animId = requestAnimationFrame(loop);
@@ -951,8 +956,8 @@ export default function Home() {
     lastPointerPos.current = { x: e.clientX, y: e.clientY };
 
     // Update 3D tilt instantaneously
-    currentTilt.current.x = Math.max(-35, Math.min(45, currentTilt.current.x - deltaY * 0.4));
-    currentTilt.current.y = currentTilt.current.y + deltaX * 0.45;
+    currentTilt.current.x = Math.max(-15, Math.min(25, currentTilt.current.x - deltaY * 0.25));
+    currentTilt.current.y = Math.max(-28, Math.min(28, currentTilt.current.y + deltaX * 0.35));
 
     if (modelRef.current) {
       modelRef.current.style.transform = `rotateX(${currentTilt.current.x}deg) rotateY(${currentTilt.current.y}deg)`;
@@ -1082,6 +1087,33 @@ export default function Home() {
   };
 
   const addQuickItemToCart = (name: string, category: string, price: number, image?: string) => {
+    const hasBurger = cart.some(i => i.category === "Smash Burgers" || i.category === "Crispy Chicken");
+    const hasTenders = cart.some(i => i.name.toLowerCase().includes("tenders") || i.category.toLowerCase().includes("tenders"));
+
+    // RÈGLE 1 : Frites autorisées uniquement en accompagnement d'un burger ou tenders
+    if (name.toLowerCase().includes("fries")) {
+      if (!hasBurger && !hasTenders) {
+        toast.error("🍟 Les Classic Fries sont disponibles uniquement en accompagnement d'un Burger ou de Tenders. Choisissez d'abord votre burger ou tenders !");
+        return;
+      }
+    }
+
+    // RÈGLE 2 : Suppléments Extras
+    if (category === "Extras") {
+      const isSauce = ["hot sauce", "og sauce", "truffle mayo", "heinz mayonnaise", "heinz ketchup"].some(s => name.toLowerCase().includes(s));
+      if (isSauce) {
+        if (!hasBurger && !hasTenders) {
+          toast.error("🥫 Les sauces s'ajoutent en accompagnement d'un Burger ou de Tenders. Choisissez d'abord votre plat !");
+          return;
+        }
+      } else {
+        if (!hasBurger) {
+          toast.error("🧀 Ce supplément s'ajoute uniquement en accompagnement d'un Burger. Choisissez d'abord votre burger !");
+          return;
+        }
+      }
+    }
+
     const newItem: CartItem = {
       id: `${Date.now()}-${Math.random()}`,
       name,
@@ -1558,7 +1590,7 @@ export default function Home() {
                   onPointerUp={handlePointerUp}
                   style={{ touchAction: "none" }}
                   className={`burger-3d-stage relative w-full flex items-center justify-center cursor-grab active:cursor-grabbing select-none transition-all duration-500 ${
-                    isExploded ? "h-[360px] sm:h-[400px]" : "h-[320px] sm:h-[350px]"
+                    isExploded ? (activeBurger?.id === "og-triple" || activeBurger?.id === "kids-chicken" ? "h-[385px] sm:h-[420px]" : "h-[360px] sm:h-[400px]") : "h-[320px] sm:h-[350px]"
                   }`}
                 >
                   {/* Dynamic Realistic Contact Shadow */}
@@ -1568,7 +1600,7 @@ export default function Home() {
                   <div
                     ref={modelRef}
                     className={`burger-3d-model relative flex items-center justify-center cursor-pointer ${
-                      isExploded ? "w-full max-w-[480px] h-[330px] sm:h-[360px]" : "w-[280px] sm:w-[320px] h-[280px] sm:h-[320px]"
+                      isExploded ? (activeBurger?.id === "og-triple" || activeBurger?.id === "kids-chicken" ? "w-full max-w-[480px] h-[350px] sm:h-[380px]" : "w-full max-w-[480px] h-[330px] sm:h-[360px]") : "w-[280px] sm:w-[320px] h-[280px] sm:h-[320px]"
                     } ${
                       isExploded ? "exploded" : ""
                     }`}
@@ -1583,10 +1615,7 @@ export default function Home() {
                           className="w-full h-full object-contain filter drop-shadow-[0_20px_35px_rgba(0,0,0,0.85)] pointer-events-none transition-all duration-300 scale-105 animate-in fade-in zoom-in-95 duration-200"
                         />
                         {/* INSTRUCTION PILL ON HOVER */}
-                        <div className="absolute -bottom-2 px-3 py-1 rounded-full bg-black/80 border border-white/15 text-[10px] text-zinc-300 flex items-center gap-1.5 shadow-lg backdrop-blur-md opacity-90 group-hover/burger:opacity-100 group-hover/burger:border-[#ff3b30]/50 transition-all pointer-events-none">
-                          <Layers className="w-3 h-3 text-[#ff3b30]" />
-                          <span>Cliquez pour la vue 3D</span>
-                        </div>
+                        
                       </div>
                     ) : (
                       /* MODE 2: TRUE 3D EXPLODED BURGER — 5 TRANSPARENT PNG LAYERS */
@@ -1609,7 +1638,9 @@ export default function Home() {
                             const total = (activeBurger?.layers || DEFAULT_BURGER_LAYERS).length;
                             const isActive = idx === activeLayerIndex;
                             /* Espacement vertical propre pour 5 couches sans collision */
-                            const baseY = (total - 1 - idx) * 52;
+                            const isNeedsExtraGap = activeBurger?.id === "og-triple" || activeBurger?.id === "kids-chicken";
+                            const gapBoost = isNeedsExtraGap && idx <= 1 ? 22 : 0;
+                            const baseY = (total - 1 - idx) * 52 + gapBoost;
                             const extraY = isActive ? -22 : 0;
                             const zDepth = (total - 1 - idx) * 10;
                             return (
@@ -1689,6 +1720,35 @@ export default function Home() {
                           })}
                         </div>
                       </div>
+                    )}
+                  </div>
+
+                  {/* BOUTON FIXE NON-ROTATIF (TOUJOURS LISIBLE À L'ENDROIT) */}
+                  <div className="absolute bottom-2 sm:bottom-3 z-30 flex items-center justify-center pointer-events-none">
+                    {!isExploded ? (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleExploded();
+                        }}
+                        className="pointer-events-auto px-4 py-1.5 rounded-full bg-black/85 border border-white/20 hover:border-[#ff3b30] text-[11px] font-bold text-zinc-200 hover:text-white flex items-center gap-2 shadow-2xl backdrop-blur-md transition-all hover:scale-105 active:scale-95 cursor-pointer"
+                      >
+                        <Layers className="w-3.5 h-3.5 text-[#ff3b30]" />
+                        <span>Cliquez pour la vue 3D</span>
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleExploded();
+                        }}
+                        className="pointer-events-auto px-4 py-1.5 rounded-full bg-black/85 border border-[#ff3b30]/50 hover:border-[#ff3b30] text-[11px] font-bold text-white flex items-center gap-2 shadow-2xl backdrop-blur-md transition-all hover:scale-105 active:scale-95 cursor-pointer"
+                      >
+                        <RotateCw className="w-3.5 h-3.5 text-[#f59e0b]" />
+                        <span>Revenir au 360°</span>
+                      </button>
                     )}
                   </div>
                 </div>
@@ -1865,7 +1925,7 @@ export default function Home() {
                 Tout Le Menu <span className="text-[#ff3b30]">Beef & Buns</span>
               </h2>
               <p className="text-[#a1a1aa] text-sm mt-2">
-                Les 7 burgers, tenders de poulet, frites crinkle croustillantes, extras et boissons fraîches.
+                Nos 11 burgers, tenders de poulet croustillants, classic fries dorées, extras et boissons fraîches.
               </p>
             </div>
 
@@ -1953,31 +2013,33 @@ export default function Home() {
 
                   {/* Action buttons */}
                   <div className="pt-4 border-t border-white/[0.08] flex items-center gap-2 mt-auto">
-                    {isBurger ? (
+                    {isBurger || item.name.toLowerCase().includes("tenders") ? (
                       <>
-                        <button
-                          onClick={() => {
-                            const bIdx = ALL_7_BURGERS.findIndex(b => b.name.toLowerCase() === item.name.toLowerCase() || b.id === String(item.id));
-                            if (bIdx !== -1) {
-                              setSelectedBurgerIndex(bIdx);
-                              setIsExploded(false);
-                              setIsAutoRotating(true);
-                            }
-                            const exp = document.getElementById("experience-3d");
-                            if (exp) exp.scrollIntoView({ behavior: "smooth" });
-                          }}
-                          className="py-2.5 px-2.5 rounded-xl bg-white/5 hover:bg-[#ff3b30]/20 hover:border-[#ff3b30]/50 border border-white/10 text-white text-xs font-bold transition-all flex items-center justify-center gap-1 cursor-pointer"
-                          title="Voir ce burger en 3D 360°"
-                        >
-                          <Eye className="w-3.5 h-3.5 text-[#ff3b30]" />
-                          <span className="hidden sm:inline">3D 360°</span>
-                        </button>
+                        {isBurger && (
+                          <button
+                            onClick={() => {
+                              const bIdx = ALL_7_BURGERS.findIndex(b => b.name.toLowerCase() === item.name.toLowerCase() || b.id === String(item.id));
+                              if (bIdx !== -1) {
+                                setSelectedBurgerIndex(bIdx);
+                                setIsExploded(false);
+                                setIsAutoRotating(true);
+                              }
+                              const exp = document.getElementById("experience-3d");
+                              if (exp) exp.scrollIntoView({ behavior: "smooth" });
+                            }}
+                            className="py-2.5 px-2.5 rounded-xl bg-white/5 hover:bg-[#ff3b30]/20 hover:border-[#ff3b30]/50 border border-white/10 text-white text-xs font-bold transition-all flex items-center justify-center gap-1 cursor-pointer"
+                            title="Voir ce burger en 3D 360°"
+                          >
+                            <Eye className="w-3.5 h-3.5 text-[#ff3b30]" />
+                            <span className="hidden sm:inline">3D 360°</span>
+                          </button>
+                        )}
                         <button
                           onClick={() => openCustomizer(item.name, item.category, item.priceDt, "image" in item ? item.image : undefined)}
                           className="flex-1 py-2.5 px-3 rounded-xl bg-white/10 hover:bg-white/15 text-white text-xs font-bold uppercase tracking-wider transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
                         >
                           <Sliders className="w-3.5 h-3.5 text-[#f59e0b]" />
-                          <span>Personnaliser</span>
+                          <span>{item.name.toLowerCase().includes("tenders") ? "Sauces & Frites" : "Personnaliser"}</span>
                         </button>
                         <button
                           onClick={() => addQuickItemToCart(item.name, item.category, item.priceDt, "image" in item ? item.image : undefined)}
@@ -2330,7 +2392,14 @@ export default function Home() {
                 What you can add? (Extras & Sauces)
               </label>
               <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
-                {AVAILABLE_EXTRAS.map((extra) => {
+                {AVAILABLE_EXTRAS.filter((extra) => {
+                  const isTenders = customizerItem?.name.toLowerCase().includes("tenders") || customizerItem?.category.toLowerCase().includes("tenders");
+                  if (isTenders) {
+                    const sauceAndFries = ["classic-fries", "hot-sauce", "og-sauce", "truffle-mayo", "heinz-mayo", "heinz-ketchup"];
+                    return sauceAndFries.includes(extra.id);
+                  }
+                  return true;
+                }).map((extra) => {
                   const isChecked = selectedExtras.some(e => e.id === extra.id);
                   return (
                     <div
