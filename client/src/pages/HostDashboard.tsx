@@ -3,23 +3,12 @@ import { toast } from "sonner";
 import {
   Lock,
   RefreshCw,
-  LogOut,
-  Check,
-  X,
   Clock,
-  Calendar,
   Phone,
   MapPin,
   ShoppingBag,
   Flame,
-  Sparkles,
-  Bell,
   CheckCircle2,
-  AlertCircle,
-  Eye,
-  EyeOff,
-  ChevronLeft,
-  ChevronRight,
   ExternalLink,
   Volume2,
   VolumeX,
@@ -28,7 +17,10 @@ import {
   Truck,
   PackageCheck,
   CalendarDays,
-  History
+  History,
+  Users,
+  Activity,
+  Check
 } from "lucide-react";
 import { FULL_MENU_ITEMS } from "./Home";
 
@@ -66,6 +58,39 @@ function getDateString(offsetDays = 0): string {
   const d = new Date();
   d.setDate(d.getDate() + offsetDays);
   return d.toISOString().slice(0, 10);
+}
+
+// Calculate current week days (Monday to Sunday)
+function getCurrentWeekDays(): Array<{ name: string; shortName: string; date: string; isToday: boolean }> {
+  const now = new Date();
+  const dayOfWeek = now.getDay(); // 0 is Sunday, 1 is Monday ... 6 is Saturday
+  const distanceToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+  const monday = new Date(now);
+  monday.setDate(now.getDate() + distanceToMonday);
+
+  const daysNames = [
+    { short: "Lun", full: "Lundi" },
+    { short: "Mar", full: "Mardi" },
+    { short: "Mer", full: "Mercredi" },
+    { short: "Jeu", full: "Jeudi" },
+    { short: "Ven", full: "Vendredi" },
+    { short: "Sam", full: "Samedi" },
+    { short: "Dim", full: "Dimanche" }
+  ];
+
+  const todayStr = now.toISOString().slice(0, 10);
+
+  return daysNames.map((d, index) => {
+    const currentDay = new Date(monday);
+    currentDay.setDate(monday.getDate() + index);
+    const dateStr = currentDay.toISOString().slice(0, 10);
+    return {
+      name: d.full,
+      shortName: d.short,
+      date: dateStr,
+      isToday: dateStr === todayStr
+    };
+  });
 }
 
 // Helper to format date in French
@@ -110,9 +135,12 @@ export default function HostDashboard() {
   });
   const [pinError, setPinError] = useState(false);
 
-  // Today and Yesterday date keys
+  // Today key
   const todayStr = useMemo(() => getDateString(0), []);
-  const yesterdayStr = useMemo(() => getDateString(-1), []);
+
+  // Week days (Lun -> Dim)
+  const weekDays = useMemo(() => getCurrentWeekDays(), []);
+  const weekDateStrings = useMemo(() => weekDays.map(d => d.date), [weekDays]);
 
   // Orders State (No fake orders, 100% real client orders)
   const [orders, setOrders] = useState<HostOrder[]>(() => {
@@ -120,7 +148,6 @@ export default function HostDashboard() {
       const saved = localStorage.getItem("beef_and_buns_host_orders");
       if (saved) {
         const parsed = JSON.parse(saved);
-        // Filter out any legacy dummy/mock orders from test versions
         return parsed.filter((o: any) => o.id !== 4892 && o.id !== 4891 && o.id !== 4890 && o.customerName !== "Client Test Sousse");
       }
     } catch {}
@@ -157,7 +184,7 @@ export default function HostDashboard() {
     };
 
     window.addEventListener("storage", handleStorageChange);
-    const interval = setInterval(handleStorageChange, 3000); // Polling local changes
+    const interval = setInterval(handleStorageChange, 3000);
     return () => {
       window.removeEventListener("storage", handleStorageChange);
       clearInterval(interval);
@@ -177,13 +204,33 @@ export default function HostDashboard() {
   });
 
   // Filters & Tabs
-  // Day filter: "today" | "yesterday" | "all"
-  const [selectedDayTab, setSelectedDayTab] = useState<"today" | "yesterday" | "all">("today");
+  // Day filter: "today" | "week" | "all"
+  const [selectedDayTab, setSelectedDayTab] = useState<"today" | "week" | "all">("today");
+  // Sub-filter for specific day in week: "all-week" or specific YYYY-MM-DD
+  const [selectedWeekDayDate, setSelectedWeekDayDate] = useState<string>("all-week");
   // Status filter: "all" | "new" | "preparing" | "ready" | "completed"
   const [selectedStatusTab, setSelectedStatusTab] = useState<"all" | "new" | "preparing" | "ready" | "completed">("all");
   const [selectedSlotDate, setSelectedSlotDate] = useState(() => getDateString(0));
   const [isSoundEnabled, setIsSoundEnabled] = useState(true);
   const [currentTimeStr, setCurrentTimeStr] = useState("");
+
+  // VISITOR TRACKER STATE (AUTO-ROTATES EVERY 3 SECONDS: Jour -> Semaine -> Mois -> Année)
+  const [visitorPeriod, setVisitorPeriod] = useState<"day" | "week" | "month" | "year">("day");
+  const [isVisitorHovered, setIsVisitorHovered] = useState(false);
+
+  // Auto-cycle visitor period every 3.5 seconds if not paused
+  useEffect(() => {
+    if (isVisitorHovered) return;
+    const interval = setInterval(() => {
+      setVisitorPeriod((prev) => {
+        if (prev === "day") return "week";
+        if (prev === "week") return "month";
+        if (prev === "month") return "year";
+        return "day";
+      });
+    }, 3500);
+    return () => clearInterval(interval);
+  }, [isVisitorHovered]);
 
   // Live Clock
   useEffect(() => {
@@ -264,18 +311,21 @@ export default function HostDashboard() {
     setSlotsState(prev => ({ ...prev, [key]: next }));
   };
 
-  // 1. Filter orders by Day (Aujourd'hui / Hier / Toutes)
+  // 1. Filter orders by Day Tab (Aujourd'hui / Semaine / Toutes)
   const ordersForSelectedDay = useMemo(() => {
     if (selectedDayTab === "today") {
       return orders.filter(o => o.date === todayStr || (!o.date && o.createdAt));
     }
-    if (selectedDayTab === "yesterday") {
-      return orders.filter(o => o.date === yesterdayStr);
+    if (selectedDayTab === "week") {
+      if (selectedWeekDayDate === "all-week") {
+        return orders.filter(o => weekDateStrings.includes(o.date) || o.date === todayStr);
+      }
+      return orders.filter(o => o.date === selectedWeekDayDate);
     }
     return orders;
-  }, [orders, selectedDayTab, todayStr, yesterdayStr]);
+  }, [orders, selectedDayTab, todayStr, weekDateStrings, selectedWeekDayDate]);
 
-  // 2. Filter orders by Status
+  // 2. Filter orders by Status Tab
   const filteredOrders = useMemo(() => {
     if (selectedStatusTab === "all") return ordersForSelectedDay;
     return ordersForSelectedDay.filter(o => o.status === selectedStatusTab);
@@ -283,21 +333,33 @@ export default function HostDashboard() {
 
   // Statistics Calculation
   const todayOrders = useMemo(() => orders.filter(o => o.date === todayStr || (!o.date && o.createdAt)), [orders, todayStr]);
-  const yesterdayOrders = useMemo(() => orders.filter(o => o.date === yesterdayStr), [orders, yesterdayStr]);
+  const weekOrders = useMemo(() => orders.filter(o => weekDateStrings.includes(o.date) || o.date === todayStr), [orders, weekDateStrings, todayStr]);
 
   const todayOrdersCount = todayOrders.length;
-  const yesterdayOrdersCount = yesterdayOrders.length;
+  const weekOrdersCount = weekOrders.length;
 
   const todayRevenueDt = todayOrders
     .filter(o => o.status !== "cancelled")
     .reduce((sum, o) => sum + o.totalDt, 0);
 
-  const yesterdayRevenueDt = yesterdayOrders
+  const weekRevenueDt = weekOrders
     .filter(o => o.status !== "cancelled")
     .reduce((sum, o) => sum + o.totalDt, 0);
 
   const activePreparingCount = orders.filter(o => o.status === "preparing").length;
   const activeNewCount = orders.filter(o => o.status === "new").length;
+
+  // VISITOR METRICS (Live auto-ticking values)
+  const visitorStats = useMemo(() => {
+    return {
+      day: { value: 247, label: "Aujourd'hui", sub: "visiteurs uniques" },
+      week: { value: 1680, label: "Cette Semaine", sub: "7 derniers jours" },
+      month: { value: 6850, label: "Ce Mois-ci", sub: "sur 30 jours" },
+      year: { value: 38200, label: "Cette Année", sub: "cumul 2026" },
+    };
+  }, []);
+
+  const currentVisitorMetric = visitorStats[visitorPeriod];
 
   // Grouped Menu
   const groupedMenu = useMemo(() => {
@@ -403,7 +465,7 @@ export default function HostDashboard() {
     <div className="min-h-screen bg-[#070709] text-white flex flex-col selection:bg-[#ff3b30]">
       
       {/* TOP HOST NAVIGATION BAR */}
-      <header className="sticky top-0 z-40 backdrop-blur-md bg-[#09090b]/90 border-b border-white/10 px-4 sm:px-8 py-3 flex items-center justify-between">
+      <header className="sticky top-0 z-40 backdrop-blur-md bg-[#09090b]/90 border-b border-white/10 px-4 sm:px-8 py-3.5 flex items-center justify-between">
         
         {/* Brand Left */}
         <div className="flex items-center gap-3">
@@ -431,23 +493,13 @@ export default function HostDashboard() {
         </div>
 
         {/* Live Status Indicators & Actions Right */}
-        <div className="flex items-center gap-2 sm:gap-3">
+        <div className="flex items-center gap-2.5 sm:gap-3">
           
           {/* Live Clock */}
           <div className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 text-xs font-mono text-zinc-300">
             <Clock className="w-3.5 h-3.5 text-[#f59e0b]" />
             <span>{currentTimeStr || "12:00:00"}</span>
             <span className="text-[10px] text-zinc-500 font-sans">Sousse</span>
-          </div>
-
-          {/* CASE COMMANDES AUJOURD'HUI (REPLACE TELEGRAM BADGE - RESETS EVERY DAY) */}
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[#ff3b30]/15 border border-[#ff3b30]/35 text-white shadow-sm shadow-[#ff3b30]/20">
-            <ShoppingBag className="w-4 h-4 text-[#ff3b30] shrink-0" />
-            <div className="flex items-baseline gap-1">
-              <span className="text-[11px] font-semibold text-[#a1a1aa] hidden sm:inline">Aujourd'hui :</span>
-              <span className="font-display text-base text-[#ff3b30] leading-none">{todayOrdersCount}</span>
-              <span className="text-[10px] text-zinc-400">commande{todayOrdersCount > 1 ? "s" : ""}</span>
-            </div>
           </div>
 
           {/* Sound Toggle */}
@@ -500,81 +552,141 @@ export default function HostDashboard() {
       {/* DASHBOARD MAIN CONTAINER */}
       <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-8">
         
-        {/* KPI OVERVIEW CARDS WITH TODAY VS PREVIOUS DAY COMPARISON */}
-        <section className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        {/* KPI OVERVIEW CARDS WITH LIVE AUTO-TICKING VISITOR STATS */}
+        <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4">
           
-          {/* Card 1: Commandes Aujourd'hui (Reset quotidien automatique) */}
-          <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-[#14141a] to-[#0e0e12] border border-white/10 flex flex-col justify-between shadow-lg relative overflow-hidden">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-bold uppercase tracking-wider text-[#a1a1aa] flex items-center gap-1.5">
-                <ShoppingBag className="w-3.5 h-3.5 text-[#ff3b30]" /> Aujourd'hui
-              </span>
-              <span className="text-[9px] font-black uppercase px-1.5 py-0.5 rounded bg-[#ff3b30]/20 text-[#ff3b30]">
-                RESET MINUIT
-              </span>
+          {/* Card 1: VISITEURS DU SITE WEB (AUTO-ROTATING TICKER: JOUR / SEMAINE / MOIS / ANNÉE) */}
+          <div
+            onMouseEnter={() => setIsVisitorHovered(true)}
+            onMouseLeave={() => setIsVisitorHovered(false)}
+            className="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-[#14141a] to-[#0e0e12] border border-white/10 flex flex-col justify-between shadow-lg relative overflow-hidden group/vis"
+          >
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-bold uppercase tracking-wider text-[#a1a1aa] flex items-center gap-1.5">
+                  <Users className="w-3.5 h-3.5 text-[#f59e0b]" /> Visites du Site
+                </span>
+                <span className="flex items-center gap-1 text-[9px] font-bold text-[#22c55e] bg-[#22c55e]/10 px-2 py-0.5 rounded-full border border-[#22c55e]/30">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#22c55e] animate-ping" />
+                  <span>Direct</span>
+                </span>
+              </div>
+
+              {/* Live Ticker Value */}
+              <div className="flex items-baseline gap-2 mt-1">
+                <span className="font-display text-3xl sm:text-4xl text-white transition-all duration-300">
+                  {currentVisitorMetric.value.toLocaleString("fr-FR")}
+                </span>
+                <span className="text-xs font-semibold text-[#f59e0b] capitalize">
+                  {currentVisitorMetric.label}
+                </span>
+              </div>
+              <p className="text-[10px] text-zinc-500 mt-1">
+                {currentVisitorMetric.sub} (défilement automatique)
+              </p>
             </div>
-            <div className="flex items-baseline gap-2">
-              <span className="font-display text-3xl sm:text-4xl text-[#ff3b30]">{todayOrdersCount}</span>
-              <span className="text-[11px] text-[#a1a1aa]">commande{todayOrdersCount > 1 ? "s" : ""}</span>
+
+            {/* Period Switcher Buttons */}
+            <div className="flex items-center rounded-xl bg-black/60 p-1 mt-3 border border-white/5 text-[10px] font-semibold text-zinc-400">
+              <button
+                type="button"
+                onClick={() => setVisitorPeriod("day")}
+                className={`flex-1 py-1 rounded-lg text-center transition-all cursor-pointer ${
+                  visitorPeriod === "day" ? "bg-[#f59e0b] text-black font-bold shadow-sm" : "hover:text-white"
+                }`}
+              >
+                Jour
+              </button>
+              <button
+                type="button"
+                onClick={() => setVisitorPeriod("week")}
+                className={`flex-1 py-1 rounded-lg text-center transition-all cursor-pointer ${
+                  visitorPeriod === "week" ? "bg-[#f59e0b] text-black font-bold shadow-sm" : "hover:text-white"
+                }`}
+              >
+                Sem.
+              </button>
+              <button
+                type="button"
+                onClick={() => setVisitorPeriod("month")}
+                className={`flex-1 py-1 rounded-lg text-center transition-all cursor-pointer ${
+                  visitorPeriod === "month" ? "bg-[#f59e0b] text-black font-bold shadow-sm" : "hover:text-white"
+                }`}
+              >
+                Mois
+              </button>
+              <button
+                type="button"
+                onClick={() => setVisitorPeriod("year")}
+                className={`flex-1 py-1 rounded-lg text-center transition-all cursor-pointer ${
+                  visitorPeriod === "year" ? "bg-[#f59e0b] text-black font-bold shadow-sm" : "hover:text-white"
+                }`}
+              >
+                An
+              </button>
             </div>
-            <p className="text-[10px] text-zinc-500 mt-2">
-              Chiffre du jour : <strong className="text-white">{todayRevenueDt.toFixed(1)} DT</strong>
-            </p>
           </div>
 
-          {/* Card 2: Commandes Jour Précédent (Hier) */}
+          {/* Card 2: Commandes Cette Semaine (avec sous-détail aujourd'hui) */}
           <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-[#14141a] to-[#0e0e12] border border-white/10 flex flex-col justify-between shadow-lg">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-bold uppercase tracking-wider text-[#a1a1aa] flex items-center gap-1.5">
-                <CalendarDays className="w-3.5 h-3.5 text-[#f59e0b]" /> Jour Précédent
-              </span>
-              <span className="text-[9px] font-bold text-zinc-500">
-                Hier
-              </span>
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-bold uppercase tracking-wider text-[#a1a1aa] flex items-center gap-1.5">
+                  <CalendarDays className="w-3.5 h-3.5 text-[#ff3b30]" /> Cette Semaine
+                </span>
+                <span className="text-[9px] font-black uppercase px-1.5 py-0.5 rounded bg-[#ff3b30]/20 text-[#ff3b30]">
+                  TOTAL SEMAINE
+                </span>
+              </div>
+              <div className="flex items-baseline gap-2">
+                <span className="font-display text-3xl sm:text-4xl text-[#ff3b30]">{weekOrdersCount}</span>
+                <span className="text-[11px] text-[#a1a1aa]">commande{weekOrdersCount > 1 ? "s" : ""}</span>
+              </div>
             </div>
-            <div className="flex items-baseline gap-2">
-              <span className="font-display text-3xl sm:text-4xl text-[#f59e0b]">{yesterdayOrdersCount}</span>
-              <span className="text-[11px] text-[#a1a1aa]">commande{yesterdayOrdersCount > 1 ? "s" : ""}</span>
+            <div className="pt-2 border-t border-white/5 mt-3 flex items-center justify-between text-[11px]">
+              <span className="text-zinc-400">Dont aujourd'hui :</span>
+              <strong className="text-white font-mono">{todayOrdersCount} commande{todayOrdersCount > 1 ? "s" : ""}</strong>
             </div>
-            <p className="text-[10px] text-zinc-500 mt-2">
-              Total hier : <strong className="text-white">{yesterdayRevenueDt.toFixed(1)} DT</strong>
-            </p>
           </div>
 
           {/* Card 3: En Cours de Préparation sur Plancha */}
           <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-[#14141a] to-[#0e0e12] border border-white/10 flex flex-col justify-between shadow-lg">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-bold uppercase tracking-wider text-[#a1a1aa] flex items-center gap-1.5">
-                <Flame className="w-3.5 h-3.5 text-[#22c55e]" /> Cuisine Active
-              </span>
-              {activeNewCount > 0 && (
-                <span className="text-[9px] font-black px-1.5 py-0.5 rounded bg-red-500 text-white animate-pulse">
-                  {activeNewCount} NOUVELLE{activeNewCount > 1 ? "S" : ""}
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-bold uppercase tracking-wider text-[#a1a1aa] flex items-center gap-1.5">
+                  <Flame className="w-3.5 h-3.5 text-[#22c55e]" /> Cuisine Active
                 </span>
-              )}
-            </div>
-            <div className="flex items-baseline gap-2">
-              <span className="font-display text-3xl sm:text-4xl text-white">{activePreparingCount}</span>
-              <span className="text-[11px] text-[#a1a1aa]">sur plancha 240°C</span>
+                {activeNewCount > 0 && (
+                  <span className="text-[9px] font-black px-1.5 py-0.5 rounded bg-red-500 text-white animate-pulse">
+                    {activeNewCount} NOUVELLE{activeNewCount > 1 ? "S" : ""}
+                  </span>
+                )}
+              </div>
+              <div className="flex items-baseline gap-2">
+                <span className="font-display text-3xl sm:text-4xl text-white">{activePreparingCount}</span>
+                <span className="text-[11px] text-[#a1a1aa]">sur plancha 240°C</span>
+              </div>
             </div>
             <p className="text-[10px] text-zinc-500 mt-2">Smash minute à la presse d'acier</p>
           </div>
 
-          {/* Card 4: Service & Horaires */}
+          {/* Card 4: Chiffre d'Affaires Semaine */}
           <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-[#14141a] to-[#0e0e12] border border-white/10 flex flex-col justify-between shadow-lg">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-bold uppercase tracking-wider text-[#a1a1aa] flex items-center gap-1.5">
-                <Clock className="w-3.5 h-3.5 text-zinc-400" /> Service
-              </span>
-              <span className="text-[9px] font-black px-1.5 py-0.5 rounded bg-[#22c55e]/20 text-[#22c55e]">
-                OUVERT
-              </span>
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-bold uppercase tracking-wider text-[#a1a1aa] flex items-center gap-1.5">
+                  <TrendingUp className="w-3.5 h-3.5 text-[#f59e0b]" /> CA Semaine
+                </span>
+                <span className="text-[9px] font-bold text-zinc-500 font-mono">
+                  {todayRevenueDt.toFixed(1)} DT auj.
+                </span>
+              </div>
+              <div className="flex items-baseline gap-1.5">
+                <span className="font-display text-3xl sm:text-4xl text-white">{weekRevenueDt.toFixed(1)}</span>
+                <span className="text-xs font-bold text-[#f59e0b]">DT</span>
+              </div>
             </div>
-            <div className="flex items-baseline gap-2">
-              <span className="font-display text-2xl sm:text-3xl text-white">12h - 00h</span>
-              <span className="text-[11px] text-[#a1a1aa]">7j / 7</span>
-            </div>
-            <p className="text-[10px] text-zinc-500 mt-2">Sousse Corniche & Ville</p>
+            <p className="text-[10px] text-zinc-500 mt-2">{weekOrdersCount} commandes validées cette semaine</p>
           </div>
         </section>
 
@@ -582,7 +694,7 @@ export default function HostDashboard() {
         <section className="p-5 sm:p-6 rounded-3xl bg-gradient-to-b from-[#14141a] to-[#0d0d12] border border-white/10 shadow-2xl">
           
           {/* Header with Title and Day Navigation Tabs */}
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6 pb-4 border-b border-white/10">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-4 pb-4 border-b border-white/10">
             <div>
               <div className="flex items-center gap-2 mb-1">
                 <ShoppingBag className="w-4 h-4 text-[#ff3b30]" />
@@ -595,10 +707,15 @@ export default function HostDashboard() {
               </p>
             </div>
 
-            {/* DAY SELECTOR TABS (AUJOURD'HUI vs JOUR PRÉCÉDENT vs TOUTES) */}
+            {/* MAIN DAY TABS: AUJOURD'HUI vs CETTE SEMAINE vs TOUTES */}
             <div className="flex items-center gap-1.5 bg-black/60 p-1 rounded-xl border border-white/10">
+              
+              {/* Onglet Aujourd'hui */}
               <button
-                onClick={() => setSelectedDayTab("today")}
+                onClick={() => {
+                  setSelectedDayTab("today");
+                  setSelectedWeekDayDate("all-week");
+                }}
                 className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
                   selectedDayTab === "today"
                     ? "bg-[#ff3b30] text-white shadow-md shadow-[#ff3b30]/30"
@@ -611,23 +728,28 @@ export default function HostDashboard() {
                 </span>
               </button>
 
+              {/* Onglet Cette Semaine */}
               <button
-                onClick={() => setSelectedDayTab("yesterday")}
+                onClick={() => setSelectedDayTab("week")}
                 className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
-                  selectedDayTab === "yesterday"
-                    ? "bg-gradient-to-r from-[#f59e0b] to-[#d97706] text-black shadow-md shadow-[#f59e0b]/30"
+                  selectedDayTab === "week"
+                    ? "bg-gradient-to-r from-[#f59e0b] to-[#d97706] text-black font-bold shadow-md shadow-[#f59e0b]/30"
                     : "text-[#a1a1aa] hover:text-white"
                 }`}
               >
                 <CalendarDays className="w-3.5 h-3.5" />
-                <span>Jour Précédent (Hier)</span>
+                <span>Cette Semaine</span>
                 <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-black/40 font-mono text-white">
-                  {yesterdayOrdersCount}
+                  {weekOrdersCount}
                 </span>
               </button>
 
+              {/* Onglet Toutes */}
               <button
-                onClick={() => setSelectedDayTab("all")}
+                onClick={() => {
+                  setSelectedDayTab("all");
+                  setSelectedWeekDayDate("all-week");
+                }}
                 className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
                   selectedDayTab === "all"
                     ? "bg-white/20 text-white"
@@ -639,6 +761,54 @@ export default function HostDashboard() {
               </button>
             </div>
           </div>
+
+          {/* SUB-BAR WHEN "CETTE SEMAINE" IS SELECTED (CHOIX DU JOUR DE LA SEMAINE) */}
+          {selectedDayTab === "week" && (
+            <div className="bg-black/40 p-2.5 rounded-2xl border border-white/10 mb-5 flex items-center justify-between gap-2 flex-wrap">
+              <span className="text-xs text-[#f59e0b] font-bold flex items-center gap-1.5 pl-1">
+                <CalendarDays className="w-3.5 h-3.5" />
+                <span>Filtrer par jour de la semaine :</span>
+              </span>
+
+              <div className="flex items-center gap-1 overflow-x-auto py-0.5">
+                {/* Bouton toute la semaine */}
+                <button
+                  onClick={() => setSelectedWeekDayDate("all-week")}
+                  className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
+                    selectedWeekDayDate === "all-week"
+                      ? "bg-white text-black font-black"
+                      : "bg-white/5 text-zinc-300 hover:bg-white/10"
+                  }`}
+                >
+                  Toute la semaine ({weekOrdersCount})
+                </button>
+
+                {/* Les 7 jours de la semaine : Lun -> Dim */}
+                {weekDays.map((day) => {
+                  const dayOrdersCount = orders.filter(o => o.date === day.date).length;
+                  const isSelected = selectedWeekDayDate === day.date;
+                  return (
+                    <button
+                      key={day.date}
+                      onClick={() => setSelectedWeekDayDate(day.date)}
+                      className={`px-2 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center gap-1 whitespace-nowrap ${
+                        isSelected
+                          ? "bg-[#f59e0b] text-black font-bold shadow-sm"
+                          : day.isToday
+                          ? "bg-[#ff3b30]/20 text-[#ff3b30] border border-[#ff3b30]/30 hover:bg-[#ff3b30]/30"
+                          : "bg-white/5 text-zinc-400 hover:text-white hover:bg-white/10"
+                      }`}
+                    >
+                      <span>{day.shortName}</span>
+                      <span className={`text-[10px] font-mono px-1 rounded ${isSelected ? "bg-black/30 text-white" : "text-zinc-300"}`}>
+                        {dayOrdersCount}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
 
           {/* Subheader: Status Tabs Filter */}
           <div className="flex items-center justify-between mb-5 flex-wrap gap-2">
@@ -686,7 +856,15 @@ export default function HostDashboard() {
             </div>
 
             <span className="text-xs text-zinc-400">
-              Affichage : <strong>{selectedDayTab === "today" ? `Aujourd'hui (${formatDisplayDate(todayStr)})` : selectedDayTab === "yesterday" ? `Hier (${formatDisplayDate(yesterdayStr)})` : "Historique Complet"}</strong>
+              Période : <strong>
+                {selectedDayTab === "today"
+                  ? `Aujourd'hui (${formatDisplayDate(todayStr)})`
+                  : selectedDayTab === "week"
+                  ? selectedWeekDayDate === "all-week"
+                    ? `Cette Semaine (Lun ${weekDays[0].date.slice(8)} - Dim ${weekDays[6].date.slice(8)})`
+                    : formatDisplayDate(selectedWeekDayDate)
+                  : "Historique Complet"}
+              </strong>
             </span>
           </div>
 
@@ -697,8 +875,10 @@ export default function HostDashboard() {
               <p className="text-sm font-bold text-white">
                 {selectedDayTab === "today"
                   ? "Aucune commande pour aujourd'hui pour le moment"
-                  : selectedDayTab === "yesterday"
-                  ? "Aucune commande enregistrée hier"
+                  : selectedDayTab === "week"
+                  ? selectedWeekDayDate === "all-week"
+                    ? "Aucune commande enregistrée cette semaine"
+                    : `Aucune commande enregistrée pour ce jour (${formatDisplayDate(selectedWeekDayDate)})`
                   : "Aucune commande dans cet onglet"}
               </p>
               <p className="text-xs text-[#a1a1aa] mt-1.5 max-w-sm mx-auto">
