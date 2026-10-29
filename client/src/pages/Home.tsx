@@ -221,6 +221,65 @@ export const ALL_7_BURGERS: BurgerItem[] = [
     ]
   },
   {
+    id: "og-triple",
+    explodedImage: "/burgers/og_triple_burger_entier_4k.png",
+    name: "OG Triple",
+    category: "Smash Burgers",
+    badge: "TRIPLE SMASH MONSTER 🏆",
+    price: 27.5,
+    image: "/burgers/og_triple_burger_entier_4k.png",
+    description: "Triple steak pur bœuf smashé minute à 240°C, triple fromage américain fondant, oignons caramélisés fondants, pickles croquants et sauce OG signature dans son pain brioché artisanal toasté.",
+    specs: {
+      bun: "Brioche Potato Bun artisanal toasté",
+      patty: "Triple steak pur bœuf smashé minute",
+      cheese: "Triple fromage américain fondant",
+      sauce: "Sauce OG signature maison",
+      garniture: "Oignons caramélisés & pickles croquants"
+    },
+    layers: [
+      {
+        num: 1,
+        label: "Brioche Potato Bun (Dessus)",
+        name: "Brioche Potato Bun (Dessus)",
+        description: "Brioche dorée artisanale toastée au beurre doux.",
+        tag: "POTATO BUN",
+        image: "/burgers/og-triple-layers/og_triple_couche_1.png"
+      },
+      {
+        num: 2,
+        label: "Sauce OG & Cornichons",
+        name: "Sauce OG & Cornichons",
+        description: "Rondelles de pickles croquants marinés et sauce signature OG maison.",
+        tag: "SAUCE OG & CORNICHONS",
+        image: "/burgers/og-triple-layers/og_triple_couche_2.png"
+      },
+      {
+        num: 3,
+        label: "Oignons Caramélisés",
+        name: "Oignons Caramélisés",
+        description: "Oignons doux compotés lentement et fondants sur la plancha.",
+        tag: "OIGNONS CARAMÉLISÉS",
+        image: "/burgers/og-triple-layers/og_triple_couche_3.png"
+      },
+      {
+        num: 4,
+        label: "Triple Steak & Fromage",
+        name: "Triple Steak Smashé & Triple Fromage Américain",
+        description: "Triple steak pur bœuf smashé à 240°C avec triple fromage américain ultra-fondant.",
+        tag: "TRIPLE SMASH & CHEESE",
+        image: "/burgers/og-triple-layers/og_triple_couche_4.png"
+      },
+      {
+        num: 5,
+        label: "Bun Inférieur & Sauce OG",
+        name: "Brioche Potato Bun (Dessous) & Sauce OG",
+        description: "Base briochée toastée moelleuse généreusement garnie de sauce OG signature.",
+        tag: "BASE & SAUCE OG",
+        image: "/burgers/og-triple-layers/og_triple_couche_5.png"
+      }
+    ]
+  },
+  {
     id: "og-smash-oklahoma",
     explodedImage: "/burgers/exploded-3d/og-smash-oklahoma-3d.png",
     name: "OG Smash Oklahoma",
@@ -522,7 +581,8 @@ export const FULL_MENU_ITEMS = [
   // --- 4 SMASH BEEF BURGERS ---
   { id: 1, category: "Smash Burgers", name: "Truffle Mushroom", description: "Double smash beef patty, american cheese, grilled mushrooms, truffle mayo, rocket salad, artisanal potato bun.", priceDt: 29.5, image: "/burgers/truffle-mushroom.png" },
   { id: 2, category: "Smash Burgers", name: "OG Smash", description: "Double smash beef patty, american cheese, grilled caramelized onions, signature OG sauce, pickles, artisanal potato bun.", priceDt: 22.7, image: "/burgers/og-smash.png" },
-  { id: 3, category: "Smash Burgers", name: "OG Smash Oklahoma", description: "Double smash beef patty smashé avec fines lamelles d oignons caramélisés, double american cheese, sauce OG, potato bun.", priceDt: 22.7, image: "/burgers/og-smash-oklahoma.png" },
+    { id: 28, category: "Smash Burgers", name: "OG Triple", description: "Triple smash beef patty, triple american cheese, oignons caramélisés fondants, pickles croquants, sauce OG, brioche potato bun.", priceDt: 27.5, image: "/burgers/og_triple_burger_entier_4k.png" },
+{ id: 3, category: "Smash Burgers", name: "OG Smash Oklahoma", description: "Double smash beef patty smashé avec fines lamelles d oignons caramélisés, double american cheese, sauce OG, potato bun.", priceDt: 22.7, image: "/burgers/og-smash-oklahoma.png" },
   { id: 4, category: "Smash Burgers", name: "Hot Smash", description: "Double smash beef patty, american cheese, jalapeños épicés, sauce hot épicée maison, oignons caramélisés, potato bun.", priceDt: 25.0, image: "/burgers/hot-smash.png" },
 
   // --- 3 CRISPY CHICKEN BURGERS ---
@@ -1039,7 +1099,7 @@ export default function Home() {
           {/* DESKTOP NAV LINKS */}
           <nav className="hidden md:flex items-center gap-8 text-sm font-semibold text-[#a1a1aa]">
             <a href="#experience-3d" className="hover:text-white transition-colors flex items-center gap-1.5">
-              <Sparkles className="w-3.5 h-3.5 text-[#ff3b30]" /> Les 7 Burgers en 3D
+              <Sparkles className="w-3.5 h-3.5 text-[#ff3b30]" /> Les {ALL_7_BURGERS.length} Burgers en 3D
             </a>
             <a href="#menu" className="hover:text-white transition-colors">
               Le Menu Officiel
@@ -1141,7 +1201,7 @@ export default function Home() {
               {/* HIGHLIGHT STATS */}
               <div className="grid grid-cols-3 gap-4 pt-5 border-t border-white/10 max-w-md mx-auto lg:mx-0">
                 <div>
-                  <div className="font-display text-2xl text-white">7 Burgers</div>
+                  <div className="font-display text-2xl text-white">{ALL_7_BURGERS.length} Burgers</div>
                   <div className="text-[10px] text-[#a1a1aa] uppercase font-semibold">Bœuf & Poulet</div>
                 </div>
                 <div>
@@ -1244,7 +1304,7 @@ export default function Home() {
                 <div className="w-full flex items-center justify-between px-2 mb-1 z-30">
                   <div className="flex items-center gap-1.5">
                     <span className="text-[11px] font-black px-2 py-0.5 rounded bg-black/60 text-[#f59e0b] border border-white/10">
-                      #{selectedBurgerIndex + 1} / 7
+                      #{selectedBurgerIndex + 1} / {ALL_7_BURGERS.length}
                     </span>
                     <span className="text-xs font-bold text-white uppercase tracking-wide">
                       {activeBurger.name}
@@ -1533,10 +1593,10 @@ export default function Home() {
                 <div className="flex items-center justify-between mb-3 px-1">
                   <span className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
                     <Flame className="w-4 h-4 text-[#ff3b30]" />
-                    Les 7 Burgers Officiels du Menu (4 Bœuf + 3 Poulet)
+                    Les {ALL_7_BURGERS.length} Burgers Officiels du Menu (5 Bœuf + 3 Poulet)
                   </span>
                   <span className="text-[11px] font-black px-2 py-0.5 rounded-full bg-[#ff3b30]/20 text-[#ff3b30]">
-                    7 Burgers au total
+                    {ALL_7_BURGERS.length} Burgers au total
                   </span>
                 </div>
                 
@@ -1972,7 +2032,7 @@ export default function Home() {
           </div>
 
           <div className="flex items-center gap-6 font-semibold">
-            <a href="#experience-3d" className="hover:text-white transition-colors">Les 7 Burgers 3D</a>
+            <a href="#experience-3d" className="hover:text-white transition-colors">Nos Burgers 3D</a>
             <a href="#menu" className="hover:text-white transition-colors">Menu Complet</a>
             <a href="#science-smash" className="hover:text-white transition-colors">Le Smash</a>
             <a href="#livraison" className="hover:text-white transition-colors">Livraison</a>
