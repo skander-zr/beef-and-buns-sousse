@@ -13,6 +13,8 @@ function Router() {
     <Switch>
       <Route path={"/"} component={Home} />
       <Route path={"/hote"} component={HostDashboard} />
+      <Route path={"/admin"} component={HostDashboard} />
+      <Route path={"/espace-hote"} component={HostDashboard} />
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />
