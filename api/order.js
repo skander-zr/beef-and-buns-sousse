@@ -6,7 +6,7 @@ export default async function handler(req, res) {
   try {
     const { customerName, phone, orderType, neighborhood, address, notes, items, totalDt } = req.body || {};
 
-    const token = process.env.TELEGRAM_BOT_TOKEN || '8962458398:AAEOGRd4gVH29CY93STH2kfN6F8XuA5oRis';
+    const token = process.env.TELEGRAM_BOT_TOKEN || '9194319608:AAFh739rW2GzXpyVB14BCWN1gfKzJ4KQ3_k';
     const chatId = process.env.TELEGRAM_CHAT_ID || '6048748092';
     const orderId = Math.floor(1000 + Math.random() * 9000);
 

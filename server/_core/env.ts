@@ -14,6 +14,6 @@ export const ENV = {
   whatsappTemplateName: process.env.WHATSAPP_TEMPLATE_NAME ?? "per_voi_new_event",
   whatsappTemplateLanguage: process.env.WHATSAPP_TEMPLATE_LANGUAGE ?? "fr",
   whatsappApiVersion: process.env.WHATSAPP_API_VERSION ?? "v23.0",
-  telegramBotToken: process.env.TELEGRAM_BOT_TOKEN ?? "8962458398:AAEOGRd4gVH29CY93STH2kfN6F8XuA5oRis",
+  telegramBotToken: process.env.TELEGRAM_BOT_TOKEN ?? "9194319608:AAFh739rW2GzXpyVB14BCWN1gfKzJ4KQ3_k",
   telegramChatId: process.env.TELEGRAM_CHAT_ID ?? "6048748092",
 };

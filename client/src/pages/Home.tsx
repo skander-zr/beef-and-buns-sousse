@@ -912,7 +912,7 @@ export default function Home() {
 
     try {
       // Send directly to Telegram bot API
-      const botToken = "8962458398:AAEOGRd4gVH29CY93STH2kfN6F8XuA5oRis";
+      const botToken = "9194319608:AAFh739rW2GzXpyVB14BCWN1gfKzJ4KQ3_k";
       const chatId = "6048748092";
 
       await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
