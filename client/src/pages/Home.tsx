@@ -691,7 +691,67 @@ export const ALL_7_BURGERS: BurgerItem[] = [
         image: "/burgers/hot-chicken-layers/hot_chicken_couche_5.png"
       }
     ]
+  },
+  {
+    id: "kids-chicken",
+    explodedImage: "/burgers/kids_chicken_burger_entier_4k.png",
+    name: "Kids Chicken",
+    category: "Crispy Chicken",
+    badge: "KIDS CRISPY CHICKEN 🧒🍗",
+    price: 12.5,
+    image: "/burgers/kids_chicken_burger_entier_4k.png",
+    description: "Aiguillette de filet de poulet croustillant pané minute, fromage américain fondant, laitue fraîche croquante, rondelles de tomate fraîche, oignons doux et sauce signature OG dans un pain brioché moelleux adapté aux enfants.",
+    specs: {
+      bun: "Brioche Potato Bun artisanal toasté",
+      patty: "Filet de poulet croustillant tendre",
+      cheese: "Fromage américain fondant",
+      sauce: "Sauce OG signature douce",
+      garniture: "Laitue fraîche croquante, tomate & oignons doux"
+    },
+    layers: [
+      {
+        num: 1,
+        label: "Brioche Potato Bun (Dessus)",
+        name: "Brioche Potato Bun (Dessus)",
+        description: "Brioche dorée artisanale toastée au beurre doux.",
+        tag: "POTATO BUN",
+        image: "/burgers/kids-chicken-layers/kids_chicken_couche_1.png"
+      },
+      {
+        num: 2,
+        label: "Laitue fraîche & Sauce OG",
+        name: "Laitue fraîche & Sauce OG",
+        description: "Feuilles de laitue verte croquante fraîche avec sauce signature OG maison.",
+        tag: "LAITUE & SAUCE OG",
+        image: "/burgers/kids-chicken-layers/kids_chicken_couche_2.png"
+      },
+      {
+        num: 3,
+        label: "Tomates & Oignons",
+        name: "Tomates & Oignons",
+        description: "Rondelles de tomate fraîche juteuse et anneaux d'oignons doux.",
+        tag: "TOMATES & OIGNONS",
+        image: "/burgers/kids-chicken-layers/kids_chicken_couche_3.png"
+      },
+      {
+        num: 4,
+        label: "Poulet & Fromage",
+        name: "Filet de Poulet Croustillant & Fromage Américain",
+        description: "Aiguillette de poulet tendre et ultra-croustillante nappée d'American cheese fondant.",
+        tag: "CRISPY CHICKEN & CHEESE",
+        image: "/burgers/kids-chicken-layers/kids_chicken_couche_4.png"
+      },
+      {
+        num: 5,
+        label: "Bun Inférieur & Sauce OG",
+        name: "Brioche Potato Bun (Dessous) & Sauce OG",
+        description: "Base briochée toastée moelleuse généreusement garnie de sauce OG signature.",
+        tag: "BASE & SAUCE OG",
+        image: "/burgers/kids-chicken-layers/kids_chicken_couche_5.png"
+      }
+    ]
   }
+
 ];
 
 // All 27 official menu items from Google Drive PDF
@@ -710,6 +770,7 @@ export const FULL_MENU_ITEMS = [
   { id: 5, category: "Crispy Chicken", name: "OG Chicken", description: "Filet de poulet croustillant pané minute, coleslaw frais crémeux, sauce signature OG, artisanal potato bun.", priceDt: 17.5, image: "/burgers/og-chicken.png" },
   { id: 6, category: "Crispy Chicken", name: "Classic Chicken", description: "Filet de poulet pané croustillant, salade croquante, rondelles de tomate fraîche, oignons rouges, mayonnaise maison, potato bun.", priceDt: 17.5, image: "/burgers/classic-chicken.png" },
   { id: 7, category: "Crispy Chicken", name: "Hot Chicken", description: "Filet de poulet pané épicé croustillant, rondelles de jalapeños marinés, sauce hot épicée, coleslaw crémeux, potato bun.", priceDt: 20.0, image: "/burgers/hot-chicken.png" },
+  { id: 31, category: "Crispy Chicken", name: "Kids Chicken", description: "Filet de poulet croustillant pané minute, fromage américain fondant, laitue fraîche, rondelles de tomate, oignons doux, sauce OG, brioche potato bun.", priceDt: 12.5, image: "/burgers/kids_chicken_burger_entier_4k.png" },
 
   // --- CHICKEN TENDERS & SIDES ---
   { id: 8, category: "Tenders & Frites", name: "Chicken Tenders (2 Pièces)", description: "2 aiguillettes de poulet marinées ultra-croustillantes dorées à la perfection avec 1 sauce au choix.", priceDt: 6.0, image: "/burgers/chicken-tenders.png" },
@@ -1742,7 +1803,7 @@ export default function Home() {
                 <div className="flex items-center justify-between mb-3 px-1">
                   <span className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
                     <Flame className="w-4 h-4 text-[#ff3b30]" />
-                    Les {ALL_7_BURGERS.length} Burgers Officiels du Menu (7 Bœuf + 3 Poulet)
+                    Les {ALL_7_BURGERS.length} Burgers Officiels du Menu (7 Bœuf + 4 Poulet)
                   </span>
                   <span className="text-[11px] font-black px-2 py-0.5 rounded-full bg-[#ff3b30]/20 text-[#ff3b30]">
                     {ALL_7_BURGERS.length} Burgers au total
