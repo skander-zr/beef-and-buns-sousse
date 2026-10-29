@@ -462,4 +462,18 @@ button, a { -webkit-tap-highlight-color: transparent; }
   }
 }
 
+/* 3D Floating Animation for Official 3D Emblem */
+@keyframes float3d {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-8px) rotate(1.5deg);
+  }
+}
+
+.animate-float-3d {
+  animation: float3d 3.5s ease-in-out infinite;
+}
+
 

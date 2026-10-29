@@ -972,19 +972,24 @@ export default function Home() {
       <header className="sticky top-0 z-40 backdrop-blur-md bg-[#09090b]/80 border-b border-white/[0.08]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
           {/* BRAND LOGO */}
-          <a href="#" className="flex items-center gap-3 group">
-            <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-[#ff3b30] to-[#f59e0b] p-0.5 shadow-lg shadow-[#ff3b30]/20 group-hover:scale-105 transition-transform">
-              <div className="w-full h-full bg-[#09090b] rounded-[10px] flex items-center justify-center">
-                <Flame className="w-6 h-6 text-[#ff3b30] fill-[#ff3b30] group-hover:text-[#f59e0b] transition-colors" />
-              </div>
-            </div>
-            <div>
-              <div className="font-display text-2xl tracking-wide flex items-center gap-1.5">
-                <span>BEEF</span>
-                <span className="text-[#ff3b30]">&</span>
-                <span>BUNS</span>
-              </div>
-              <p className="text-[10px] uppercase tracking-widest text-[#a1a1aa] font-semibold -mt-1">
+          <a href="#" className="flex items-center gap-2.5 sm:gap-3 group">
+            <img
+              src="/logos/logo_3d_embleme_burger.png"
+              alt="Beef & Buns Emblème 3D"
+              className="h-10 sm:h-12 w-auto object-contain bg-transparent transition-transform duration-300 group-hover:scale-105 shrink-0"
+              style={{
+                background: "transparent",
+                filter: "drop-shadow(0 4px 12px rgba(220, 38, 38, 0.35))",
+              }}
+            />
+            <div className="flex flex-col justify-center">
+              <img
+                src="/logos/logo_3d_texte_beef_and_buns.png"
+                alt="BEEF & BUNS"
+                className="h-5 sm:h-6 w-auto object-contain bg-transparent block"
+                style={{ background: "transparent" }}
+              />
+              <p className="text-[9px] sm:text-[10px] uppercase tracking-widest text-[#a1a1aa] font-semibold mt-0.5">
                 Sousse • Smash Burger
               </p>
             </div>
@@ -1041,9 +1046,20 @@ export default function Home() {
             
             {/* HERO LEFT COPY */}
             <div className="lg:col-span-5 text-center lg:text-left">
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#ff3b30]/10 border border-[#ff3b30]/30 text-[#ff3b30] text-xs font-black uppercase tracking-wider mb-4">
-                <Flame className="w-4 h-4 fill-[#ff3b30]" />
-                <span>Simple. Bold. Perfect.</span>
+              <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3.5 mb-5">
+                <img
+                  src="/logos/logo_3d_embleme_burger.png"
+                  alt="Beef & Buns Emblème 3D"
+                  className="w-16 h-16 sm:w-20 sm:h-20 object-contain bg-transparent animate-float-3d shrink-0"
+                  style={{
+                    background: "transparent",
+                    filter: "drop-shadow(0 10px 20px rgba(220, 38, 38, 0.35))",
+                  }}
+                />
+                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#ff3b30]/10 border border-[#ff3b30]/30 text-[#ff3b30] text-xs font-black uppercase tracking-wider">
+                  <Flame className="w-4 h-4 fill-[#ff3b30]" />
+                  <span>Simple. Bold. Perfect. • Sousse</span>
+                </div>
               </div>
 
               <h1 className="font-display text-5xl sm:text-6xl lg:text-7xl leading-[0.95] tracking-tight uppercase mb-5">
@@ -1891,13 +1907,26 @@ export default function Home() {
       {/* FOOTER */}
       <footer className="bg-[#050507] py-12 border-t border-white/[0.08] relative z-10 text-xs text-[#a1a1aa]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-[#ff3b30] flex items-center justify-center text-white">
-              <Flame className="w-4 h-4 fill-white" />
-            </div>
-            <div>
-              <span className="font-display text-lg tracking-wider text-white">BEEF & BUNS</span>
-              <p className="text-[10px] text-[#71717a]">The Art of the Smash Burger • Sousse</p>
+          <div className="flex items-center gap-3.5">
+            <img
+              src="/logos/logo_3d_embleme_burger.png"
+              alt="Beef & Buns Emblème 3D"
+              className="w-12 h-12 sm:w-14 sm:h-14 object-contain bg-transparent animate-float-3d shrink-0"
+              style={{
+                background: "transparent",
+                filter: "drop-shadow(0 10px 20px rgba(220, 38, 38, 0.35))",
+              }}
+            />
+            <div className="flex flex-col justify-center">
+              <img
+                src="/logos/logo_3d_texte_beef_and_buns.png"
+                alt="BEEF & BUNS"
+                className="h-5 sm:h-6 w-auto object-contain bg-transparent block"
+                style={{ background: "transparent" }}
+              />
+              <p className="text-[10px] text-[#71717a] mt-0.5 font-semibold uppercase tracking-wider">
+                The Art of the Smash Burger • Sousse
+              </p>
             </div>
           </div>
 
