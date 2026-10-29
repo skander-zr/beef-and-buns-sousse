@@ -694,12 +694,12 @@ export const ALL_7_BURGERS: BurgerItem[] = [
   },
   {
     id: "kids-chicken",
-    explodedImage: "/burgers/kids_chicken_burger_entier_4k.png",
+    explodedImage: "/burgers/kids_chicken_droit_v2.png?v=2",
     name: "Kids Chicken",
     category: "Crispy Chicken",
     badge: "KIDS CRISPY CHICKEN 🧒🍗",
     price: 12.5,
-    image: "/burgers/kids_chicken_burger_entier_4k.png",
+    image: "/burgers/kids_chicken_droit_v2.png?v=2",
     description: "Aiguillette de filet de poulet croustillant pané minute, fromage américain fondant, laitue fraîche croquante, rondelles de tomate fraîche, oignons doux et sauce signature OG dans un pain brioché moelleux adapté aux enfants.",
     specs: {
       bun: "Brioche Potato Bun artisanal toasté",
@@ -770,7 +770,7 @@ export const FULL_MENU_ITEMS = [
   { id: 5, category: "Crispy Chicken", name: "OG Chicken", description: "Filet de poulet croustillant pané minute, coleslaw frais crémeux, sauce signature OG, artisanal potato bun.", priceDt: 17.5, image: "/burgers/og-chicken.png" },
   { id: 6, category: "Crispy Chicken", name: "Classic Chicken", description: "Filet de poulet pané croustillant, salade croquante, rondelles de tomate fraîche, oignons rouges, mayonnaise maison, potato bun.", priceDt: 17.5, image: "/burgers/classic-chicken.png" },
   { id: 7, category: "Crispy Chicken", name: "Hot Chicken", description: "Filet de poulet pané épicé croustillant, rondelles de jalapeños marinés, sauce hot épicée, coleslaw crémeux, potato bun.", priceDt: 20.0, image: "/burgers/hot-chicken.png" },
-  { id: 31, category: "Crispy Chicken", name: "Kids Chicken", description: "Filet de poulet croustillant pané minute, fromage américain fondant, laitue fraîche, rondelles de tomate, oignons doux, sauce OG, brioche potato bun.", priceDt: 12.5, image: "/burgers/kids_chicken_burger_entier_4k.png" },
+  { id: 31, category: "Crispy Chicken", name: "Kids Chicken", description: "Filet de poulet croustillant pané minute, fromage américain fondant, laitue fraîche, rondelles de tomate, oignons doux, sauce OG, brioche potato bun.", priceDt: 12.5, image: "/burgers/kids_chicken_droit_v2.png?v=2" },
 
   // --- CRISPY CHICKEN TENDERS & FRIES ---
   { id: 8, category: "Tenders & Fries", name: "2 PIECES — 2x Crispy chicken tenders", description: "2x aiguillettes de poulet croustillantes marinées, dorées minute à la perfection.", priceDt: 6.0, image: "/burgers/tenders_2_pieces_4k.png" },
@@ -858,7 +858,7 @@ export default function Home() {
   const isDragging = useRef(false);
   const lastPointerPos = useRef({ x: 0, y: 0 });
   const pointerStartPos = useRef({ x: 0, y: 0 });
-  const currentTilt = useRef({ x: 8, y: -15 });
+  const currentTilt = useRef({ x: 0, y: -15 });
   const modelRef = useRef<HTMLDivElement>(null);
   const autoRotateRef = useRef(true);
   const isExplodedRef = useRef(false);
@@ -915,9 +915,9 @@ export default function Home() {
       // Continuous 360 spin when auto-rotating and not actively dragging
       if (autoRotateRef.current && !isDragging.current) {
         if (!isExplodedRef.current) {
-          // Oscillation 3D fluide de gauche à droite (-22deg à 22deg) + léger tilt X
+          // Oscillation 3D fluide de gauche à droite (-22deg à 22deg) parfaitement horizontale (rotateX = 0deg)
           currentTilt.current.y = Math.sin(now * 0.0014) * 22;
-          currentTilt.current.x = 6 + Math.sin(now * 0.0018) * 3;
+          currentTilt.current.x = 0;
         } else {
           // Léger balancement subtil en vue éclatée
           currentTilt.current.y = -10 + Math.sin(now * 0.001) * 12;
@@ -928,7 +928,8 @@ export default function Home() {
       if (modelRef.current) {
         // Léger flottement vertical translateY pour garder le volume 4K sans écrasement
         const floatY = !isExplodedRef.current ? Math.sin(now * 0.0022) * 6 : 0;
-        modelRef.current.style.transform = `translateY(${floatY}px) rotateX(${currentTilt.current.x}deg) rotateY(${currentTilt.current.y}deg)`;
+        const rotX = !isExplodedRef.current ? 0 : currentTilt.current.x;
+        modelRef.current.style.transform = `translateY(${floatY}px) rotateX(${rotX}deg) rotateY(${currentTilt.current.y}deg)`;
       }
 
       animId = requestAnimationFrame(loop);
@@ -955,12 +956,13 @@ export default function Home() {
     const deltaY = e.clientY - lastPointerPos.current.y;
     lastPointerPos.current = { x: e.clientX, y: e.clientY };
 
-    // Update 3D tilt instantaneously
-    currentTilt.current.x = Math.max(-15, Math.min(25, currentTilt.current.x - deltaY * 0.25));
+    // Update 3D tilt instantaneously (rotateX = 0deg strictly in continuous 360 mode)
+    currentTilt.current.x = !isExplodedRef.current ? 0 : Math.max(-15, Math.min(25, currentTilt.current.x - deltaY * 0.25));
     currentTilt.current.y = Math.max(-28, Math.min(28, currentTilt.current.y + deltaX * 0.35));
 
     if (modelRef.current) {
-      modelRef.current.style.transform = `rotateX(${currentTilt.current.x}deg) rotateY(${currentTilt.current.y}deg)`;
+      const rotX = !isExplodedRef.current ? 0 : currentTilt.current.x;
+      modelRef.current.style.transform = `rotateX(${rotX}deg) rotateY(${currentTilt.current.y}deg)`;
     }
   };
 
@@ -991,7 +993,7 @@ export default function Home() {
       if (next) {
         currentTilt.current = { x: 12, y: -10 };
       } else {
-        currentTilt.current = { x: 8, y: -15 };
+        currentTilt.current = { x: 0, y: -15 };
         setIsAutoRotating(true);
       }
       return next;
@@ -999,10 +1001,11 @@ export default function Home() {
   };
 
   const resetView = () => {
-    currentTilt.current = isExploded ? { x: 12, y: -10 } : { x: 8, y: -15 };
+    currentTilt.current = isExploded ? { x: 12, y: -10 } : { x: 0, y: -15 };
     setIsAutoRotating(true);
     if (modelRef.current) {
-      modelRef.current.style.transform = `rotateX(${currentTilt.current.x}deg) rotateY(${currentTilt.current.y}deg)`;
+      const rotX = !isExploded ? 0 : currentTilt.current.x;
+      modelRef.current.style.transform = `rotateX(${rotX}deg) rotateY(${currentTilt.current.y}deg)`;
     }
   };
 

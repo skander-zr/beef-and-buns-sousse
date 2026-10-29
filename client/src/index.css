@@ -136,6 +136,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .burger-3d-model {
   transform-style: preserve-3d;
   will-change: transform;
+  transform: rotateX(0deg);
 }
 
 /* 3D Contact Shadow */
