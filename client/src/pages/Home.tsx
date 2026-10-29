@@ -869,7 +869,18 @@ export default function Home() {
     }
 
     setIsSubmitting(true);
-    const orderId = Math.floor(1000 + Math.random() * 9000);
+
+    // Sequential order number (Commande #1, #2, #3... reset each day)
+    const todayStr = new Date().toISOString().slice(0, 10);
+    const lastDate = localStorage.getItem("bb_last_order_date");
+    let currentCount = parseInt(localStorage.getItem("bb_order_counter") || "0", 10);
+    if (lastDate !== todayStr) {
+      currentCount = 0;
+      localStorage.setItem("bb_last_order_date", todayStr);
+    }
+    currentCount += 1;
+    localStorage.setItem("bb_order_counter", currentCount.toString());
+    const orderId = currentCount;
 
     const orderPayload = {
       orderId,
@@ -931,6 +942,36 @@ export default function Home() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(orderPayload)
       }).catch(() => {});
+
+      // Save to shared Host orders for Host Dashboard
+      try {
+        const existingOrders = JSON.parse(localStorage.getItem("beef_and_buns_host_orders") || "[]");
+        const newHostOrder = {
+          id: orderId,
+          customerName: customerName.trim(),
+          phone: customerPhone.trim(),
+          orderType,
+          neighborhood: deliveryNeighborhood,
+          address: deliveryAddress.trim(),
+          notes: orderNotes.trim(),
+          items: cart.map(item => ({
+            name: item.name,
+            quantity: item.quantity,
+            totalPrice: item.totalPrice * item.quantity,
+            pattiesCount: item.pattiesCount,
+            selectedExtras: item.selectedExtras,
+            removedIngredients: item.removedIngredients
+          })),
+          totalDt: cartTotalDt,
+          status: "new",
+          date: todayStr,
+          createdAt: new Date().toLocaleTimeString('fr-FR', { timeZone: 'Africa/Tunis', hour: '2-digit', minute: '2-digit' })
+        };
+        localStorage.setItem("beef_and_buns_host_orders", JSON.stringify([newHostOrder, ...existingOrders]));
+        window.dispatchEvent(new Event("storage"));
+      } catch (err) {
+        console.error("Local order storage error", err);
+      }
 
       setConfirmedOrder({ id: orderId, total: cartTotalDt });
       setCart([]);

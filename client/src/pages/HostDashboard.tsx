@@ -18,7 +18,6 @@ import {
   AlertCircle,
   Eye,
   EyeOff,
-  Plus,
   ChevronLeft,
   ChevronRight,
   ExternalLink,
@@ -28,7 +27,8 @@ import {
   UtensilsCrossed,
   Truck,
   PackageCheck,
-  Radio
+  CalendarDays,
+  History
 } from "lucide-react";
 import { FULL_MENU_ITEMS } from "./Home";
 
@@ -50,94 +50,9 @@ export interface HostOrder {
   }>;
   totalDt: number;
   status: "new" | "preparing" | "ready" | "completed" | "cancelled";
-  createdAt: string;
+  date: string; // YYYY-MM-DD
+  createdAt: string; // HH:mm
 }
-
-const INITIAL_HOST_ORDERS: HostOrder[] = [
-  {
-    id: 4892,
-    customerName: "Mohamed Ben Ali",
-    phone: "98 421 305",
-    orderType: "delivery",
-    neighborhood: "Khezama Ouest",
-    address: "Rue Ibn Khaldoun, Résidence Les Palmiers, Apt 14",
-    notes: "Bien griller les steaks svp, pas trop d'oignons",
-    items: [
-      {
-        name: "Truffle Mushroom",
-        quantity: 2,
-        totalPrice: 59.0,
-        pattiesCount: 2,
-        selectedExtras: [{ name: "Bacon de Bœuf Croustillant", price: 5.0 }]
-      },
-      {
-        name: "Frites Crinkle Croustillantes",
-        quantity: 2,
-        totalPrice: 6.0
-      },
-      {
-        name: "Coca-Cola / Zero (33cl)",
-        quantity: 2,
-        totalPrice: 6.0
-      }
-    ],
-    totalDt: 71.0,
-    status: "new",
-    createdAt: "Il y a 6 min"
-  },
-  {
-    id: 4891,
-    customerName: "Yasmine Trabelsi",
-    phone: "24 718 902",
-    orderType: "pickup",
-    notes: "Sauce piquante à part svp",
-    items: [
-      {
-        name: "OG Smash Oklahoma",
-        quantity: 1,
-        totalPrice: 22.7,
-        pattiesCount: 3,
-        selectedExtras: [{ name: "Extra Smash Patty (Bœuf)", price: 6.0 }]
-      },
-      {
-        name: "OG Chicken",
-        quantity: 1,
-        totalPrice: 17.5
-      },
-      {
-        name: "Sauce Hot Spicy Maison",
-        quantity: 1,
-        totalPrice: 3.5
-      }
-    ],
-    totalDt: 43.7,
-    status: "preparing",
-    createdAt: "Il y a 18 min"
-  },
-  {
-    id: 4890,
-    customerName: "Karim Zouari",
-    phone: "52 119 404",
-    orderType: "delivery",
-    neighborhood: "Sousse Corniche",
-    address: "Boulevard 14 Janvier, face Hôtel Tej Marhaba",
-    items: [
-      {
-        name: "Hot Smash",
-        quantity: 2,
-        totalPrice: 50.0
-      },
-      {
-        name: "Chicken Tenders (4 Pièces)",
-        quantity: 1,
-        totalPrice: 12.0
-      }
-    ],
-    totalDt: 62.0,
-    status: "ready",
-    createdAt: "Il y a 32 min"
-  }
-];
 
 const SERVICE_HOURS = [
   "12:00", "12:30", "13:00", "13:30", "14:00", "14:30",
@@ -145,6 +60,28 @@ const SERVICE_HOURS = [
   "18:00", "18:30", "19:00", "19:30", "20:00", "20:30",
   "21:00", "21:30", "22:00", "22:30", "23:00", "23:30"
 ];
+
+// Helper to get formatted date string YYYY-MM-DD
+function getDateString(offsetDays = 0): string {
+  const d = new Date();
+  d.setDate(d.getDate() + offsetDays);
+  return d.toISOString().slice(0, 10);
+}
+
+// Helper to format date in French
+function formatDisplayDate(dateStr: string): string {
+  try {
+    const [y, m, d] = dateStr.split("-").map(Number);
+    const dateObj = new Date(y, m - 1, d);
+    return dateObj.toLocaleDateString("fr-FR", {
+      weekday: "long",
+      day: "numeric",
+      month: "long"
+    });
+  } catch {
+    return dateStr;
+  }
+}
 
 // Audio chime synthesizer
 function playKitchenChime() {
@@ -173,11 +110,59 @@ export default function HostDashboard() {
   });
   const [pinError, setPinError] = useState(false);
 
-  // Orders State (persisted locally)
+  // Today and Yesterday date keys
+  const todayStr = useMemo(() => getDateString(0), []);
+  const yesterdayStr = useMemo(() => getDateString(-1), []);
+
+  // Orders State (No fake orders, 100% real client orders)
   const [orders, setOrders] = useState<HostOrder[]>(() => {
-    const saved = localStorage.getItem("beef_and_buns_host_orders");
-    return saved ? JSON.parse(saved) : INITIAL_HOST_ORDERS;
+    try {
+      const saved = localStorage.getItem("beef_and_buns_host_orders");
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        // Filter out any legacy dummy/mock orders from test versions
+        return parsed.filter((o: any) => o.id !== 4892 && o.id !== 4891 && o.id !== 4890 && o.customerName !== "Client Test Sousse");
+      }
+    } catch {}
+    return [];
   });
+
+  // Clean out legacy fake orders on mount
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("beef_and_buns_host_orders");
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        const hasDummy = parsed.some((o: any) => o.id === 4892 || o.id === 4891 || o.id === 4890 || o.customerName === "Client Test Sousse");
+        if (hasDummy) {
+          const cleaned = parsed.filter((o: any) => o.id !== 4892 && o.id !== 4891 && o.id !== 4890 && o.customerName !== "Client Test Sousse");
+          localStorage.setItem("beef_and_buns_host_orders", JSON.stringify(cleaned));
+          setOrders(cleaned);
+        }
+      }
+    } catch {}
+  }, []);
+
+  // Listen to new orders placed on the client site in real time
+  useEffect(() => {
+    const handleStorageChange = () => {
+      try {
+        const saved = localStorage.getItem("beef_and_buns_host_orders");
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          const cleaned = parsed.filter((o: any) => o.id !== 4892 && o.id !== 4891 && o.id !== 4890 && o.customerName !== "Client Test Sousse");
+          setOrders(cleaned);
+        }
+      } catch {}
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    const interval = setInterval(handleStorageChange, 3000); // Polling local changes
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+      clearInterval(interval);
+    };
+  }, []);
 
   // Menu Active Items State (27 official items)
   const [disabledMenuIds, setDisabledMenuIds] = useState<number[]>(() => {
@@ -192,8 +177,11 @@ export default function HostDashboard() {
   });
 
   // Filters & Tabs
+  // Day filter: "today" | "yesterday" | "all"
+  const [selectedDayTab, setSelectedDayTab] = useState<"today" | "yesterday" | "all">("today");
+  // Status filter: "all" | "new" | "preparing" | "ready" | "completed"
   const [selectedStatusTab, setSelectedStatusTab] = useState<"all" | "new" | "preparing" | "ready" | "completed">("all");
-  const [selectedDate, setSelectedDate] = useState(() => new Date().toISOString().slice(0, 10));
+  const [selectedSlotDate, setSelectedSlotDate] = useState(() => getDateString(0));
   const [isSoundEnabled, setIsSoundEnabled] = useState(true);
   const [currentTimeStr, setCurrentTimeStr] = useState("");
 
@@ -270,58 +258,46 @@ export default function HostDashboard() {
 
   // Toggle Slot
   const handleToggleSlot = (time: string) => {
-    const key = `${selectedDate}_${time}`;
+    const key = `${selectedSlotDate}_${time}`;
     const current = slotsState[key] || "available";
     const next = current === "available" ? "full" : current === "full" ? "closed" : "available";
     setSlotsState(prev => ({ ...prev, [key]: next }));
   };
 
-  // Simulate New Order
-  const handleSimulateNewOrder = () => {
-    const randomId = Math.floor(1000 + Math.random() * 9000);
-    const newOrder: HostOrder = {
-      id: randomId,
-      customerName: "Client Test Sousse",
-      phone: "28 15 15 03",
-      orderType: "delivery",
-      neighborhood: "Sahloul",
-      address: "Avenue Yasser Arafat",
-      notes: "Commande de test pour l'Espace Hôte",
-      items: [
-        {
-          name: "OG Smash",
-          quantity: 1,
-          totalPrice: 22.7,
-          pattiesCount: 2
-        },
-        {
-          name: "Frites Crinkle Croustillantes",
-          quantity: 1,
-          totalPrice: 3.0
-        }
-      ],
-      totalDt: 25.7,
-      status: "new",
-      createdAt: "À l'instant"
-    };
+  // 1. Filter orders by Day (Aujourd'hui / Hier / Toutes)
+  const ordersForSelectedDay = useMemo(() => {
+    if (selectedDayTab === "today") {
+      return orders.filter(o => o.date === todayStr || (!o.date && o.createdAt));
+    }
+    if (selectedDayTab === "yesterday") {
+      return orders.filter(o => o.date === yesterdayStr);
+    }
+    return orders;
+  }, [orders, selectedDayTab, todayStr, yesterdayStr]);
 
-    setOrders(prev => [newOrder, ...prev]);
-    if (isSoundEnabled) playKitchenChime();
-    toast.success(`🔔 Nouvelle commande reçue (#${randomId}) !`);
-  };
-
-  // Filtered Orders
+  // 2. Filter orders by Status
   const filteredOrders = useMemo(() => {
-    if (selectedStatusTab === "all") return orders;
-    return orders.filter(o => o.status === selectedStatusTab);
-  }, [orders, selectedStatusTab]);
+    if (selectedStatusTab === "all") return ordersForSelectedDay;
+    return ordersForSelectedDay.filter(o => o.status === selectedStatusTab);
+  }, [ordersForSelectedDay, selectedStatusTab]);
 
-  // Statistics
-  const newOrdersCount = orders.filter(o => o.status === "new").length;
-  const preparingCount = orders.filter(o => o.status === "preparing").length;
-  const totalRevenueDt = orders
+  // Statistics Calculation
+  const todayOrders = useMemo(() => orders.filter(o => o.date === todayStr || (!o.date && o.createdAt)), [orders, todayStr]);
+  const yesterdayOrders = useMemo(() => orders.filter(o => o.date === yesterdayStr), [orders, yesterdayStr]);
+
+  const todayOrdersCount = todayOrders.length;
+  const yesterdayOrdersCount = yesterdayOrders.length;
+
+  const todayRevenueDt = todayOrders
     .filter(o => o.status !== "cancelled")
     .reduce((sum, o) => sum + o.totalDt, 0);
+
+  const yesterdayRevenueDt = yesterdayOrders
+    .filter(o => o.status !== "cancelled")
+    .reduce((sum, o) => sum + o.totalDt, 0);
+
+  const activePreparingCount = orders.filter(o => o.status === "preparing").length;
+  const activeNewCount = orders.filter(o => o.status === "new").length;
 
   // Grouped Menu
   const groupedMenu = useMemo(() => {
@@ -464,10 +440,14 @@ export default function HostDashboard() {
             <span className="text-[10px] text-zinc-500 font-sans">Sousse</span>
           </div>
 
-          {/* Telegram Status Badge */}
-          <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#22c55e]/10 border border-[#22c55e]/30 text-xs text-[#22c55e] font-semibold">
-            <Radio className="w-3.5 h-3.5 animate-pulse text-[#22c55e]" />
-            <span>Telegram Bot Connecté</span>
+          {/* CASE COMMANDES AUJOURD'HUI (REPLACE TELEGRAM BADGE - RESETS EVERY DAY) */}
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[#ff3b30]/15 border border-[#ff3b30]/35 text-white shadow-sm shadow-[#ff3b30]/20">
+            <ShoppingBag className="w-4 h-4 text-[#ff3b30] shrink-0" />
+            <div className="flex items-baseline gap-1">
+              <span className="text-[11px] font-semibold text-[#a1a1aa] hidden sm:inline">Aujourd'hui :</span>
+              <span className="font-display text-base text-[#ff3b30] leading-none">{todayOrdersCount}</span>
+              <span className="text-[10px] text-zinc-400">commande{todayOrdersCount > 1 ? "s" : ""}</span>
+            </div>
           </div>
 
           {/* Sound Toggle */}
@@ -479,14 +459,19 @@ export default function HostDashboard() {
             {isSoundEnabled ? <Volume2 className="w-4 h-4 text-[#f59e0b]" /> : <VolumeX className="w-4 h-4 text-zinc-500" />}
           </button>
 
-          {/* Test Order Simulation */}
+          {/* Refresh Button */}
           <button
-            onClick={handleSimulateNewOrder}
-            title="Simuler une commande test"
-            className="px-3 py-1.5 rounded-xl bg-[#ff3b30]/15 hover:bg-[#ff3b30]/25 text-[#ff3b30] border border-[#ff3b30]/30 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
+            onClick={() => {
+              try {
+                const saved = localStorage.getItem("beef_and_buns_host_orders");
+                if (saved) setOrders(JSON.parse(saved));
+              } catch {}
+              toast.info("Commandes actualisées");
+            }}
+            title="Actualiser"
+            className="p-2 rounded-xl bg-white/5 border border-white/10 text-[#a1a1aa] hover:text-white transition-colors cursor-pointer"
           >
-            <Plus className="w-3.5 h-3.5" />
-            <span className="hidden md:inline">Test Commande</span>
+            <RefreshCw className="w-4 h-4" />
           </button>
 
           {/* Site Public Button */}
@@ -515,52 +500,64 @@ export default function HostDashboard() {
       {/* DASHBOARD MAIN CONTAINER */}
       <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-8">
         
-        {/* KPI OVERVIEW CARDS */}
+        {/* KPI OVERVIEW CARDS WITH TODAY VS PREVIOUS DAY COMPARISON */}
         <section className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           
-          {/* Card 1: Nouvelles Commandes */}
+          {/* Card 1: Commandes Aujourd'hui (Reset quotidien automatique) */}
           <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-[#14141a] to-[#0e0e12] border border-white/10 flex flex-col justify-between shadow-lg relative overflow-hidden">
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs font-bold uppercase tracking-wider text-[#a1a1aa] flex items-center gap-1.5">
-                <Bell className="w-3.5 h-3.5 text-[#ff3b30]" /> Nouvelles
+                <ShoppingBag className="w-3.5 h-3.5 text-[#ff3b30]" /> Aujourd'hui
               </span>
-              {newOrdersCount > 0 && (
-                <span className="w-2.5 h-2.5 rounded-full bg-[#ff3b30] animate-ping" />
+              <span className="text-[9px] font-black uppercase px-1.5 py-0.5 rounded bg-[#ff3b30]/20 text-[#ff3b30]">
+                RESET MINUIT
+              </span>
+            </div>
+            <div className="flex items-baseline gap-2">
+              <span className="font-display text-3xl sm:text-4xl text-[#ff3b30]">{todayOrdersCount}</span>
+              <span className="text-[11px] text-[#a1a1aa]">commande{todayOrdersCount > 1 ? "s" : ""}</span>
+            </div>
+            <p className="text-[10px] text-zinc-500 mt-2">
+              Chiffre du jour : <strong className="text-white">{todayRevenueDt.toFixed(1)} DT</strong>
+            </p>
+          </div>
+
+          {/* Card 2: Commandes Jour Précédent (Hier) */}
+          <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-[#14141a] to-[#0e0e12] border border-white/10 flex flex-col justify-between shadow-lg">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs font-bold uppercase tracking-wider text-[#a1a1aa] flex items-center gap-1.5">
+                <CalendarDays className="w-3.5 h-3.5 text-[#f59e0b]" /> Jour Précédent
+              </span>
+              <span className="text-[9px] font-bold text-zinc-500">
+                Hier
+              </span>
+            </div>
+            <div className="flex items-baseline gap-2">
+              <span className="font-display text-3xl sm:text-4xl text-[#f59e0b]">{yesterdayOrdersCount}</span>
+              <span className="text-[11px] text-[#a1a1aa]">commande{yesterdayOrdersCount > 1 ? "s" : ""}</span>
+            </div>
+            <p className="text-[10px] text-zinc-500 mt-2">
+              Total hier : <strong className="text-white">{yesterdayRevenueDt.toFixed(1)} DT</strong>
+            </p>
+          </div>
+
+          {/* Card 3: En Cours de Préparation sur Plancha */}
+          <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-[#14141a] to-[#0e0e12] border border-white/10 flex flex-col justify-between shadow-lg">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs font-bold uppercase tracking-wider text-[#a1a1aa] flex items-center gap-1.5">
+                <Flame className="w-3.5 h-3.5 text-[#22c55e]" /> Cuisine Active
+              </span>
+              {activeNewCount > 0 && (
+                <span className="text-[9px] font-black px-1.5 py-0.5 rounded bg-red-500 text-white animate-pulse">
+                  {activeNewCount} NOUVELLE{activeNewCount > 1 ? "S" : ""}
+                </span>
               )}
             </div>
             <div className="flex items-baseline gap-2">
-              <span className="font-display text-3xl sm:text-4xl text-[#ff3b30]">{newOrdersCount}</span>
-              <span className="text-[11px] text-[#a1a1aa]">à valider</span>
-            </div>
-            <p className="text-[10px] text-zinc-500 mt-2">Notification envoyée au bot Telegram</p>
-          </div>
-
-          {/* Card 2: En Préparation sur Plancha */}
-          <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-[#14141a] to-[#0e0e12] border border-white/10 flex flex-col justify-between shadow-lg">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-bold uppercase tracking-wider text-[#a1a1aa] flex items-center gap-1.5">
-                <Flame className="w-3.5 h-3.5 text-[#f59e0b]" /> En Cuisson
-              </span>
-            </div>
-            <div className="flex items-baseline gap-2">
-              <span className="font-display text-3xl sm:text-4xl text-[#f59e0b]">{preparingCount}</span>
+              <span className="font-display text-3xl sm:text-4xl text-white">{activePreparingCount}</span>
               <span className="text-[11px] text-[#a1a1aa]">sur plancha 240°C</span>
             </div>
-            <p className="text-[10px] text-zinc-500 mt-2">Smash minutes en cours</p>
-          </div>
-
-          {/* Card 3: CA du Jour Estimé */}
-          <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-[#14141a] to-[#0e0e12] border border-white/10 flex flex-col justify-between shadow-lg">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-bold uppercase tracking-wider text-[#a1a1aa] flex items-center gap-1.5">
-                <TrendingUp className="w-3.5 h-3.5 text-[#22c55e]" /> Total Jour
-              </span>
-            </div>
-            <div className="flex items-baseline gap-1.5">
-              <span className="font-display text-3xl sm:text-4xl text-white">{totalRevenueDt.toFixed(1)}</span>
-              <span className="text-xs font-bold text-[#f59e0b]">DT</span>
-            </div>
-            <p className="text-[10px] text-zinc-500 mt-2">{orders.length} commandes au total</p>
+            <p className="text-[10px] text-zinc-500 mt-2">Smash minute à la presse d'acier</p>
           </div>
 
           {/* Card 4: Service & Horaires */}
@@ -581,9 +578,11 @@ export default function HostDashboard() {
           </div>
         </section>
 
-        {/* SECTION 1: GESTION DES COMMANDES (KITCHEN & LIVRAISONS) */}
+        {/* SECTION 1: GESTION DES COMMANDES EN DIRECT */}
         <section className="p-5 sm:p-6 rounded-3xl bg-gradient-to-b from-[#14141a] to-[#0d0d12] border border-white/10 shadow-2xl">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pb-4 border-b border-white/10">
+          
+          {/* Header with Title and Day Navigation Tabs */}
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6 pb-4 border-b border-white/10">
             <div>
               <div className="flex items-center gap-2 mb-1">
                 <ShoppingBag className="w-4 h-4 text-[#ff3b30]" />
@@ -592,61 +591,119 @@ export default function HostDashboard() {
                 </h2>
               </div>
               <p className="text-xs text-[#a1a1aa]">
-                Validez, préparez et suivez chaque commande minute pour la cuisine et les livreurs.
+                Suivi chronologique réel (#1, #2, #3...) des commandes passées par les clients sur le site.
               </p>
             </div>
 
-            {/* Filter Tabs */}
-            <div className="flex items-center gap-1 bg-black/60 p-1 rounded-xl border border-white/10 overflow-x-auto">
+            {/* DAY SELECTOR TABS (AUJOURD'HUI vs JOUR PRÉCÉDENT vs TOUTES) */}
+            <div className="flex items-center gap-1.5 bg-black/60 p-1 rounded-xl border border-white/10">
               <button
-                onClick={() => setSelectedStatusTab("all")}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
-                  selectedStatusTab === "all" ? "bg-[#ff3b30] text-white shadow-md shadow-[#ff3b30]/30" : "text-[#a1a1aa] hover:text-white"
+                onClick={() => setSelectedDayTab("today")}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                  selectedDayTab === "today"
+                    ? "bg-[#ff3b30] text-white shadow-md shadow-[#ff3b30]/30"
+                    : "text-[#a1a1aa] hover:text-white"
                 }`}
               >
-                Toutes ({orders.length})
+                <span>Aujourd'hui</span>
+                <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-black/40 font-mono">
+                  {todayOrdersCount}
+                </span>
               </button>
+
               <button
-                onClick={() => setSelectedStatusTab("new")}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
-                  selectedStatusTab === "new" ? "bg-[#ff3b30] text-white shadow-md shadow-[#ff3b30]/30" : "text-[#a1a1aa] hover:text-white"
+                onClick={() => setSelectedDayTab("yesterday")}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                  selectedDayTab === "yesterday"
+                    ? "bg-gradient-to-r from-[#f59e0b] to-[#d97706] text-black shadow-md shadow-[#f59e0b]/30"
+                    : "text-[#a1a1aa] hover:text-white"
                 }`}
               >
-                Nouvelles ({newOrdersCount})
+                <CalendarDays className="w-3.5 h-3.5" />
+                <span>Jour Précédent (Hier)</span>
+                <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-black/40 font-mono text-white">
+                  {yesterdayOrdersCount}
+                </span>
               </button>
+
               <button
-                onClick={() => setSelectedStatusTab("preparing")}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
-                  selectedStatusTab === "preparing" ? "bg-[#ff3b30] text-white shadow-md shadow-[#ff3b30]/30" : "text-[#a1a1aa] hover:text-white"
+                onClick={() => setSelectedDayTab("all")}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                  selectedDayTab === "all"
+                    ? "bg-white/20 text-white"
+                    : "text-[#a1a1aa] hover:text-white"
                 }`}
               >
-                En Préparation ({preparingCount})
-              </button>
-              <button
-                onClick={() => setSelectedStatusTab("ready")}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
-                  selectedStatusTab === "ready" ? "bg-[#ff3b30] text-white shadow-md shadow-[#ff3b30]/30" : "text-[#a1a1aa] hover:text-white"
-                }`}
-              >
-                Prêtes
-              </button>
-              <button
-                onClick={() => setSelectedStatusTab("completed")}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
-                  selectedStatusTab === "completed" ? "bg-[#ff3b30] text-white shadow-md shadow-[#ff3b30]/30" : "text-[#a1a1aa] hover:text-white"
-                }`}
-              >
-                Terminées
+                <History className="w-3.5 h-3.5" />
+                <span>Toutes ({orders.length})</span>
               </button>
             </div>
           </div>
 
+          {/* Subheader: Status Tabs Filter */}
+          <div className="flex items-center justify-between mb-5 flex-wrap gap-2">
+            <div className="flex items-center gap-1 bg-black/40 p-1 rounded-xl border border-white/5 overflow-x-auto">
+              <button
+                onClick={() => setSelectedStatusTab("all")}
+                className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all cursor-pointer whitespace-nowrap ${
+                  selectedStatusTab === "all" ? "bg-white/15 text-white" : "text-[#a1a1aa] hover:text-white"
+                }`}
+              >
+                Toutes ({ordersForSelectedDay.length})
+              </button>
+              <button
+                onClick={() => setSelectedStatusTab("new")}
+                className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all cursor-pointer whitespace-nowrap ${
+                  selectedStatusTab === "new" ? "bg-[#ff3b30] text-white" : "text-[#a1a1aa] hover:text-white"
+                }`}
+              >
+                Nouvelles ({ordersForSelectedDay.filter(o => o.status === "new").length})
+              </button>
+              <button
+                onClick={() => setSelectedStatusTab("preparing")}
+                className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all cursor-pointer whitespace-nowrap ${
+                  selectedStatusTab === "preparing" ? "bg-[#f59e0b] text-black" : "text-[#a1a1aa] hover:text-white"
+                }`}
+              >
+                En Cuisson ({ordersForSelectedDay.filter(o => o.status === "preparing").length})
+              </button>
+              <button
+                onClick={() => setSelectedStatusTab("ready")}
+                className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all cursor-pointer whitespace-nowrap ${
+                  selectedStatusTab === "ready" ? "bg-[#22c55e] text-black" : "text-[#a1a1aa] hover:text-white"
+                }`}
+              >
+                Prêtes ({ordersForSelectedDay.filter(o => o.status === "ready").length})
+              </button>
+              <button
+                onClick={() => setSelectedStatusTab("completed")}
+                className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all cursor-pointer whitespace-nowrap ${
+                  selectedStatusTab === "completed" ? "bg-zinc-700 text-white" : "text-[#a1a1aa] hover:text-white"
+                }`}
+              >
+                Terminées ({ordersForSelectedDay.filter(o => o.status === "completed").length})
+              </button>
+            </div>
+
+            <span className="text-xs text-zinc-400">
+              Affichage : <strong>{selectedDayTab === "today" ? `Aujourd'hui (${formatDisplayDate(todayStr)})` : selectedDayTab === "yesterday" ? `Hier (${formatDisplayDate(yesterdayStr)})` : "Historique Complet"}</strong>
+            </span>
+          </div>
+
           {/* Orders List Grid */}
           {filteredOrders.length === 0 ? (
-            <div className="text-center py-12 border border-dashed border-white/10 rounded-2xl">
-              <ShoppingBag className="w-10 h-10 mx-auto text-[#71717a] opacity-30 mb-2" />
-              <p className="text-sm font-bold text-white">Aucune commande dans cet onglet</p>
-              <p className="text-xs text-[#a1a1aa] mt-1">Les nouvelles commandes s'afficheront ici en direct.</p>
+            <div className="text-center py-16 border border-dashed border-white/10 rounded-2xl bg-black/20">
+              <ShoppingBag className="w-12 h-12 mx-auto text-[#71717a] opacity-30 mb-3" />
+              <p className="text-sm font-bold text-white">
+                {selectedDayTab === "today"
+                  ? "Aucune commande pour aujourd'hui pour le moment"
+                  : selectedDayTab === "yesterday"
+                  ? "Aucune commande enregistrée hier"
+                  : "Aucune commande dans cet onglet"}
+              </p>
+              <p className="text-xs text-[#a1a1aa] mt-1.5 max-w-sm mx-auto">
+                Dès qu'un client passe commande sur le site web, elle apparaîtra ici instantanément avec son numéro séquentiel réel (#1, #2...).
+              </p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -669,12 +726,16 @@ export default function HostDashboard() {
                         : "bg-white/5 border-white/5 opacity-80"
                     }`}
                   >
-                    {/* Header: ID, Time, Type Badge */}
+                    {/* Header: Sequential Commande #ID, Time, Type Badge */}
                     <div>
                       <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center gap-1.5">
-                          <span className="font-display text-lg text-white">#{order.id}</span>
-                          <span className="text-[10px] text-zinc-400 font-mono">({order.createdAt})</span>
+                        <div className="flex items-center gap-2">
+                          <span className="font-display text-xl text-white tracking-wide">
+                            Commande #{order.id}
+                          </span>
+                          <span className="text-[11px] text-zinc-400 font-mono">
+                            {order.createdAt}
+                          </span>
                         </div>
                         <span
                           className={`text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full ${
@@ -702,7 +763,7 @@ export default function HostDashboard() {
                       </div>
 
                       {/* Customer Info */}
-                      <div className="bg-black/40 rounded-xl p-2.5 border border-white/5 mb-3 text-xs space-y-1">
+                      <div className="bg-black/40 rounded-xl p-3 border border-white/5 mb-3 text-xs space-y-1.5">
                         <div className="flex items-center justify-between">
                           <span className="font-bold text-white text-sm">{order.customerName}</span>
                           <a
@@ -718,7 +779,7 @@ export default function HostDashboard() {
                             <>
                               <Truck className="w-3.5 h-3.5 text-[#f59e0b] shrink-0" />
                               <span className="font-semibold text-white">Livraison</span>
-                              <span className="text-zinc-400">• {order.neighborhood}</span>
+                              <span className="text-zinc-400">• {order.neighborhood || "Sousse"}</span>
                             </>
                           ) : (
                             <>
@@ -760,6 +821,11 @@ export default function HostDashboard() {
                             {item.selectedExtras && item.selectedExtras.length > 0 && (
                               <span className="text-[10px] text-zinc-400 pl-2">
                                 └ Extras : {item.selectedExtras.map(e => e.name).join(", ")}
+                              </span>
+                            )}
+                            {item.removedIngredients && item.removedIngredients.length > 0 && (
+                              <span className="text-[10px] text-red-400 pl-2">
+                                └ Sans : {item.removedIngredients.join(", ")}
                               </span>
                             )}
                           </div>
@@ -849,7 +915,7 @@ export default function HostDashboard() {
                 </h2>
               </div>
               <p className="text-xs text-[#a1a1aa]">
-                Fermez une heure d'affluence en un clic ou marquez-la complète. Le restaurant fonctionne 7j/7 en continu.
+                Fermez une heure d'affluence en un clic ou marquez-la complète. Le restaurant fonctionne 7j/7 en continu de 12h à 00h.
               </p>
             </div>
 
@@ -857,8 +923,8 @@ export default function HostDashboard() {
             <div className="flex items-center gap-2">
               <input
                 type="date"
-                value={selectedDate}
-                onChange={(e) => setSelectedDate(e.target.value)}
+                value={selectedSlotDate}
+                onChange={(e) => setSelectedSlotDate(e.target.value)}
                 className="bg-black/60 border border-white/15 rounded-xl px-3 py-1.5 text-xs text-white outline-none focus:border-[#ff3b30]"
               />
             </div>
@@ -867,7 +933,7 @@ export default function HostDashboard() {
           {/* Time Slots Grid */}
           <div className="grid grid-cols-3 sm:grid-cols-6 lg:grid-cols-8 gap-2">
             {SERVICE_HOURS.map((hour) => {
-              const key = `${selectedDate}_${hour}`;
+              const key = `${selectedSlotDate}_${hour}`;
               const state = slotsState[key] || "available";
               const isAvail = state === "available";
               const isFull = state === "full";
