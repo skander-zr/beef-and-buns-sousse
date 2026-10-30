@@ -754,41 +754,127 @@ export const ALL_7_BURGERS: BurgerItem[] = [
 
 ];
 
-// All 27 official menu items from Google Drive PDF
+// All official menu items (Burgers & Crispy Chicken Tenders ONLY - No standalone drinks or sauces)
 export const FULL_MENU_ITEMS = [
-  // --- 4 SMASH BEEF BURGERS ---
-  { id: 1, category: "Smash Burgers", name: "Truffle Mushroom", description: "Double smash beef patty, american cheese, grilled mushrooms, truffle mayo, rocket salad, artisanal potato bun.", priceDt: 29.5, image: "/burgers/truffle-mushroom.png" },
-  { id: 2, category: "Smash Burgers", name: "OG Smash", description: "Double smash beef patty, american cheese, grilled caramelized onions, signature OG sauce, pickles, artisanal potato bun.", priceDt: 22.7, image: "/burgers/og-smash.png" },
-    { id: 28, category: "Smash Burgers", name: "OG Triple", description: "Triple smash beef patty, triple american cheese, oignons caramélisés fondants, pickles croquants, sauce OG, brioche potato bun.", priceDt: 27.5, image: "/burgers/og_triple_burger_entier_4k.png" },
-  { id: 29, category: "Smash Burgers", name: "OG Bacon", description: "Double smash beef patty, double american cheese, œuf au plat coulant, bacon fumé grillé, oignons caramélisés, roquette fraîche, sauce OG, potato bun.", priceDt: 27.5, image: "/burgers/og_bacon_burger_entier_4k.png" },
-{ id: 3, category: "Smash Burgers", name: "OG Smash Oklahoma", description: "Double smash beef patty smashé avec fines lamelles d oignons caramélisés, double american cheese, sauce OG, potato bun.", priceDt: 22.7, image: "/burgers/og-smash-oklahoma.png" },
-  { id: 4, category: "Smash Burgers", name: "Hot Smash", description: "Double smash beef patty, american cheese, jalapeños épicés, sauce hot épicée maison, oignons caramélisés, potato bun.", priceDt: 25.0, image: "/burgers/hot-smash.png" },
-
-    { id: 30, category: "Smash Burgers", name: "Kids Beef", description: "Steak pur bœuf smashé, fromage américain, laitue fraîche, rondelles de tomate, oignons doux, sauce OG, brioche potato bun.", priceDt: 15.0, image: "/burgers/kids_beef_burger_entier_4k.png" },
-
-// --- 3 CRISPY CHICKEN BURGERS ---
-  { id: 5, category: "Crispy Chicken", name: "OG Chicken", description: "Filet de poulet croustillant pané minute, coleslaw frais crémeux, sauce signature OG, artisanal potato bun.", priceDt: 17.5, image: "/burgers/og-chicken.png" },
-  { id: 6, category: "Crispy Chicken", name: "Classic Chicken", description: "Filet de poulet pané croustillant, salade croquante, rondelles de tomate fraîche, oignons rouges, mayonnaise maison, potato bun.", priceDt: 17.5, image: "/burgers/classic-chicken.png" },
-  { id: 7, category: "Crispy Chicken", name: "Hot Chicken", description: "Filet de poulet pané épicé croustillant, rondelles de jalapeños marinés, sauce hot épicée, coleslaw crémeux, potato bun.", priceDt: 20.0, image: "/burgers/hot-chicken.png" },
-  { id: 31, category: "Crispy Chicken", name: "Kids Chicken", description: "Filet de poulet croustillant pané minute, fromage américain fondant, laitue fraîche, rondelles de tomate, oignons doux, sauce OG, brioche potato bun.", priceDt: 12.5, image: "/burgers/kids_chicken_droit_v2.png?v=2" },
+  ...ALL_7_BURGERS.map((burger) => ({
+    id: burger.id,
+    name: burger.name,
+    category: burger.category,
+    description: burger.description,
+    priceDt: burger.price,
+    image: burger.image
+  })),
 
   // --- CRISPY CHICKEN TENDERS (2, 4 ET 8 PIÈCES) ---
-  { id: 8, category: "Crispy Chicken Tenders", name: "2 PIECES — 2x Crispy chicken tenders", description: "2x aiguillettes de poulet croustillantes marinées, dorées minute à la perfection.", priceDt: 6.0, image: "/burgers/tenders_2_pieces_4k.png" },
-  { id: 9, category: "Crispy Chicken Tenders", name: "4 PIECES — 4x chicken tenders + Coleslaw", description: "4x aiguillettes de poulet croustillantes avec salade de chou Coleslaw maison fraîche et crémeuse.", priceDt: 12.0, image: "/burgers/tenders_4_pieces_coleslaw_4k.png" },
-  { id: 10, category: "Crispy Chicken Tenders", name: "8 PIECES — 8x chicken tenders + Coleslaw", description: "8x aiguillettes de poulet croustillantes géantes servies avec salade de chou Coleslaw crémeuse.", priceDt: 22.0, image: "/burgers/tenders_8_pieces_coleslaw_4k.png" },
-
-  // --- SAUCES ---
-  { id: 20, category: "Sauces", name: "Hot sauce", description: "Sauce artisanale pimentée Hot Sauce bien relevée.", priceDt: 3.5 },
-  { id: 22, category: "Sauces", name: "Truffle mayo", description: "Mayonnaise onctueuse infusée à la truffe noire.", priceDt: 3.0 },
-  { id: 21, category: "Sauces", name: "OG sauce", description: "Sauce secrète culte signature OG maison.", priceDt: 2.5 },
-  { id: 23, category: "Sauces", name: "Heinz Mayonnaise", description: "Mayonnaise Heinz onctueuse classique.", priceDt: 2.5 },
-  { id: 24, category: "Sauces", name: "Heinz Ketchup", description: "Ketchup Heinz riche en tomates savoureuses.", priceDt: 2.5 },
-
-  // --- BOISSONS (DRINKS) ---
-  { id: 26, category: "Drinks", name: "Water 0.5 L", description: "Bouteille d'eau minérale 0.5L servie bien fraîche.", priceDt: 1.5 },
-  { id: 27, category: "Drinks", name: "Water 1 L", description: "Bouteille d'eau minérale 1L servie bien fraîche.", priceDt: 3.0 },
-  { id: 28, category: "Drinks", name: "Sodas", description: "Canette de soda fraîche 33cl au choix (Coca-Cola, Zero, Boga, Fanta, Sprite).", priceDt: 3.0 }
+  {
+    id: "tenders-2",
+    category: "Crispy Chicken Tenders",
+    name: "2 PIECES — 2x Crispy chicken tenders",
+    description: "2x aiguillettes de poulet croustillantes marinées, dorées minute à la perfection.",
+    priceDt: 6.0,
+    image: "/burgers/tenders_2_pieces_4k.png"
+  },
+  {
+    id: "tenders-4",
+    category: "Crispy Chicken Tenders",
+    name: "4 PIECES — 4x chicken tenders + Coleslaw",
+    description: "4x aiguillettes de poulet croustillantes avec salade de chou Coleslaw maison fraîche et crémeuse.",
+    priceDt: 12.0,
+    image: "/burgers/tenders_4_pieces_coleslaw_4k.png"
+  },
+  {
+    id: "tenders-8",
+    category: "Crispy Chicken Tenders",
+    name: "8 PIECES — 8x chicken tenders + Coleslaw",
+    description: "8x aiguillettes de poulet croustillantes géantes servies avec salade de chou Coleslaw crémeuse.",
+    priceDt: 22.0,
+    image: "/burgers/tenders_8_pieces_coleslaw_4k.png"
+  }
 ];
+
+// Ingrédients à retirer sur mesure selon la vraie recette de chaque burger
+export const BURGER_REMOVABLE_INGREDIENTS: Record<string, string[]> = {
+  "Truffle Mushroom": [
+    "Sans Mayo Truffe",
+    "Sans Roquette",
+    "Sans Champignons",
+    "Sans Oignons croustillants",
+    "Sans Fromage fumé"
+  ],
+  "OG Smash": [
+    "Sans Sauce OG",
+    "Sans Pickles (Cornichons)",
+    "Sans Oignons caramélisés",
+    "Sans Fromage américain"
+  ],
+  "OG Triple": [
+    "Sans Sauce OG",
+    "Sans Pickles (Cornichons)",
+    "Sans Oignons caramélisés",
+    "Sans Fromage américain"
+  ],
+  "OG Bacon": [
+    "Sans Sauce OG",
+    "Sans Roquette",
+    "Sans Œuf",
+    "Sans Bacon",
+    "Sans Oignons caramélisés",
+    "Sans Fromage américain"
+  ],
+  "OG Smash Oklahoma": [
+    "Sans Sauce OG",
+    "Sans Pickles (Cornichons)",
+    "Sans Oignons",
+    "Sans Fromage américain"
+  ],
+  "Hot Smash": [
+    "Sans Hot Sauce",
+    "Sans Sauce OG",
+    "Sans Jalapeños",
+    "Sans Oignons croustillants",
+    "Sans Fromage américain"
+  ],
+  "Kids Beef": [
+    "Sans Sauce OG",
+    "Sans Laitue",
+    "Sans Tomates",
+    "Sans Oignons",
+    "Sans Fromage américain"
+  ],
+  "OG Crispy Chicken": [
+    "Sans Sauce OG",
+    "Sans Coleslaw",
+    "Sans Salade",
+    "Sans Fromage américain"
+  ],
+  "OG Chicken": [
+    "Sans Sauce OG",
+    "Sans Coleslaw",
+    "Sans Salade",
+    "Sans Fromage américain"
+  ],
+  "Classic Chicken": [
+    "Sans Sauce OG",
+    "Sans Laitue",
+    "Sans Tomates",
+    "Sans Oignons",
+    "Sans Fromage américain"
+  ],
+  "Hot Chicken": [
+    "Sans Hot Sauce",
+    "Sans Sauce OG",
+    "Sans Jalapeños",
+    "Sans Oignons caramélisés",
+    "Sans Fromage fumé"
+  ],
+  "Kids Chicken": [
+    "Sans Sauce OG",
+    "Sans Laitue",
+    "Sans Tomates",
+    "Sans Oignons",
+    "Sans Fromage américain"
+  ]
+};
 
 // Available options for Burger & Tenders customization modal
 export type OptionGroup = "fries" | "garniture" | "sauce" | "drink";
@@ -1016,7 +1102,7 @@ export default function Home() {
   const [selectedCategory, setSelectedCategory] = useState("Tous");
   const [searchQuery, setSearchQuery] = useState("");
 
-  const categories = ["Tous", "Smash Burgers", "Crispy Chicken", "Crispy Chicken Tenders", "Sauces", "Drinks"];
+  const categories = ["Tous", "Smash Burgers", "Crispy Chicken", "Crispy Chicken Tenders"];
 
   const filteredMenuItems = useMemo(() => {
     return FULL_MENU_ITEMS.filter(item => {
@@ -1033,6 +1119,7 @@ export default function Home() {
 
   // Customizer modal state
   const [customizerItem, setCustomizerItem] = useState<{
+    id?: string;
     name: string;
     category: string;
     basePrice: number;
@@ -1042,8 +1129,8 @@ export default function Home() {
   const [selectedExtras, setSelectedExtras] = useState<CustomExtra[]>([]);
   const [removedIngredients, setRemovedIngredients] = useState<string[]>([]);
 
-  const openCustomizer = (name: string, category: string, basePrice: number, image?: string) => {
-    setCustomizerItem({ name, category, basePrice, image });
+  const openCustomizer = (name: string, category: string, basePrice: number, image?: string, id?: string) => {
+    setCustomizerItem({ name, category, basePrice, image, id });
     setSelectedExtras([]);
     setRemovedIngredients([]);
   };
@@ -1904,7 +1991,7 @@ export default function Home() {
                 Tout Le Menu <span className="text-[#ff3b30]">Beef & Buns</span>
               </h2>
               <p className="text-[#a1a1aa] text-sm mt-2">
-                Nos 11 burgers, tenders de poulet croustillants, sauces signature et boissons fraîches.
+                Nos 11 burgers artisanaux et nos tenders de poulet croustillants.
               </p>
             </div>
 
@@ -1955,11 +2042,9 @@ export default function Home() {
                 >
                   {/* Top row */}
                   <div
-                    className={`flex items-start justify-between gap-3 mb-3 ${isBurger || isTenders ? "cursor-pointer" : ""}`}
+                    className="flex items-start justify-between gap-3 mb-3 cursor-pointer"
                     onClick={() => {
-                      if (isBurger || isTenders) {
-                        openCustomizer(item.name, item.category, item.priceDt, "image" in item ? item.image : undefined);
-                      }
+                      openCustomizer(item.name, item.category, item.priceDt, item.image, item.id);
                     }}
                   >
                     <div>
@@ -1977,14 +2062,12 @@ export default function Home() {
                     </div>
                   </div>
 
-                  {/* Image if available */}
-                  {"image" in item && item.image ? (
+                  {/* Image with dynamic burger image */}
+                  {item.image ? (
                     <div
-                      className={`w-full h-44 my-2 flex items-center justify-center relative ${isBurger || isTenders ? "cursor-pointer" : ""}`}
+                      className="w-full h-44 my-2 flex items-center justify-center relative cursor-pointer"
                       onClick={() => {
-                        if (isBurger || isTenders) {
-                          openCustomizer(item.name, item.category, item.priceDt, "image" in item ? item.image : undefined);
-                        }
+                        openCustomizer(item.name, item.category, item.priceDt, item.image, item.id);
                       }}
                     >
                       <div className="absolute inset-0 bg-radial from-[#ff3b30]/10 to-transparent blur-xl opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -2011,7 +2094,7 @@ export default function Home() {
                       <>
                         <button
                           onClick={() => {
-                            const bIdx = ALL_7_BURGERS.findIndex(b => b.name.toLowerCase() === item.name.toLowerCase() || b.id === String(item.id));
+                            const bIdx = ALL_7_BURGERS.findIndex(b => b.id === item.id || b.name.toLowerCase() === item.name.toLowerCase());
                             if (bIdx !== -1) {
                               setSelectedBurgerIndex(bIdx);
                               setIsExploded(false);
@@ -2027,31 +2110,14 @@ export default function Home() {
                           <span className="hidden sm:inline">3D 360°</span>
                         </button>
                         <button
-                          onClick={() => openCustomizer(item.name, item.category, item.priceDt, "image" in item ? item.image : undefined)}
+                          onClick={() => openCustomizer(item.name, item.category, item.priceDt, item.image, item.id)}
                           className="flex-1 py-2.5 px-3 rounded-xl bg-white/10 hover:bg-white/15 text-white text-xs font-bold uppercase tracking-wider transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
                         >
                           <Sliders className="w-3.5 h-3.5 text-[#f59e0b]" />
                           <span>Personnaliser</span>
                         </button>
                         <button
-                          onClick={() => addQuickItemToCart(item.name, item.category, item.priceDt, "image" in item ? item.image : undefined)}
-                          title="Ajouter direct au panier"
-                          className="p-2.5 rounded-xl bg-[#ff3b30] hover:bg-[#e11d48] text-white transition-all shadow-md shadow-[#ff3b30]/20 cursor-pointer"
-                        >
-                          <Plus className="w-4 h-4" />
-                        </button>
-                      </>
-                    ) : isTenders ? (
-                      <>
-                        <button
-                          onClick={() => openCustomizer(item.name, item.category, item.priceDt, "image" in item ? item.image : undefined)}
-                          className="flex-1 py-2.5 px-3 rounded-xl bg-white/10 hover:bg-white/15 text-white text-xs font-bold uppercase tracking-wider transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
-                        >
-                          <Sliders className="w-3.5 h-3.5 text-[#f59e0b]" />
-                          <span>Options & Sauces</span>
-                        </button>
-                        <button
-                          onClick={() => addQuickItemToCart(item.name, item.category, item.priceDt, "image" in item ? item.image : undefined)}
+                          onClick={() => addQuickItemToCart(item.name, item.category, item.priceDt, item.image)}
                           title="Ajouter direct au panier"
                           className="p-2.5 rounded-xl bg-[#ff3b30] hover:bg-[#e11d48] text-white transition-all shadow-md shadow-[#ff3b30]/20 cursor-pointer"
                         >
@@ -2059,13 +2125,22 @@ export default function Home() {
                         </button>
                       </>
                     ) : (
-                      <button
-                        onClick={() => addQuickItemToCart(item.name, item.category, item.priceDt, "image" in item ? item.image : undefined)}
-                        className="w-full py-2.5 px-3 rounded-xl bg-[#ff3b30] hover:bg-[#e11d48] text-white text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 shadow-md shadow-[#ff3b30]/20 cursor-pointer"
-                      >
-                        <Plus className="w-4 h-4" />
-                        <span>Ajouter au Panier</span>
-                      </button>
+                      <>
+                        <button
+                          onClick={() => openCustomizer(item.name, item.category, item.priceDt, item.image, item.id)}
+                          className="flex-1 py-2.5 px-3 rounded-xl bg-white/10 hover:bg-white/15 text-white text-xs font-bold uppercase tracking-wider transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+                        >
+                          <Sliders className="w-3.5 h-3.5 text-[#f59e0b]" />
+                          <span>Options & Sauces</span>
+                        </button>
+                        <button
+                          onClick={() => addQuickItemToCart(item.name, item.category, item.priceDt, item.image)}
+                          title="Ajouter direct au panier"
+                          className="p-2.5 rounded-xl bg-[#ff3b30] hover:bg-[#e11d48] text-white transition-all shadow-md shadow-[#ff3b30]/20 cursor-pointer"
+                        >
+                          <Plus className="w-4 h-4" />
+                        </button>
+                      </>
                     )}
                   </div>
                 </div>
@@ -2391,45 +2466,51 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* INGRÉDIENTS À RETIRER (OPTIONNEL - BURGERS UNIQUEMENT) */}
-              {isBurger && (
-                <div className="mb-6">
-                  <label className="block text-xs font-bold uppercase tracking-wider text-white mb-1">
-                    Ingrédients à retirer (Optionnel)
-                  </label>
-                  <p className="text-[11px] text-[#a1a1aa] mb-2.5">
-                    Cochez pour préparer votre burger sur mesure sans certains ingrédients :
-                  </p>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-48 overflow-y-auto pr-1">
-                    {REMOVABLE_INGREDIENTS.map((ing) => {
-                      const isRemoved = removedIngredients.includes(ing);
-                      return (
-                        <div
-                          key={ing}
-                          onClick={() => handleToggleRemovedIngredient(ing)}
-                          className={`flex items-center justify-between p-2.5 rounded-xl border text-xs cursor-pointer transition-all ${
-                            isRemoved
-                              ? "bg-red-500/20 border-red-500 text-white font-semibold"
-                              : "bg-white/5 border-white/5 text-[#a1a1aa] hover:bg-white/10"
-                          }`}
-                        >
-                          <div className="flex items-center gap-2">
-                            <div
-                              className={`w-4 h-4 rounded-md border flex items-center justify-center text-[10px] font-black ${
-                                isRemoved ? "bg-red-500 border-red-500 text-white" : "border-white/20"
-                              }`}
-                            >
-                              {isRemoved ? "✕" : ""}
+              {/* INGRÉDIENTS À RETIRER (OPTIONNEL - SUR MESURE POUR CE BURGER) */}
+              {isBurger && (() => {
+                const burgerRemovable = BURGER_REMOVABLE_INGREDIENTS[customizerItem.name] || 
+                  (customizerItem.id ? BURGER_REMOVABLE_INGREDIENTS[customizerItem.id] : []) || [];
+                if (burgerRemovable.length === 0) return null;
+
+                return (
+                  <div className="mb-6">
+                    <label className="block text-xs font-bold uppercase tracking-wider text-white mb-1">
+                      Ingrédients à retirer (Optionnel)
+                    </label>
+                    <p className="text-[11px] text-[#a1a1aa] mb-2.5">
+                      Recette {customizerItem.name} — cochez pour préparer sans certains ingrédients :
+                    </p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-48 overflow-y-auto pr-1">
+                      {burgerRemovable.map((ing) => {
+                        const isRemoved = removedIngredients.includes(ing);
+                        return (
+                          <div
+                            key={ing}
+                            onClick={() => handleToggleRemovedIngredient(ing)}
+                            className={`flex items-center justify-between p-2.5 rounded-xl border text-xs cursor-pointer transition-all ${
+                              isRemoved
+                                ? "bg-red-500/20 border-red-500 text-white font-semibold"
+                                : "bg-white/5 border-white/5 text-[#a1a1aa] hover:bg-white/10"
+                            }`}
+                          >
+                            <div className="flex items-center gap-2">
+                              <div
+                                className={`w-4 h-4 rounded-md border flex items-center justify-center text-[10px] font-black ${
+                                  isRemoved ? "bg-red-500 border-red-500 text-white" : "border-white/20"
+                                }`}
+                              >
+                                {isRemoved ? "✕" : ""}
+                              </div>
+                              <span className={isRemoved ? "line-through text-red-300" : ""}>{ing}</span>
                             </div>
-                            <span className={isRemoved ? "line-through text-red-300" : ""}>{ing}</span>
+                            <span className="text-[10px] uppercase font-bold text-zinc-400">0 DT</span>
                           </div>
-                          <span className="text-[10px] uppercase font-bold text-zinc-400">0 DT</span>
-                        </div>
-                      );
-                    })}
+                        );
+                      })}
+                    </div>
                   </div>
-                </div>
-              )}
+                );
+              })()}
 
               {/* 1. PORTION DE FRITES (BURGER ET TENDERS) */}
               <div className="mb-5">

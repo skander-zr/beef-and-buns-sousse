@@ -192,7 +192,7 @@ export default function HostDashboard() {
   }, []);
 
   // Menu Active Items State (27 official items)
-  const [disabledMenuIds, setDisabledMenuIds] = useState<number[]>(() => {
+  const [disabledMenuIds, setDisabledMenuIds] = useState<(string | number)[]>(() => {
     const saved = localStorage.getItem("beef_and_buns_disabled_menu_ids");
     return saved ? JSON.parse(saved) : [];
   });
@@ -363,7 +363,7 @@ export default function HostDashboard() {
   };
 
   // Toggle Menu Item
-  const handleToggleMenuItem = (itemId: number, itemName: string) => {
+  const handleToggleMenuItem = (itemId: string | number, itemName: string) => {
     setDisabledMenuIds(prev => {
       const isCurrentlyDisabled = prev.includes(itemId);
       const updated = isCurrentlyDisabled ? prev.filter(id => id !== itemId) : [...prev, itemId];
