@@ -1215,7 +1215,7 @@ export default function Home() {
     let calculatedOrderId = 1;
 
     try {
-      const pollRes = await fetch("https://ntfy.sh/beef_buns_sousse_orders_2026/json?poll=1");
+      const pollRes = await fetch("https://ntfy.sh/beef_buns_sousse_orders_live/json?poll=1");
       if (pollRes.ok) {
         const rawText = await pollRes.text();
         const lines = rawText.trim().split("\n").filter(Boolean);
@@ -1274,7 +1274,7 @@ export default function Home() {
 
     // 2. Publish order to ntfy cloud for instant real-time sync with /hote on PC
     try {
-      await fetch("https://ntfy.sh/beef_buns_sousse_orders_2026", {
+      await fetch("https://ntfy.sh/beef_buns_sousse_orders_live", {
         method: "POST",
         headers: {
           "Title": `Nouvelle Commande #${orderId} - Beef & Buns`,
@@ -1371,7 +1371,7 @@ export default function Home() {
           Les véritables Smash Burgers artisanaux à Sousse
         </span>
         <span className="hidden sm:inline">•</span>
-        <span className="hidden sm:inline font-normal">Ouvert 7j/7 de 12h00 à 00h00</span>
+        <span className="hidden sm:inline font-normal">Ouvert 7j/7 de 12h00 à 01h00</span>
         <span className="hidden md:inline">•</span>
         <a href="tel:28151503" className="hidden md:inline-flex items-center gap-1 underline underline-offset-2 hover:opacity-80">
           <Phone className="w-3 h-3" /> 28 15 15 03
@@ -1519,7 +1519,7 @@ export default function Home() {
                 </div>
                 <div>
                   <div className="font-display text-2xl text-[#ff3b30]">7j / 7</div>
-                  <div className="text-[10px] text-[#a1a1aa] uppercase font-semibold">12h - 00h Sousse</div>
+                  <div className="text-[10px] text-[#a1a1aa] uppercase font-semibold">12h - 01h Sousse</div>
                 </div>
               </div>
             </div>
@@ -2257,7 +2257,7 @@ export default function Home() {
                   <div>
                     <h4 className="text-sm font-bold text-white uppercase">Horaires d'Ouverture</h4>
                     <p className="text-xs text-[#a1a1aa] mt-1">
-                      Ouvert 7 jours sur 7 en service continu : <strong className="text-white">12:00 — 00:00</strong>.
+                      Ouvert 7 jours sur 7 en service continu : <strong className="text-white">12:00 — 01:00</strong>.
                     </p>
                   </div>
                 </div>
@@ -2316,7 +2316,7 @@ export default function Home() {
               <div className="w-full p-4 rounded-2xl bg-black/50 border border-white/5 mb-6 text-left">
                 <div className="flex items-center justify-between py-2 border-b border-white/5 text-xs">
                   <span className="text-[#a1a1aa]">Lundi — Dimanche</span>
-                  <span className="font-bold text-white">12:00 — 00:00</span>
+                  <span className="font-bold text-white">12:00 — 01:00</span>
                 </div>
                 <div className="flex items-center justify-between py-2 border-b border-white/5 text-xs">
                   <span className="text-[#a1a1aa]">Modes</span>

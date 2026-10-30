@@ -20,7 +20,8 @@ import {
   History,
   Users,
   Activity,
-  Check
+  Check,
+  Trash2
 } from "lucide-react";
 import { FULL_MENU_ITEMS } from "./Home";
 
@@ -50,7 +51,8 @@ const SERVICE_HOURS = [
   "12:00", "12:30", "13:00", "13:30", "14:00", "14:30",
   "15:00", "15:30", "16:00", "16:30", "17:00", "17:30",
   "18:00", "18:30", "19:00", "19:30", "20:00", "20:30",
-  "21:00", "21:30", "22:00", "22:30", "23:00", "23:30"
+  "21:00", "21:30", "22:00", "22:30", "23:00", "23:30",
+  "00:00", "00:30", "01:00"
 ];
 
 // Helper to get formatted date string YYYY-MM-DD
@@ -195,22 +197,30 @@ function parseNtfyMessages(rawText: string, currentOrders: HostOrder[]): HostOrd
         if (evt && evt.event === "message" && evt.message) {
           try {
             const data = JSON.parse(evt.message);
-            if (data && data.type === "status_update" && data.orderId) {
+            if (data && (data.type === "order_deleted" || (data.type === "status_update" && data.status === "cancelled"))) {
+              if (data.orderId) {
+                ordersMap.delete(Number(data.orderId));
+              }
+            } else if (data && data.type === "status_update" && data.orderId) {
               const existing = ordersMap.get(data.orderId);
               if (existing) {
                 ordersMap.set(data.orderId, sanitizeOrder({ ...existing, status: data.status }));
               }
             } else if (data && data.id) {
-              const sanitized = sanitizeOrder(data);
-              const existing = ordersMap.get(sanitized.id);
-              if (existing) {
-                const statusOrder = ["new", "preparing", "ready", "completed", "cancelled"];
-                const currentIdx = statusOrder.indexOf(existing.status);
-                const newIdx = statusOrder.indexOf(sanitized.status);
-                const chosenStatus = currentIdx > newIdx ? existing.status : sanitized.status;
-                ordersMap.set(sanitized.id, { ...sanitized, status: chosenStatus });
+              if (data.status === "cancelled") {
+                ordersMap.delete(Number(data.id));
               } else {
-                ordersMap.set(sanitized.id, sanitized);
+                const sanitized = sanitizeOrder(data);
+                const existing = ordersMap.get(sanitized.id);
+                if (existing) {
+                  const statusOrder = ["new", "preparing", "ready", "completed", "cancelled"];
+                  const currentIdx = statusOrder.indexOf(existing.status);
+                  const newIdx = statusOrder.indexOf(sanitized.status);
+                  const chosenStatus = currentIdx > newIdx ? existing.status : sanitized.status;
+                  ordersMap.set(sanitized.id, { ...sanitized, status: chosenStatus });
+                } else {
+                  ordersMap.set(sanitized.id, sanitized);
+                }
               }
             }
           } catch (innerErr) {
@@ -307,7 +317,7 @@ export default function HostDashboard() {
 
   const loadOrders = async () => {
     try {
-      const res = await fetch("https://ntfy.sh/beef_buns_sousse_orders_2026/json?poll=1");
+      const res = await fetch("https://ntfy.sh/beef_buns_sousse_orders_live/json?poll=1");
       if (res.ok) {
         const text = await res.text();
         setOrders(prev => {
@@ -376,6 +386,34 @@ export default function HostDashboard() {
   };
 
   const handleUpdateOrderStatus = (orderId: number, newStatus: HostOrder["status"]) => {
+    if (newStatus === "cancelled") {
+      // Annulation : La commande est immédiatement supprimée et disparaît de l'écran et du CA
+      setOrders(prev => {
+        const updated = prev.filter(o => o.id !== orderId);
+        try {
+          localStorage.setItem("beef_and_buns_host_orders", JSON.stringify(updated));
+        } catch {}
+        return updated;
+      });
+
+      try {
+        fetch("https://ntfy.sh/beef_buns_sousse_orders_live", {
+          method: "POST",
+          headers: {
+            "Title": `Commande #${orderId} Annulée / Supprimée`,
+            "Priority": "default"
+          },
+          body: JSON.stringify({
+            type: "order_deleted",
+            orderId
+          })
+        }).catch(err => console.error("Failed to sync delete to ntfy", err));
+      } catch {}
+
+      toast.info(`Commande #${orderId} annulée et retirée de la liste.`);
+      return;
+    }
+
     setOrders(prev => {
       const updated = prev.map(o => o.id === orderId ? sanitizeOrder({ ...o, status: newStatus }) : o);
       try {
@@ -385,7 +423,7 @@ export default function HostDashboard() {
     });
 
     try {
-      fetch("https://ntfy.sh/beef_buns_sousse_orders_2026", {
+      fetch("https://ntfy.sh/beef_buns_sousse_orders_live", {
         method: "POST",
         headers: {
           "Title": `Statut Commande #${orderId} -> ${newStatus}`,
@@ -431,22 +469,16 @@ export default function HostDashboard() {
     isSoundEnabledRef.current = isSoundEnabled;
   }, [isSoundEnabled]);
 
-  // Clean out legacy fake orders on mount
+  // Clean out legacy fake orders and reset past test orders on initial load
   useEffect(() => {
     try {
-      const saved = localStorage.getItem("beef_and_buns_host_orders");
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed)) {
-          const hasDummy = parsed.some((o: any) => o && (o.id === 4892 || o.id === 4891 || o.id === 4890 || o.customerName === "Client Test Sousse"));
-          if (hasDummy) {
-            const cleaned = parsed
-              .filter((o: any) => o && o.id !== 4892 && o.id !== 4891 && o.id !== 4890 && o.customerName !== "Client Test Sousse")
-              .map(sanitizeOrder);
-            localStorage.setItem("beef_and_buns_host_orders", JSON.stringify(cleaned));
-            setOrders(cleaned);
-          }
-        }
+      const isResetDone = localStorage.getItem("bb_orders_reset_live_v1");
+      if (!isResetDone) {
+        localStorage.removeItem("beef_and_buns_host_orders");
+        localStorage.removeItem("bb_order_counter");
+        localStorage.removeItem("bb_last_order_date");
+        localStorage.setItem("bb_orders_reset_live_v1", "true");
+        setOrders([]);
       }
     } catch {}
   }, []);
@@ -457,7 +489,7 @@ export default function HostDashboard() {
 
     let es: EventSource | null = null;
     try {
-      es = new EventSource("https://ntfy.sh/beef_buns_sousse_orders_2026/sse");
+      es = new EventSource("https://ntfy.sh/beef_buns_sousse_orders_live/sse");
 
       es.onmessage = (event) => {
         try {
@@ -468,7 +500,16 @@ export default function HostDashboard() {
               const data = JSON.parse(evt.message);
               if (!data) return;
 
-              if (data.type === "status_update" && data.orderId) {
+              if (data.type === "order_deleted" || (data.type === "status_update" && data.status === "cancelled")) {
+                const targetId = Number(data.orderId || data.id);
+                setOrders(prev => {
+                  const updated = prev.filter(o => o.id !== targetId);
+                  try {
+                    localStorage.setItem("beef_and_buns_host_orders", JSON.stringify(updated));
+                  } catch {}
+                  return updated;
+                });
+              } else if (data.type === "status_update" && data.orderId) {
                 setOrders(prev => {
                   const updated = prev.map(o => o.id === data.orderId ? sanitizeOrder({ ...o, status: data.status }) : o);
                   try {
@@ -477,24 +518,34 @@ export default function HostDashboard() {
                   return updated;
                 });
               } else if (data.id && typeof data.id === "number") {
-                const safeOrder = sanitizeOrder(data);
-                setOrders(prev => {
-                  const exists = prev.some(o => o.id === safeOrder.id);
-                  if (exists) {
-                    return prev.map(o => o.id === safeOrder.id ? { ...o, ...safeOrder } : o);
-                  }
-
-                  playSound();
-                  toast.success(`🔔 Nouvelle commande reçue ! #${safeOrder.id} (${safeOrder.customerName})`, {
-                    duration: 6000
+                if (data.status === "cancelled") {
+                  setOrders(prev => {
+                    const updated = prev.filter(o => o.id !== Number(data.id));
+                    try {
+                      localStorage.setItem("beef_and_buns_host_orders", JSON.stringify(updated));
+                    } catch {}
+                    return updated;
                   });
+                } else {
+                  const safeOrder = sanitizeOrder(data);
+                  setOrders(prev => {
+                    const exists = prev.some(o => o.id === safeOrder.id);
+                    if (exists) {
+                      return prev.map(o => o.id === safeOrder.id ? { ...o, ...safeOrder } : o);
+                    }
 
-                  const updated = [safeOrder, ...prev];
-                  try {
-                    localStorage.setItem("beef_and_buns_host_orders", JSON.stringify(updated));
-                  } catch {}
-                  return updated;
-                });
+                    playSound();
+                    toast.success(`🔔 Nouvelle commande reçue ! #${safeOrder.id} (${safeOrder.customerName})`, {
+                      duration: 6000
+                    });
+
+                    const updated = [safeOrder, ...prev];
+                    try {
+                      localStorage.setItem("beef_and_buns_host_orders", JSON.stringify(updated));
+                    } catch {}
+                    return updated;
+                  });
+                }
               }
             } catch (innerErr) {
               console.error("Error parsing inner ntfy message", innerErr);
@@ -815,7 +866,7 @@ export default function HostDashboard() {
           <button
             onClick={async () => {
               try {
-                const res = await fetch("https://ntfy.sh/beef_buns_sousse_orders_2026/json?poll=1");
+                const res = await fetch("https://ntfy.sh/beef_buns_sousse_orders_live/json?poll=1");
                 if (res.ok) {
                   const text = await res.text();
                   setOrders(prev => {
@@ -837,6 +888,22 @@ export default function HostDashboard() {
             className="p-2 rounded-xl bg-white/5 border border-white/10 text-[#a1a1aa] hover:text-white transition-colors cursor-pointer"
           >
             <RefreshCw className="w-4 h-4" />
+          </button>
+
+          {/* Reset All Orders & CA Button */}
+          <button
+            onClick={() => {
+              if (window.confirm("Êtes-vous sûr de vouloir vider toutes les commandes et remettre le CA à 0 ?")) {
+                localStorage.removeItem("beef_and_buns_host_orders");
+                localStorage.removeItem("bb_order_counter");
+                setOrders([]);
+                toast.success("Commandes vidées et CA remis à 0 DT !");
+              }
+            }}
+            title="Vider les commandes & Reset CA"
+            className="p-2 rounded-xl bg-white/5 border border-white/10 text-[#a1a1aa] hover:text-red-400 hover:border-red-500/40 transition-colors cursor-pointer"
+          >
+            <Trash2 className="w-4 h-4" />
           </button>
 
           {/* Site Public Button */}
@@ -1408,7 +1475,7 @@ export default function HostDashboard() {
                 </h2>
               </div>
               <p className="text-xs text-[#a1a1aa]">
-                Fermez une heure d'affluence en un clic ou marquez-la complète. Le restaurant fonctionne 7j/7 en continu de 12h à 00h.
+                Fermez une heure d'affluence en un clic ou marquez-la complète. Le restaurant fonctionne 7j/7 en continu de 12h à 01h.
               </p>
             </div>
 
