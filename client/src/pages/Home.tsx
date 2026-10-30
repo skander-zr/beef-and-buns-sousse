@@ -772,57 +772,60 @@ export const FULL_MENU_ITEMS = [
   { id: 7, category: "Crispy Chicken", name: "Hot Chicken", description: "Filet de poulet pané épicé croustillant, rondelles de jalapeños marinés, sauce hot épicée, coleslaw crémeux, potato bun.", priceDt: 20.0, image: "/burgers/hot-chicken.png" },
   { id: 31, category: "Crispy Chicken", name: "Kids Chicken", description: "Filet de poulet croustillant pané minute, fromage américain fondant, laitue fraîche, rondelles de tomate, oignons doux, sauce OG, brioche potato bun.", priceDt: 12.5, image: "/burgers/kids_chicken_droit_v2.png?v=2" },
 
-  // --- CRISPY CHICKEN TENDERS & FRIES ---
-  { id: 8, category: "Tenders & Fries", name: "2 PIECES — 2x Crispy chicken tenders", description: "2x aiguillettes de poulet croustillantes marinées, dorées minute à la perfection.", priceDt: 6.0, image: "/burgers/tenders_2_pieces_4k.png" },
-  { id: 9, category: "Tenders & Fries", name: "4 PIECES — 4x chicken tenders + Coleslaw", description: "4x aiguillettes de poulet croustillantes avec salade de chou Coleslaw maison fraîche et crémeuse.", priceDt: 12.0, image: "/burgers/tenders_4_pieces_coleslaw_4k.png" },
-  { id: 10, category: "Tenders & Fries", name: "8 PIECES — 8x chicken tenders + Coleslaw", description: "8x aiguillettes de poulet croustillantes géantes servies avec salade de chou Coleslaw crémeuse.", priceDt: 22.0, image: "/burgers/tenders_8_pieces_coleslaw_4k.png" },
-  { id: 11, category: "Tenders & Fries", name: "FRIES — Classic Fries", description: "Portion généreuse de frites classiques dorées, croustillantes à l'extérieur et fondantes à l'intérieur.", priceDt: 3.0, image: "/burgers/classic_fries_4k.png" },
+  // --- CRISPY CHICKEN TENDERS (2, 4 ET 8 PIÈCES) ---
+  { id: 8, category: "Crispy Chicken Tenders", name: "2 PIECES — 2x Crispy chicken tenders", description: "2x aiguillettes de poulet croustillantes marinées, dorées minute à la perfection.", priceDt: 6.0, image: "/burgers/tenders_2_pieces_4k.png" },
+  { id: 9, category: "Crispy Chicken Tenders", name: "4 PIECES — 4x chicken tenders + Coleslaw", description: "4x aiguillettes de poulet croustillantes avec salade de chou Coleslaw maison fraîche et crémeuse.", priceDt: 12.0, image: "/burgers/tenders_4_pieces_coleslaw_4k.png" },
+  { id: 10, category: "Crispy Chicken Tenders", name: "8 PIECES — 8x chicken tenders + Coleslaw", description: "8x aiguillettes de poulet croustillantes géantes servies avec salade de chou Coleslaw crémeuse.", priceDt: 22.0, image: "/burgers/tenders_8_pieces_coleslaw_4k.png" },
 
-  // --- EXTRAS ("What you can add?") ---
-  { id: 12, category: "Extras", name: "American cheese", description: "Tranche d'American cheese fondant.", priceDt: 3.0 },
-  { id: 13, category: "Extras", name: "Smoked cheese", description: "Tranche de fromage fumé crémeux.", priceDt: 3.0 },
-  { id: 14, category: "Extras", name: "Bacon", description: "Tranches de bacon de bœuf grillé croustillant.", priceDt: 5.0 },
-  { id: 15, category: "Extras", name: "Pastrami", description: "Tranches de pastrami artisanal de bœuf grillé.", priceDt: 5.0 },
-  { id: 16, category: "Extras", name: "Smashed beef", description: "Steak pur bœuf smashé minute supplémentaire.", priceDt: 6.0 },
-  { id: 17, category: "Extras", name: "Pickles", description: "Rondelles de pickles croquants marinés.", priceDt: 2.0 },
-  { id: 18, category: "Extras", name: "Jalapeños", description: "Rondelles de piments jalapeños pimentés.", priceDt: 2.5 },
-  { id: 19, category: "Extras", name: "Grilled mushrooms", description: "Champignons frais sautés et grillés au beurre doux.", priceDt: 3.0 },
-  { id: 20, category: "Extras", name: "Hot sauce", description: "Sauce artisanale pimentée Hot Sauce bien relevée.", priceDt: 3.5 },
-  { id: 21, category: "Extras", name: "OG sauce", description: "Sauce secrète culte signature OG maison.", priceDt: 2.5 },
-  { id: 22, category: "Extras", name: "Truffle mayo", description: "Mayonnaise onctueuse infusée à la truffe noire.", priceDt: 3.0 },
-  { id: 23, category: "Extras", name: "Heinz Mayonnaise", description: "Mayonnaise Heinz onctueuse classique.", priceDt: 2.5 },
-  { id: 24, category: "Extras", name: "Heinz Ketchup", description: "Ketchup Heinz riche en tomates savoureuses.", priceDt: 2.5 },
-  { id: 25, category: "Extras", name: "Fresh rocket", description: "Feuilles de roquette fraîche poivrée croquante.", priceDt: 2.5 },
+  // --- SAUCES ---
+  { id: 20, category: "Sauces", name: "Hot sauce", description: "Sauce artisanale pimentée Hot Sauce bien relevée.", priceDt: 3.5 },
+  { id: 22, category: "Sauces", name: "Truffle mayo", description: "Mayonnaise onctueuse infusée à la truffe noire.", priceDt: 3.0 },
+  { id: 21, category: "Sauces", name: "OG sauce", description: "Sauce secrète culte signature OG maison.", priceDt: 2.5 },
+  { id: 23, category: "Sauces", name: "Heinz Mayonnaise", description: "Mayonnaise Heinz onctueuse classique.", priceDt: 2.5 },
+  { id: 24, category: "Sauces", name: "Heinz Ketchup", description: "Ketchup Heinz riche en tomates savoureuses.", priceDt: 2.5 },
 
-  // --- DRINKS ---
+  // --- BOISSONS (DRINKS) ---
   { id: 26, category: "Drinks", name: "Water 0.5 L", description: "Bouteille d'eau minérale 0.5L servie bien fraîche.", priceDt: 1.5 },
   { id: 27, category: "Drinks", name: "Water 1 L", description: "Bouteille d'eau minérale 1L servie bien fraîche.", priceDt: 3.0 },
   { id: 28, category: "Drinks", name: "Sodas", description: "Canette de soda fraîche 33cl au choix (Coca-Cola, Zero, Boga, Fanta, Sprite).", priceDt: 3.0 }
 ];
 
-// Available extras for customization
+// Available options for Burger & Tenders customization modal
+export type OptionGroup = "fries" | "garniture" | "sauce" | "drink";
+
 export interface CustomExtra {
   id: string;
   name: string;
   price: number;
+  group: OptionGroup;
 }
 
 export const AVAILABLE_EXTRAS: CustomExtra[] = [
-  { id: "classic-fries", name: "Classic Fries (Portion frites)", price: 3.0 },
-  { id: "american-cheese", name: "American cheese", price: 3.0 },
-  { id: "smoked-cheese", name: "Smoked cheese", price: 3.0 },
-  { id: "bacon", name: "Bacon", price: 5.0 },
-  { id: "pastrami", name: "Pastrami", price: 5.0 },
-  { id: "smashed-beef", name: "Smashed beef", price: 6.0 },
-  { id: "pickles", name: "Pickles", price: 2.0 },
-  { id: "jalapenos", name: "Jalapeños", price: 2.5 },
-  { id: "grilled-mushrooms", name: "Grilled mushrooms", price: 3.0 },
-  { id: "hot-sauce", name: "Hot sauce", price: 3.5 },
-  { id: "og-sauce", name: "OG sauce", price: 2.5 },
-  { id: "truffle-mayo", name: "Truffle mayo", price: 3.0 },
-  { id: "heinz-mayo", name: "Heinz Mayonnaise", price: 2.5 },
-  { id: "heinz-ketchup", name: "Heinz Ketchup", price: 2.5 },
-  { id: "fresh-rocket", name: "Fresh rocket", price: 2.5 }
+  // 1. Portion de Frites
+  { id: "classic-fries", name: "Classic Fries (Portion frites)", price: 3.0, group: "fries" },
+
+  // 2. Extras garniture burger (Burger uniquement)
+  { id: "smashed-beef", name: "Smashed beef", price: 6.0, group: "garniture" },
+  { id: "bacon", name: "Bacon", price: 5.0, group: "garniture" },
+  { id: "pastrami", name: "Pastrami", price: 5.0, group: "garniture" },
+  { id: "american-cheese", name: "American cheese", price: 3.0, group: "garniture" },
+  { id: "smoked-cheese", name: "Smoked cheese", price: 3.0, group: "garniture" },
+  { id: "grilled-mushrooms", name: "Grilled mushrooms", price: 3.0, group: "garniture" },
+  { id: "jalapenos", name: "Jalapeños", price: 2.5, group: "garniture" },
+  { id: "fresh-rocket", name: "Fresh rocket", price: 2.5, group: "garniture" },
+  { id: "pickles", name: "Pickles", price: 2.0, group: "garniture" },
+
+  // 3. Sauces
+  { id: "hot-sauce", name: "Hot sauce", price: 3.5, group: "sauce" },
+  { id: "truffle-mayo", name: "Truffle mayo", price: 3.0, group: "sauce" },
+  { id: "og-sauce", name: "OG sauce", price: 2.5, group: "sauce" },
+  { id: "heinz-mayo", name: "Heinz Mayonnaise", price: 2.5, group: "sauce" },
+  { id: "heinz-ketchup", name: "Heinz Ketchup", price: 2.5, group: "sauce" },
+
+  // 4. Boissons
+  { id: "water-05", name: "Water 0.5 L", price: 1.5, group: "drink" },
+  { id: "water-1l", name: "Water 1 L", price: 3.0, group: "drink" },
+  { id: "sodas", name: "Sodas (Canette 33cl)", price: 3.0, group: "drink" }
 ];
 
 export const REMOVABLE_INGREDIENTS = [
@@ -1013,7 +1016,7 @@ export default function Home() {
   const [selectedCategory, setSelectedCategory] = useState("Tous");
   const [searchQuery, setSearchQuery] = useState("");
 
-  const categories = ["Tous", "Smash Burgers", "Crispy Chicken", "Tenders & Fries", "Extras", "Drinks"];
+  const categories = ["Tous", "Smash Burgers", "Crispy Chicken", "Crispy Chicken Tenders", "Sauces", "Drinks"];
 
   const filteredMenuItems = useMemo(() => {
     return FULL_MENU_ITEMS.filter(item => {
@@ -1090,33 +1093,6 @@ export default function Home() {
   };
 
   const addQuickItemToCart = (name: string, category: string, price: number, image?: string) => {
-    const hasBurger = cart.some(i => i.category === "Smash Burgers" || i.category === "Crispy Chicken");
-    const hasTenders = cart.some(i => i.name.toLowerCase().includes("tenders") || i.category.toLowerCase().includes("tenders"));
-
-    // RÈGLE 1 : Frites autorisées uniquement en accompagnement d'un burger ou tenders
-    if (name.toLowerCase().includes("fries")) {
-      if (!hasBurger && !hasTenders) {
-        toast.error("🍟 Les Classic Fries sont disponibles uniquement en accompagnement d'un Burger ou de Tenders. Choisissez d'abord votre burger ou tenders !");
-        return;
-      }
-    }
-
-    // RÈGLE 2 : Suppléments Extras
-    if (category === "Extras") {
-      const isSauce = ["hot sauce", "og sauce", "truffle mayo", "heinz mayonnaise", "heinz ketchup"].some(s => name.toLowerCase().includes(s));
-      if (isSauce) {
-        if (!hasBurger && !hasTenders) {
-          toast.error("🥫 Les sauces s'ajoutent en accompagnement d'un Burger ou de Tenders. Choisissez d'abord votre plat !");
-          return;
-        }
-      } else {
-        if (!hasBurger) {
-          toast.error("🧀 Ce supplément s'ajoute uniquement en accompagnement d'un Burger. Choisissez d'abord votre burger !");
-          return;
-        }
-      }
-    }
-
     const newItem: CartItem = {
       id: `${Date.now()}-${Math.random()}`,
       name,
@@ -1928,7 +1904,7 @@ export default function Home() {
                 Tout Le Menu <span className="text-[#ff3b30]">Beef & Buns</span>
               </h2>
               <p className="text-[#a1a1aa] text-sm mt-2">
-                Nos 11 burgers, tenders de poulet croustillants, classic fries dorées, extras et boissons fraîches.
+                Nos 11 burgers, tenders de poulet croustillants, sauces signature et boissons fraîches.
               </p>
             </div>
 
@@ -1970,6 +1946,7 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredMenuItems.map((item) => {
               const isBurger = item.category === "Smash Burgers" || item.category === "Crispy Chicken";
+              const isTenders = item.category === "Crispy Chicken Tenders" || item.name.toLowerCase().includes("tenders");
 
               return (
                 <div
@@ -1977,7 +1954,14 @@ export default function Home() {
                   className="glass-panel rounded-2xl p-5 flex flex-col justify-between glass-panel-hover group relative overflow-hidden"
                 >
                   {/* Top row */}
-                  <div className="flex items-start justify-between gap-3 mb-3">
+                  <div
+                    className={`flex items-start justify-between gap-3 mb-3 ${isBurger || isTenders ? "cursor-pointer" : ""}`}
+                    onClick={() => {
+                      if (isBurger || isTenders) {
+                        openCustomizer(item.name, item.category, item.priceDt, "image" in item ? item.image : undefined);
+                      }
+                    }}
+                  >
                     <div>
                       <span className="text-[10px] font-bold text-[#f59e0b] tracking-wider uppercase">
                         {item.category}
@@ -1995,7 +1979,14 @@ export default function Home() {
 
                   {/* Image if available */}
                   {"image" in item && item.image ? (
-                    <div className="w-full h-44 my-2 flex items-center justify-center relative">
+                    <div
+                      className={`w-full h-44 my-2 flex items-center justify-center relative ${isBurger || isTenders ? "cursor-pointer" : ""}`}
+                      onClick={() => {
+                        if (isBurger || isTenders) {
+                          openCustomizer(item.name, item.category, item.priceDt, "image" in item ? item.image : undefined);
+                        }
+                      }}
+                    >
                       <div className="absolute inset-0 bg-radial from-[#ff3b30]/10 to-transparent blur-xl opacity-0 group-hover:opacity-100 transition-opacity" />
                       <img
                         src={item.image}
@@ -2016,33 +2007,48 @@ export default function Home() {
 
                   {/* Action buttons */}
                   <div className="pt-4 border-t border-white/[0.08] flex items-center gap-2 mt-auto">
-                    {isBurger || item.name.toLowerCase().includes("tenders") ? (
+                    {isBurger ? (
                       <>
-                        {isBurger && (
-                          <button
-                            onClick={() => {
-                              const bIdx = ALL_7_BURGERS.findIndex(b => b.name.toLowerCase() === item.name.toLowerCase() || b.id === String(item.id));
-                              if (bIdx !== -1) {
-                                setSelectedBurgerIndex(bIdx);
-                                setIsExploded(false);
-                                setIsAutoRotating(true);
-                              }
-                              const exp = document.getElementById("experience-3d");
-                              if (exp) exp.scrollIntoView({ behavior: "smooth" });
-                            }}
-                            className="py-2.5 px-2.5 rounded-xl bg-white/5 hover:bg-[#ff3b30]/20 hover:border-[#ff3b30]/50 border border-white/10 text-white text-xs font-bold transition-all flex items-center justify-center gap-1 cursor-pointer"
-                            title="Voir ce burger en 3D 360°"
-                          >
-                            <Eye className="w-3.5 h-3.5 text-[#ff3b30]" />
-                            <span className="hidden sm:inline">3D 360°</span>
-                          </button>
-                        )}
+                        <button
+                          onClick={() => {
+                            const bIdx = ALL_7_BURGERS.findIndex(b => b.name.toLowerCase() === item.name.toLowerCase() || b.id === String(item.id));
+                            if (bIdx !== -1) {
+                              setSelectedBurgerIndex(bIdx);
+                              setIsExploded(false);
+                              setIsAutoRotating(true);
+                            }
+                            const exp = document.getElementById("experience-3d");
+                            if (exp) exp.scrollIntoView({ behavior: "smooth" });
+                          }}
+                          className="py-2.5 px-2.5 rounded-xl bg-white/5 hover:bg-[#ff3b30]/20 hover:border-[#ff3b30]/50 border border-white/10 text-white text-xs font-bold transition-all flex items-center justify-center gap-1 cursor-pointer"
+                          title="Voir ce burger en 3D 360°"
+                        >
+                          <Eye className="w-3.5 h-3.5 text-[#ff3b30]" />
+                          <span className="hidden sm:inline">3D 360°</span>
+                        </button>
                         <button
                           onClick={() => openCustomizer(item.name, item.category, item.priceDt, "image" in item ? item.image : undefined)}
                           className="flex-1 py-2.5 px-3 rounded-xl bg-white/10 hover:bg-white/15 text-white text-xs font-bold uppercase tracking-wider transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
                         >
                           <Sliders className="w-3.5 h-3.5 text-[#f59e0b]" />
-                          <span>{item.name.toLowerCase().includes("tenders") ? "Sauces & Frites" : "Personnaliser"}</span>
+                          <span>Personnaliser</span>
+                        </button>
+                        <button
+                          onClick={() => addQuickItemToCart(item.name, item.category, item.priceDt, "image" in item ? item.image : undefined)}
+                          title="Ajouter direct au panier"
+                          className="p-2.5 rounded-xl bg-[#ff3b30] hover:bg-[#e11d48] text-white transition-all shadow-md shadow-[#ff3b30]/20 cursor-pointer"
+                        >
+                          <Plus className="w-4 h-4" />
+                        </button>
+                      </>
+                    ) : isTenders ? (
+                      <>
+                        <button
+                          onClick={() => openCustomizer(item.name, item.category, item.priceDt, "image" in item ? item.image : undefined)}
+                          className="flex-1 py-2.5 px-3 rounded-xl bg-white/10 hover:bg-white/15 text-white text-xs font-bold uppercase tracking-wider transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+                        >
+                          <Sliders className="w-3.5 h-3.5 text-[#f59e0b]" />
+                          <span>Options & Sauces</span>
                         </button>
                         <button
                           onClick={() => addQuickItemToCart(item.name, item.category, item.priceDt, "image" in item ? item.image : undefined)}
@@ -2324,132 +2330,176 @@ export default function Home() {
         </div>
       </footer>
 
-      {/* BURGER CUSTOMIZER MODAL */}
-      {customizerItem && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-modal">
-          <div className="relative w-full max-w-lg rounded-3xl bg-[#14141a] border border-white/15 p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
-            <button
-              onClick={() => setCustomizerItem(null)}
-              className="absolute top-5 right-5 p-2 rounded-full bg-white/5 hover:bg-white/10 text-[#a1a1aa] hover:text-white transition-colors cursor-pointer"
+      {/* BURGER & TENDERS CUSTOMIZER MODAL */}
+      {customizerItem && (() => {
+        const isBurger = customizerItem.category === "Smash Burgers" || customizerItem.category === "Crispy Chicken";
+        const isTenders = customizerItem.category === "Crispy Chicken Tenders" || customizerItem.name.toLowerCase().includes("tenders");
+
+        const renderOptionItem = (extra: CustomExtra) => {
+          const isChecked = selectedExtras.some(e => e.id === extra.id);
+          return (
+            <div
+              key={extra.id}
+              onClick={() => handleToggleExtra(extra)}
+              className={`flex items-center justify-between p-2.5 sm:p-3 rounded-xl border text-xs cursor-pointer transition-all ${
+                isChecked
+                  ? "bg-[#ff3b30]/15 border-[#ff3b30] text-white font-semibold shadow-sm shadow-[#ff3b30]/20"
+                  : "bg-white/5 border-white/5 text-[#a1a1aa] hover:bg-white/10 hover:text-white"
+              }`}
             >
-              <X className="w-4 h-4" />
-            </button>
-
-            <div className="flex items-center gap-4 mb-6">
-              {customizerItem.image && (
-                <img
-                  src={customizerItem.image}
-                  alt={customizerItem.name}
-                  className="w-16 h-16 object-contain filter drop-shadow-md"
-                />
-              )}
-              <div>
-                <span className="flame-badge mb-1">PERSONNALISATION</span>
-                <h3 className="font-display text-2xl uppercase text-white">
-                  {customizerItem.name}
-                </h3>
-                <p className="text-xs text-[#a1a1aa]">Prix de base : {customizerItem.basePrice.toFixed(1)} DT</p>
+              <div className="flex items-center gap-2.5 min-w-0 pr-2">
+                <div
+                  className={`w-4 h-4 rounded-md border flex items-center justify-center shrink-0 ${
+                    isChecked ? "bg-[#ff3b30] border-[#ff3b30]" : "border-white/20"
+                  }`}
+                >
+                  {isChecked && <Check className="w-3 h-3 text-white" />}
+                </div>
+                <span className="truncate">{extra.name}</span>
               </div>
+              <span className="font-bold text-white shrink-0">+{extra.price.toFixed(1)} DT</span>
             </div>
+          );
+        };
 
-            {/* INGRÉDIENTS À RETIRER (OPTIONNEL - SANS FRAIS) */}
-            <div className="mb-6">
-              <label className="block text-xs font-bold uppercase tracking-wider text-white mb-1">
-                Ingrédients à retirer (Optionnel)
-              </label>
-              <p className="text-[11px] text-[#a1a1aa] mb-2.5">
-                Cochez pour préparer votre burger sur mesure sans certains ingrédients :
-              </p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-48 overflow-y-auto pr-1">
-                {REMOVABLE_INGREDIENTS.map((ing) => {
-                  const isRemoved = removedIngredients.includes(ing);
-                  return (
-                    <div
-                      key={ing}
-                      onClick={() => handleToggleRemovedIngredient(ing)}
-                      className={`flex items-center justify-between p-2.5 rounded-xl border text-xs cursor-pointer transition-all ${
-                        isRemoved
-                          ? "bg-red-500/20 border-red-500 text-white font-semibold"
-                          : "bg-white/5 border-white/5 text-[#a1a1aa] hover:bg-white/10"
-                      }`}
-                    >
-                      <div className="flex items-center gap-2">
-                        <div
-                          className={`w-4 h-4 rounded-md border flex items-center justify-center text-[10px] font-black ${
-                            isRemoved ? "bg-red-500 border-red-500 text-white" : "border-white/20"
-                          }`}
-                        >
-                          {isRemoved ? "✕" : ""}
-                        </div>
-                        <span className={isRemoved ? "line-through text-red-300" : ""}>{ing}</span>
-                      </div>
-                      <span className="text-[10px] uppercase font-bold text-zinc-400">0 DT</span>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-
-            <div className="mb-6">
-              <label className="block text-xs font-bold uppercase tracking-wider text-white mb-2">
-                What you can add? (Extras & Sauces)
-              </label>
-              <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
-                {AVAILABLE_EXTRAS.filter((extra) => {
-                  const isTenders = customizerItem?.name.toLowerCase().includes("tenders") || customizerItem?.category.toLowerCase().includes("tenders");
-                  if (isTenders) {
-                    const sauceAndFries = ["classic-fries", "hot-sauce", "og-sauce", "truffle-mayo", "heinz-mayo", "heinz-ketchup"];
-                    return sauceAndFries.includes(extra.id);
-                  }
-                  return true;
-                }).map((extra) => {
-                  const isChecked = selectedExtras.some(e => e.id === extra.id);
-                  return (
-                    <div
-                      key={extra.id}
-                      onClick={() => handleToggleExtra(extra)}
-                      className={`flex items-center justify-between p-3 rounded-xl border text-xs cursor-pointer transition-all ${
-                        isChecked
-                          ? "bg-[#ff3b30]/15 border-[#ff3b30] text-white font-semibold"
-                          : "bg-white/5 border-white/5 text-[#a1a1aa] hover:bg-white/10"
-                      }`}
-                    >
-                      <div className="flex items-center gap-2.5">
-                        <div
-                          className={`w-4 h-4 rounded-md border flex items-center justify-center ${
-                            isChecked ? "bg-[#ff3b30] border-[#ff3b30]" : "border-white/20"
-                          }`}
-                        >
-                          {isChecked && <Check className="w-3 h-3 text-white" />}
-                        </div>
-                        <span>{extra.name}</span>
-                      </div>
-                      <span className="font-bold text-white">+{extra.price.toFixed(1)} DT</span>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-
-            <div className="pt-4 border-t border-white/10 flex items-center justify-between">
-              <div>
-                <p className="text-[11px] text-[#a1a1aa] uppercase font-bold">Total Calculé</p>
-                <p className="font-display text-2xl text-[#ff3b30]">
-                  {calculateCustomizerTotal().toFixed(1)} <span className="text-sm">DT</span>
-                </p>
-              </div>
-
+        return (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-modal">
+            <div className="relative w-full max-w-lg rounded-3xl bg-[#14141a] border border-white/15 p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
               <button
-                onClick={addCustomizedToCart}
-                className="px-6 py-3.5 rounded-xl bg-gradient-to-r from-[#ff3b30] to-[#e11d48] text-white font-bold text-xs uppercase tracking-wider shadow-lg shadow-[#ff3b30]/30 hover:scale-105 active:scale-95 transition-all flex items-center gap-2 cursor-pointer"
+                onClick={() => setCustomizerItem(null)}
+                className="absolute top-5 right-5 p-2 rounded-full bg-white/5 hover:bg-white/10 text-[#a1a1aa] hover:text-white transition-colors cursor-pointer"
               >
-                <Plus className="w-4 h-4" />
-                <span>Ajouter au Panier</span>
+                <X className="w-4 h-4" />
               </button>
+
+              <div className="flex items-center gap-4 mb-6">
+                {customizerItem.image && (
+                  <img
+                    src={customizerItem.image}
+                    alt={customizerItem.name}
+                    className="w-16 h-16 object-contain filter drop-shadow-md"
+                  />
+                )}
+                <div>
+                  <span className="flame-badge mb-1">
+                    {isBurger ? "PERSONNALISATION BURGER" : "OPTIONS & SUPPLÉMENTS TENDERS"}
+                  </span>
+                  <h3 className="font-display text-2xl uppercase text-white">
+                    {customizerItem.name}
+                  </h3>
+                  <p className="text-xs text-[#a1a1aa]">Prix de base : {customizerItem.basePrice.toFixed(1)} DT</p>
+                </div>
+              </div>
+
+              {/* INGRÉDIENTS À RETIRER (OPTIONNEL - BURGERS UNIQUEMENT) */}
+              {isBurger && (
+                <div className="mb-6">
+                  <label className="block text-xs font-bold uppercase tracking-wider text-white mb-1">
+                    Ingrédients à retirer (Optionnel)
+                  </label>
+                  <p className="text-[11px] text-[#a1a1aa] mb-2.5">
+                    Cochez pour préparer votre burger sur mesure sans certains ingrédients :
+                  </p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-48 overflow-y-auto pr-1">
+                    {REMOVABLE_INGREDIENTS.map((ing) => {
+                      const isRemoved = removedIngredients.includes(ing);
+                      return (
+                        <div
+                          key={ing}
+                          onClick={() => handleToggleRemovedIngredient(ing)}
+                          className={`flex items-center justify-between p-2.5 rounded-xl border text-xs cursor-pointer transition-all ${
+                            isRemoved
+                              ? "bg-red-500/20 border-red-500 text-white font-semibold"
+                              : "bg-white/5 border-white/5 text-[#a1a1aa] hover:bg-white/10"
+                          }`}
+                        >
+                          <div className="flex items-center gap-2">
+                            <div
+                              className={`w-4 h-4 rounded-md border flex items-center justify-center text-[10px] font-black ${
+                                isRemoved ? "bg-red-500 border-red-500 text-white" : "border-white/20"
+                              }`}
+                            >
+                              {isRemoved ? "✕" : ""}
+                            </div>
+                            <span className={isRemoved ? "line-through text-red-300" : ""}>{ing}</span>
+                          </div>
+                          <span className="text-[10px] uppercase font-bold text-zinc-400">0 DT</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* 1. PORTION DE FRITES (BURGER ET TENDERS) */}
+              <div className="mb-5">
+                <label className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-white mb-2">
+                  <span>🍟</span>
+                  <span>Portion de Frites (Option)</span>
+                </label>
+                <div className="space-y-1.5">
+                  {AVAILABLE_EXTRAS.filter(e => e.group === "fries").map(renderOptionItem)}
+                </div>
+              </div>
+
+              {/* 2. EXTRAS GARNITURE BURGER (BURGER UNIQUEMENT) */}
+              {isBurger && (
+                <div className="mb-5">
+                  <label className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-white mb-2">
+                    <span>🧀🥓</span>
+                    <span>Extras Garniture Burger</span>
+                  </label>
+                  <p className="text-[11px] text-[#a1a1aa] mb-2">
+                    Ajoutez des tranches de viande smashée, bacon, pastrami, fromages ou légumes :
+                  </p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-48 overflow-y-auto pr-1">
+                    {AVAILABLE_EXTRAS.filter(e => e.group === "garniture").map(renderOptionItem)}
+                  </div>
+                </div>
+              )}
+
+              {/* 3. SAUCES SIGNATURE & DIPS (BURGER ET TENDERS) */}
+              <div className="mb-5">
+                <label className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-white mb-2">
+                  <span>🥫</span>
+                  <span>Sauces Signature & Dips</span>
+                </label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-44 overflow-y-auto pr-1">
+                  {AVAILABLE_EXTRAS.filter(e => e.group === "sauce").map(renderOptionItem)}
+                </div>
+              </div>
+
+              {/* 4. BOISSONS FRAÎCHES (BURGER ET TENDERS) */}
+              <div className="mb-6">
+                <label className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-white mb-2">
+                  <span>🥤</span>
+                  <span>Boissons Fraîches</span>
+                </label>
+                <div className="space-y-1.5">
+                  {AVAILABLE_EXTRAS.filter(e => e.group === "drink").map(renderOptionItem)}
+                </div>
+              </div>
+
+              <div className="pt-4 border-t border-white/10 flex items-center justify-between">
+                <div>
+                  <p className="text-[11px] text-[#a1a1aa] uppercase font-bold">Total Calculé</p>
+                  <p className="font-display text-2xl text-[#ff3b30]">
+                    {calculateCustomizerTotal().toFixed(1)} <span className="text-sm">DT</span>
+                  </p>
+                </div>
+
+                <button
+                  onClick={addCustomizedToCart}
+                  className="px-6 py-3.5 rounded-xl bg-gradient-to-r from-[#ff3b30] to-[#e11d48] text-white font-bold text-xs uppercase tracking-wider shadow-lg shadow-[#ff3b30]/30 hover:scale-105 active:scale-95 transition-all flex items-center gap-2 cursor-pointer"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>Ajouter au Panier</span>
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
 
       {/* SHOPPING CART & CHECKOUT DRAWER */}
       {isCartOpen && (
