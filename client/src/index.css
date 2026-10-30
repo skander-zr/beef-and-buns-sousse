@@ -145,6 +145,8 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .burger-3d-model {
   transform-style: preserve-3d;
   will-change: transform;
+  background: transparent !important;
+  box-shadow: none !important;
 }
 
 .burger-3d-model.spin-active {
@@ -156,25 +158,9 @@ button, a { -webkit-tap-highlight-color: transparent; }
   animation-play-state: paused !important;
 }
 
-/* 3D Contact Shadow */
+/* 3D Contact Shadow removed to eliminate parasitic rotating shadow artifact on Safari */
 .burger-contact-shadow {
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%) rotateX(75deg);
-  width: 320px;
-  height: 120px;
-  background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.85) 0%, rgba(255, 59, 48, 0.15) 40%, transparent 70%);
-  filter: blur(14px);
-  pointer-events: none;
-  transition: all 0.65s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.burger-contact-shadow.exploded {
-  width: 420px;
-  height: 150px;
-  filter: blur(24px);
-  opacity: 0.6;
+  display: none !important;
 }
 
 /* Layer in Exploded Mode */

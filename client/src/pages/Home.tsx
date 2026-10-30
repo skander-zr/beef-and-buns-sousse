@@ -1656,12 +1656,12 @@ export default function Home() {
                     isExploded ? (activeBurger?.id === "og-triple" || activeBurger?.id === "kids-chicken" ? "h-[385px] sm:h-[420px]" : "h-[360px] sm:h-[400px]") : "h-[320px] sm:h-[350px]"
                   }`}
                 >
-                  {/* Dynamic Realistic Contact Shadow */}
-                  <div className={`burger-contact-shadow ${isExploded ? "exploded" : ""}`} />
+
 
                   {/* 3D BURGER MODEL CONTAINER (HIGH-PERFORMANCE DIRECT DOM TRANSFORM) */}
                   <div
                     ref={modelRef}
+                    style={{ background: "transparent", boxShadow: "none" }}
                     className={`burger-3d-model relative flex items-center justify-center cursor-pointer ${
                       !isExploded ? "spin-active" : ""
                     } ${
@@ -1674,16 +1674,18 @@ export default function Home() {
                   >
                     {!isExploded ? (
                       /* MODE 1: CONTINUOUS 360 ROTATION OF THE ASSEMBLED BURGER */
-                      <div className="w-full h-full relative flex items-center justify-center group/burger">
+                      <div className="w-full h-full relative flex items-center justify-center group/burger" style={{ background: "transparent", boxShadow: "none" }}>
                         <img
                           key={activeBurger.id}
                           src={activeBurger.image}
                           alt={activeBurger.name}
                           className="w-full h-full object-contain filter drop-shadow-[0_20px_35px_rgba(0,0,0,0.85)] pointer-events-none transition-all duration-300 scale-105 animate-in fade-in zoom-in-95 duration-200"
-                          style={activeBurger.id === "kids-chicken" || activeBurger.name === "Kids Chicken" ? { transform: "rotate(10deg)" } : undefined}
+                          style={{
+                            background: "transparent",
+                            boxShadow: "none",
+                            ...(activeBurger.id === "kids-chicken" || activeBurger.name === "Kids Chicken" ? { transform: "rotate(10deg)" } : {})
+                          }}
                         />
-                        {/* INSTRUCTION PILL ON HOVER */}
-                        
                       </div>
                     ) : (
                       /* MODE 2: TRUE 3D EXPLODED BURGER — 5 TRANSPARENT PNG LAYERS */
@@ -1791,34 +1793,7 @@ export default function Home() {
                     )}
                   </div>
 
-                  {/* BOUTON FIXE NON-ROTATIF (TOUJOURS LISIBLE À L'ENDROIT) */}
-                  <div className="absolute bottom-2 sm:bottom-3 z-30 flex items-center justify-center pointer-events-none">
-                    {!isExploded ? (
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          toggleExploded();
-                        }}
-                        className="pointer-events-auto px-4 py-1.5 rounded-full bg-black/85 border border-white/20 hover:border-[#ff3b30] text-[11px] font-bold text-zinc-200 hover:text-white flex items-center gap-2 shadow-2xl backdrop-blur-md transition-all hover:scale-105 active:scale-95 cursor-pointer"
-                      >
-                        <Layers className="w-3.5 h-3.5 text-[#ff3b30]" />
-                        <span>Cliquez pour la vue 3D</span>
-                      </button>
-                    ) : (
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          toggleExploded();
-                        }}
-                        className="pointer-events-auto px-4 py-1.5 rounded-full bg-black/85 border border-[#ff3b30]/50 hover:border-[#ff3b30] text-[11px] font-bold text-white flex items-center gap-2 shadow-2xl backdrop-blur-md transition-all hover:scale-105 active:scale-95 cursor-pointer"
-                      >
-                        <RotateCw className="w-3.5 h-3.5 text-[#f59e0b]" />
-                        <span>Revenir au 360°</span>
-                      </button>
-                    )}
-                  </div>
+
                 </div>
 
                 {/* BOTTOM SECTION: DEDICATED ANATOMIE 3D PANEL (ZERO OVERLAP, 100% READABLE) */}
