@@ -1242,37 +1242,91 @@ export default function Home() {
 
     setIsSubmitting(true);
 
-    // Sequential order number (Commande #1, #2, #3... reset each day)
+    // Sequential order number (Commande #1, #2, #3...)
+    // 1. Calculate true sequential order ID (#1, #2, #3...) from ntfy.sh
     const todayStr = new Date().toISOString().slice(0, 10);
-    const lastDate = localStorage.getItem("bb_last_order_date");
-    let currentCount = parseInt(localStorage.getItem("bb_order_counter") || "0", 10);
-    if (lastDate !== todayStr) {
-      currentCount = 0;
-      localStorage.setItem("bb_last_order_date", todayStr);
-    }
-    currentCount += 1;
-    localStorage.setItem("bb_order_counter", currentCount.toString());
-    const orderId = currentCount;
+    let calculatedOrderId = 1;
 
-    const orderPayload = {
-      orderId,
+    try {
+      const pollRes = await fetch("https://ntfy.sh/beef_buns_sousse_orders_2026/json?poll=1");
+      if (pollRes.ok) {
+        const rawText = await pollRes.text();
+        const lines = rawText.trim().split("\n").filter(Boolean);
+        let maxId = 0;
+        for (const line of lines) {
+          try {
+            const evt = JSON.parse(line);
+            if (evt.event === "message" && evt.message) {
+              const data = JSON.parse(evt.message);
+              if (data && typeof data.id === "number") {
+                if (data.date === todayStr || !data.date) {
+                  if (data.id > maxId) maxId = data.id;
+                }
+              }
+            }
+          } catch {}
+        }
+        calculatedOrderId = maxId + 1;
+      }
+    } catch (pollErr) {
+      console.warn("Could not poll ntfy for next order id, using local fallback", pollErr);
+      const lastDate = localStorage.getItem("bb_last_order_date");
+      let currentCount = parseInt(localStorage.getItem("bb_order_counter") || "0", 10);
+      if (lastDate !== todayStr) {
+        currentCount = 0;
+        localStorage.setItem("bb_last_order_date", todayStr);
+      }
+      calculatedOrderId = currentCount + 1;
+    }
+
+    localStorage.setItem("bb_last_order_date", todayStr);
+    localStorage.setItem("bb_order_counter", calculatedOrderId.toString());
+    const orderId = calculatedOrderId;
+
+    const newHostOrder = {
+      id: orderId,
       customerName: customerName.trim(),
       phone: customerPhone.trim(),
       orderType,
       neighborhood: deliveryNeighborhood,
       address: deliveryAddress.trim(),
       notes: orderNotes.trim(),
-      items: cart,
-      totalDt: cartTotalDt
+      items: cart.map(item => ({
+        name: item.name,
+        quantity: item.quantity,
+        totalPrice: item.totalPrice * item.quantity,
+        pattiesCount: item.pattiesCount,
+        selectedExtras: item.selectedExtras,
+        removedIngredients: item.removedIngredients
+      })),
+      totalDt: cartTotalDt,
+      status: "new" as const,
+      date: todayStr,
+      createdAt: new Date().toLocaleTimeString('fr-FR', { timeZone: 'Africa/Tunis', hour: '2-digit', minute: '2-digit' })
     };
 
-    // Format telegram message
+    // 2. Publish order to ntfy cloud for instant real-time sync with /hote on PC
+    try {
+      await fetch("https://ntfy.sh/beef_buns_sousse_orders_2026", {
+        method: "POST",
+        headers: {
+          "Title": `Nouvelle Commande #${orderId} - Beef & Buns`,
+          "Priority": "high",
+          "Tags": "hamburger,bell"
+        },
+        body: JSON.stringify(newHostOrder)
+      });
+    } catch (ntfyErr) {
+      console.error("ntfy cloud publish error", ntfyErr);
+    }
+
+    // 3. Format single Telegram message with true sequential orderId
     let text = `🍔 *NOUVELLE COMMANDE BEEF & BUNS (#${orderId})*\n\n`;
-    text += `👤 *Client :* ${orderPayload.customerName}\n`;
-    text += `📞 *Tél :* ${orderPayload.phone}\n`;
+    text += `👤 *Client :* ${newHostOrder.customerName}\n`;
+    text += `📞 *Tél :* ${newHostOrder.phone}\n`;
     text += `📦 *Mode :* ${orderType === 'delivery' ? `🛵 Livraison (${deliveryNeighborhood})` : '🥡 À emporter'}\n`;
     if (orderType === 'delivery') {
-      text += `📍 *Adresse :* ${orderPayload.address}\n`;
+      text += `📍 *Adresse :* ${newHostOrder.address}\n`;
     }
     if (orderNotes.trim()) {
       text += `📝 *Notes :* ${orderNotes.trim()}\n`;
@@ -1280,21 +1334,24 @@ export default function Home() {
 
     text += `\n🛒 *ARTICLES COMMANDÉS :*\n`;
     cart.forEach((item, idx) => {
-      text += `${idx + 1}. *${item.quantity}x ${item.name}* (${item.totalPrice.toFixed(1)} DT)\n`;
+      text += `${idx + 1}. *${item.quantity}x ${item.name}* (${(item.totalPrice * item.quantity).toFixed(1)} DT)\n`;
       if (item.pattiesCount && item.pattiesCount > 1) {
         text += `   └ Steaks : ${item.pattiesCount === 3 ? 'Triple (+6 DT)' : 'Double'}\n`;
       }
       if (item.selectedExtras && item.selectedExtras.length > 0) {
         text += `   └ Extras : ${item.selectedExtras.map(e => `${e.name} (+${e.price} DT)`).join(', ')}\n`;
       }
+      if (item.removedIngredients && item.removedIngredients.length > 0) {
+        text += `   └ Sans : ${item.removedIngredients.join(', ')}\n`;
+      }
     });
 
     text += `\n💰 *TOTAL COMMANDE : ${cartTotalDt.toFixed(1)} DT*\n`;
     text += `⏰ *Heure :* ${new Date().toLocaleTimeString('fr-FR', { timeZone: 'Africa/Tunis' })}\n`;
-    text += `\n👉 _Envoyé instantanément depuis le site web_\n`;
+    text += `\n👉 Gérer la commande : https://beef-and-buns-sousse.vercel.app/hote\n`;
 
     try {
-      // Send directly to Telegram bot API
+      // Send directly to Telegram bot API (SINGLE SEND with true sequential orderId)
       const botToken = "9194319608:AAFh739rW2GzXpyVB14BCWN1gfKzJ4KQ3_k";
       const chatId = "6048748092";
 
@@ -1308,38 +1365,11 @@ export default function Home() {
         })
       });
 
-      // Also call serverless API if available
-      fetch("/api/order", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(orderPayload)
-      }).catch(() => {});
-
-      // Save to shared Host orders for Host Dashboard
+      // Save locally as well
       try {
         const existingOrders = JSON.parse(localStorage.getItem("beef_and_buns_host_orders") || "[]");
-        const newHostOrder = {
-          id: orderId,
-          customerName: customerName.trim(),
-          phone: customerPhone.trim(),
-          orderType,
-          neighborhood: deliveryNeighborhood,
-          address: deliveryAddress.trim(),
-          notes: orderNotes.trim(),
-          items: cart.map(item => ({
-            name: item.name,
-            quantity: item.quantity,
-            totalPrice: item.totalPrice * item.quantity,
-            pattiesCount: item.pattiesCount,
-            selectedExtras: item.selectedExtras,
-            removedIngredients: item.removedIngredients
-          })),
-          totalDt: cartTotalDt,
-          status: "new",
-          date: todayStr,
-          createdAt: new Date().toLocaleTimeString('fr-FR', { timeZone: 'Africa/Tunis', hour: '2-digit', minute: '2-digit' })
-        };
-        localStorage.setItem("beef_and_buns_host_orders", JSON.stringify([newHostOrder, ...existingOrders]));
+        const filtered = existingOrders.filter((o: any) => o.id !== orderId);
+        localStorage.setItem("beef_and_buns_host_orders", JSON.stringify([newHostOrder, ...filtered]));
         window.dispatchEvent(new Event("storage"));
       } catch (err) {
         console.error("Local order storage error", err);

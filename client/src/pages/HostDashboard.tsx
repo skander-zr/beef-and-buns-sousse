@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import { toast } from "sonner";
 import {
   Lock,
@@ -112,20 +112,64 @@ function formatDisplayDate(dateStr: string): string {
 function playKitchenChime() {
   try {
     const ctx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
+    if (ctx.state === "suspended") {
+      ctx.resume().catch(() => {});
+    }
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
     osc.type = "sine";
     osc.frequency.setValueAtTime(587.33, ctx.currentTime); // D5
     osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.15); // A5
-    gain.gain.setValueAtTime(0.2, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
+    gain.gain.setValueAtTime(0.25, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.45);
     osc.connect(gain);
     gain.connect(ctx.destination);
     osc.start();
-    osc.stop(ctx.currentTime + 0.45);
+    osc.stop(ctx.currentTime + 0.5);
   } catch {
     // Ignore audio restrictions
   }
+}
+
+// Helper to parse ntfy messages and merge with orders
+function parseNtfyMessages(rawText: string, currentOrders: HostOrder[]): HostOrder[] {
+  const lines = rawText.trim().split("\n").filter(Boolean);
+  const ordersMap = new Map<number, HostOrder>();
+
+  // Seed with current orders
+  for (const o of currentOrders) {
+    if (o && typeof o.id === "number") {
+      ordersMap.set(o.id, o);
+    }
+  }
+
+  for (const line of lines) {
+    try {
+      const evt = JSON.parse(line);
+      if (evt.event === "message" && evt.message) {
+        const data = JSON.parse(evt.message);
+        if (data.type === "status_update" && data.orderId) {
+          const existing = ordersMap.get(data.orderId);
+          if (existing) {
+            ordersMap.set(data.orderId, { ...existing, status: data.status });
+          }
+        } else if (data.id && typeof data.id === "number" && data.customerName) {
+          const existing = ordersMap.get(data.id);
+          if (existing) {
+            const statusOrder = ["new", "preparing", "ready", "completed", "cancelled"];
+            const currentIdx = statusOrder.indexOf(existing.status);
+            const newIdx = statusOrder.indexOf(data.status);
+            const chosenStatus = currentIdx > newIdx ? existing.status : data.status;
+            ordersMap.set(data.id, { ...data, status: chosenStatus });
+          } else {
+            ordersMap.set(data.id, data as HostOrder);
+          }
+        }
+      }
+    } catch {}
+  }
+
+  return Array.from(ordersMap.values()).sort((a, b) => b.id - a.id);
 }
 
 export default function HostDashboard() {
@@ -170,8 +214,84 @@ export default function HostDashboard() {
     } catch {}
   }, []);
 
-  // Listen to new orders placed on the client site in real time
+  // Keep isSoundEnabled in a ref for EventSource callback
+  const isSoundEnabledRef = useRef(isSoundEnabled);
   useEffect(() => {
+    isSoundEnabledRef.current = isSoundEnabled;
+  }, [isSoundEnabled]);
+
+  // Listen to new orders placed on phones & PCs via ntfy.sh cloud in real time + localStorage
+  useEffect(() => {
+    // 1. Initial load from ntfy.sh poll
+    const loadNtfyOrders = async () => {
+      try {
+        const res = await fetch("https://ntfy.sh/beef_buns_sousse_orders_2026/json?poll=1");
+        if (res.ok) {
+          const text = await res.text();
+          setOrders(prev => {
+            const merged = parseNtfyMessages(text, prev);
+            localStorage.setItem("beef_and_buns_host_orders", JSON.stringify(merged));
+            return merged;
+          });
+        }
+      } catch (err) {
+        console.warn("Could not poll ntfy orders", err);
+      }
+    };
+
+    loadNtfyOrders();
+
+    // 2. Real-time EventSource listener for instant incoming orders from any device
+    let es: EventSource | null = null;
+    try {
+      es = new EventSource("https://ntfy.sh/beef_buns_sousse_orders_2026/sse");
+
+      es.onmessage = (event) => {
+        try {
+          const evt = JSON.parse(event.data);
+          if (evt.event === "message" && evt.message) {
+            const data = JSON.parse(evt.message);
+
+            if (data.type === "status_update" && data.orderId) {
+              setOrders(prev => {
+                const updated = prev.map(o => o.id === data.orderId ? { ...o, status: data.status } : o);
+                localStorage.setItem("beef_and_buns_host_orders", JSON.stringify(updated));
+                return updated;
+              });
+            } else if (data.id && typeof data.id === "number" && data.customerName) {
+              setOrders(prev => {
+                const exists = prev.some(o => o.id === data.id);
+                if (exists) {
+                  return prev.map(o => o.id === data.id ? { ...o, ...data } : o);
+                }
+
+                // New incoming order from mobile!
+                if (isSoundEnabledRef.current) {
+                  playKitchenChime();
+                }
+                toast.success(`🔔 Nouvelle commande reçue ! #${data.id} (${data.customerName})`, {
+                  duration: 6000
+                });
+
+                const updated = [data as HostOrder, ...prev];
+                localStorage.setItem("beef_and_buns_host_orders", JSON.stringify(updated));
+                return updated;
+              });
+            }
+          }
+        } catch (e) {
+          console.error("Error parsing ntfy SSE event", e);
+        }
+      };
+
+      es.onerror = (e) => {
+        console.warn("ntfy SSE reconnecting...", e);
+      };
+    } catch (err) {
+      console.error("EventSource initialization error", err);
+    }
+
+    // 3. Keep localStorage change listener for local browser tabs
     const handleStorageChange = () => {
       try {
         const saved = localStorage.getItem("beef_and_buns_host_orders");
@@ -184,10 +304,11 @@ export default function HostDashboard() {
     };
 
     window.addEventListener("storage", handleStorageChange);
-    const interval = setInterval(handleStorageChange, 3000);
     return () => {
+      if (es) {
+        es.close();
+      }
       window.removeEventListener("storage", handleStorageChange);
-      clearInterval(interval);
     };
   }, []);
 
@@ -350,7 +471,26 @@ export default function HostDashboard() {
 
   // Change Order Status
   const handleUpdateOrderStatus = (orderId: number, newStatus: HostOrder["status"]) => {
-    setOrders(prev => prev.map(o => o.id === orderId ? { ...o, status: newStatus } : o));
+    setOrders(prev => {
+      const updated = prev.map(o => o.id === orderId ? { ...o, status: newStatus } : o);
+      localStorage.setItem("beef_and_buns_host_orders", JSON.stringify(updated));
+      return updated;
+    });
+
+    // Synchronize status update to ntfy cloud
+    fetch("https://ntfy.sh/beef_buns_sousse_orders_2026", {
+      method: "POST",
+      headers: {
+        "Title": `Statut Commande #${orderId} -> ${newStatus}`,
+        "Priority": "default"
+      },
+      body: JSON.stringify({
+        type: "status_update",
+        orderId,
+        status: newStatus
+      })
+    }).catch(err => console.error("Failed to sync status update to ntfy", err));
+
     if (isSoundEnabled) playKitchenChime();
     const labels = {
       new: "Nouvelle",
@@ -582,11 +722,24 @@ export default function HostDashboard() {
 
           {/* Refresh Button */}
           <button
-            onClick={() => {
+            onClick={async () => {
               try {
+                const res = await fetch("https://ntfy.sh/beef_buns_sousse_orders_2026/json?poll=1");
+                if (res.ok) {
+                  const text = await res.text();
+                  setOrders(prev => {
+                    const merged = parseNtfyMessages(text, prev);
+                    localStorage.setItem("beef_and_buns_host_orders", JSON.stringify(merged));
+                    return merged;
+                  });
+                } else {
+                  const saved = localStorage.getItem("beef_and_buns_host_orders");
+                  if (saved) setOrders(JSON.parse(saved));
+                }
+              } catch {
                 const saved = localStorage.getItem("beef_and_buns_host_orders");
                 if (saved) setOrders(JSON.parse(saved));
-              } catch {}
+              }
               toast.info("Commandes actualisées");
             }}
             title="Actualiser"
