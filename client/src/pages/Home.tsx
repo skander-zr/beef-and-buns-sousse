@@ -938,12 +938,40 @@ export interface CartItem {
 }
 
 export default function Home() {
-  // --- 3D INTERACTIVE HERO STATE (Clean pure 3D, all 7 burgers) ---
+  // --- ALL useState AND useRef DECLARED AT THE VERY TOP ---
   const [selectedBurgerIndex, setSelectedBurgerIndex] = useState(0);
   const [isExploded, setIsExploded] = useState(false);
-  const [isAutoRotating, setIsAutoRotating] = useState(true); // Continuous 360 rotation is active by default
+  const [isAutoRotating, setIsAutoRotating] = useState(true);
   const [activeLayerIndex, setActiveLayerIndex] = useState(1);
 
+  // Menu filters & search
+  const [selectedCategory, setSelectedCategory] = useState("Tous");
+  const [searchQuery, setSearchQuery] = useState("");
+
+  // Cart & Customizer Modal
+  const [cart, setCart] = useState<CartItem[]>([]);
+  const [isCartOpen, setIsCartOpen] = useState(false);
+  const [customizerItem, setCustomizerItem] = useState<{
+    id?: string;
+    name: string;
+    category: string;
+    basePrice: number;
+    image?: string;
+  } | null>(null);
+  const [selectedExtras, setSelectedExtras] = useState<CustomExtra[]>([]);
+  const [removedIngredients, setRemovedIngredients] = useState<string[]>([]);
+
+  // Checkout state
+  const [orderType, setOrderType] = useState<"delivery" | "pickup">("delivery");
+  const [customerName, setCustomerName] = useState("");
+  const [customerPhone, setCustomerPhone] = useState("");
+  const [deliveryNeighborhood, setDeliveryNeighborhood] = useState("Sahloul");
+  const [deliveryAddress, setDeliveryAddress] = useState("");
+  const [orderNotes, setOrderNotes] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [confirmedOrder, setConfirmedOrder] = useState<{ id: number; total: number } | null>(null);
+
+  // Refs
   const isDragging = useRef(false);
   const lastPointerPos = useRef({ x: 0, y: 0 });
   const pointerStartPos = useRef({ x: 0, y: 0 });
@@ -1099,8 +1127,6 @@ export default function Home() {
   };
 
   // --- MENU DATA & SEARCH/FILTERS ---
-  const [selectedCategory, setSelectedCategory] = useState("Tous");
-  const [searchQuery, setSearchQuery] = useState("");
 
   const categories = ["Tous", "Smash Burgers", "Crispy Chicken", "Crispy Chicken Tenders"];
 
@@ -1113,21 +1139,7 @@ export default function Home() {
     });
   }, [selectedCategory, searchQuery]);
 
-  // --- CART STATE ---
-  const [cart, setCart] = useState<CartItem[]>([]);
-  const [isCartOpen, setIsCartOpen] = useState(false);
-
-  // Customizer modal state
-  const [customizerItem, setCustomizerItem] = useState<{
-    id?: string;
-    name: string;
-    category: string;
-    basePrice: number;
-    image?: string;
-  } | null>(null);
-
-  const [selectedExtras, setSelectedExtras] = useState<CustomExtra[]>([]);
-  const [removedIngredients, setRemovedIngredients] = useState<string[]>([]);
+  // --- CART & CUSTOMIZER HANDLERS ---
 
   const openCustomizer = (name: string, category: string, basePrice: number, image?: string, id?: string) => {
     setCustomizerItem({ name, category, basePrice, image, id });
@@ -1216,15 +1228,7 @@ export default function Home() {
     return cart.reduce((count, item) => count + item.quantity, 0);
   }, [cart]);
 
-  // --- CHECKOUT & TELEGRAM ORDER DISPATCH ---
-  const [orderType, setOrderType] = useState<"delivery" | "pickup">("delivery");
-  const [customerName, setCustomerName] = useState("");
-  const [customerPhone, setCustomerPhone] = useState("");
-  const [deliveryNeighborhood, setDeliveryNeighborhood] = useState("Sahloul");
-  const [deliveryAddress, setDeliveryAddress] = useState("");
-  const [orderNotes, setOrderNotes] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [confirmedOrder, setConfirmedOrder] = useState<{ id: number; total: number } | null>(null);
+  // --- CHECKOUT & ORDER DISPATCH ---
 
   const handleConfirmOrder = async () => {
     if (cart.length === 0) {

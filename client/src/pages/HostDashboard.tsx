@@ -131,72 +131,305 @@ function playKitchenChime() {
   }
 }
 
-// Helper to parse ntfy messages and merge with orders
+// Robust sanitizer with safe default values for every field so page never crashes
+function sanitizeOrder(raw: any): HostOrder {
+  const todayStr = getDateString(0);
+  const rawStatus = String(raw?.status || "new").toLowerCase();
+  let status: HostOrder["status"] = "new";
+  if (rawStatus === "preparing" || rawStatus.includes("prep") || rawStatus.includes("cuisson")) {
+    status = "preparing";
+  } else if (rawStatus === "ready" || rawStatus.includes("pret") || rawStatus.includes("prête")) {
+    status = "ready";
+  } else if (rawStatus === "completed" || rawStatus.includes("term") || rawStatus.includes("livre")) {
+    status = "completed";
+  } else if (rawStatus === "cancelled" || rawStatus.includes("annul")) {
+    status = "cancelled";
+  } else {
+    status = "new";
+  }
+
+  const rawItems = Array.isArray(raw?.items) ? raw.items : [];
+  const items = rawItems.map((it: any) => ({
+    name: String(it?.name || "Article"),
+    quantity: Number(it?.quantity || 1),
+    totalPrice: Number(it?.totalPrice || 0),
+    pattiesCount: it?.pattiesCount ? Number(it.pattiesCount) : undefined,
+    selectedExtras: Array.isArray(it?.selectedExtras) ? it.selectedExtras : [],
+    removedIngredients: Array.isArray(it?.removedIngredients) ? it.removedIngredients : []
+  }));
+
+  const totalDt = Number(raw?.totalDt !== undefined ? raw.totalDt : (raw?.total !== undefined ? raw.total : 0));
+
+  return {
+    id: Number(raw?.id || 1),
+    customerName: String(raw?.customerName || "Client"),
+    phone: String(raw?.phone || ""),
+    orderType: raw?.orderType === "delivery" ? "delivery" : "pickup",
+    neighborhood: raw?.neighborhood ? String(raw.neighborhood) : undefined,
+    address: raw?.address ? String(raw.address) : undefined,
+    notes: raw?.notes ? String(raw.notes) : undefined,
+    items,
+    totalDt: isNaN(totalDt) ? 0 : totalDt,
+    status,
+    date: String(raw?.date || todayStr),
+    createdAt: String(raw?.createdAt || new Date().toLocaleTimeString("fr-FR", { timeZone: "Africa/Tunis", hour: "2-digit", minute: "2-digit" }))
+  };
+}
+
+// Helper to parse ntfy messages and merge with orders safely
 function parseNtfyMessages(rawText: string, currentOrders: HostOrder[]): HostOrder[] {
-  const lines = rawText.trim().split("\n").filter(Boolean);
   const ordersMap = new Map<number, HostOrder>();
 
   // Seed with current orders
   for (const o of currentOrders) {
     if (o && typeof o.id === "number") {
-      ordersMap.set(o.id, o);
+      ordersMap.set(o.id, sanitizeOrder(o));
     }
   }
 
-  for (const line of lines) {
-    try {
-      const evt = JSON.parse(line);
-      if (evt.event === "message" && evt.message) {
-        const data = JSON.parse(evt.message);
-        if (data.type === "status_update" && data.orderId) {
-          const existing = ordersMap.get(data.orderId);
-          if (existing) {
-            ordersMap.set(data.orderId, { ...existing, status: data.status });
-          }
-        } else if (data.id && typeof data.id === "number" && data.customerName) {
-          const existing = ordersMap.get(data.id);
-          if (existing) {
-            const statusOrder = ["new", "preparing", "ready", "completed", "cancelled"];
-            const currentIdx = statusOrder.indexOf(existing.status);
-            const newIdx = statusOrder.indexOf(data.status);
-            const chosenStatus = currentIdx > newIdx ? existing.status : data.status;
-            ordersMap.set(data.id, { ...data, status: chosenStatus });
-          } else {
-            ordersMap.set(data.id, data as HostOrder);
+  try {
+    const lines = (rawText || "").trim().split("\n").filter(Boolean);
+    for (const line of lines) {
+      try {
+        const evt = JSON.parse(line);
+        if (evt && evt.event === "message" && evt.message) {
+          try {
+            const data = JSON.parse(evt.message);
+            if (data && data.type === "status_update" && data.orderId) {
+              const existing = ordersMap.get(data.orderId);
+              if (existing) {
+                ordersMap.set(data.orderId, sanitizeOrder({ ...existing, status: data.status }));
+              }
+            } else if (data && data.id) {
+              const sanitized = sanitizeOrder(data);
+              const existing = ordersMap.get(sanitized.id);
+              if (existing) {
+                const statusOrder = ["new", "preparing", "ready", "completed", "cancelled"];
+                const currentIdx = statusOrder.indexOf(existing.status);
+                const newIdx = statusOrder.indexOf(sanitized.status);
+                const chosenStatus = currentIdx > newIdx ? existing.status : sanitized.status;
+                ordersMap.set(sanitized.id, { ...sanitized, status: chosenStatus });
+              } else {
+                ordersMap.set(sanitized.id, sanitized);
+              }
+            }
+          } catch (innerErr) {
+            console.warn("Could not parse inner message from ntfy", innerErr);
           }
         }
+      } catch (lineErr) {
+        console.warn("Could not parse ntfy event line", lineErr);
       }
-    } catch {}
+    }
+  } catch (err) {
+    console.error("parseNtfyMessages error", err);
   }
 
   return Array.from(ordersMap.values()).sort((a, b) => b.id - a.id);
 }
 
 export default function HostDashboard() {
+  // 1. ALL useState AND useRef AT THE VERY TOP (STRICTLY BEFORE ANY useEffect OR HANDLER)
   const [pinInput, setPinInput] = useState("");
   const [isUnlocked, setIsUnlocked] = useState(() => {
     return sessionStorage.getItem("beef-and-buns-host-unlocked") === "true";
   });
   const [pinError, setPinError] = useState(false);
 
-  // Today key
-  const todayStr = useMemo(() => getDateString(0), []);
+  // Sound toggle state & ref (Declared together at the top)
+  const [isSoundEnabled, setIsSoundEnabled] = useState(true);
+  const isSoundEnabledRef = useRef(true);
 
-  // Week days (Lun -> Dim)
+  // Today key and week days
+  const todayStr = useMemo(() => getDateString(0), []);
   const weekDays = useMemo(() => getCurrentWeekDays(), []);
   const weekDateStrings = useMemo(() => weekDays.map(d => d.date), [weekDays]);
 
-  // Orders State (No fake orders, 100% real client orders)
+  // Orders State (No fake orders, 100% real client orders with safe defaults)
   const [orders, setOrders] = useState<HostOrder[]>(() => {
     try {
       const saved = localStorage.getItem("beef_and_buns_host_orders");
       if (saved) {
         const parsed = JSON.parse(saved);
-        return parsed.filter((o: any) => o.id !== 4892 && o.id !== 4891 && o.id !== 4890 && o.customerName !== "Client Test Sousse");
+        if (Array.isArray(parsed)) {
+          return parsed
+            .filter((o: any) => o && o.id !== 4892 && o.id !== 4891 && o.id !== 4890 && o.customerName !== "Client Test Sousse")
+            .map(sanitizeOrder);
+        }
       }
     } catch {}
     return [];
   });
+
+  // Menu Active Items State (27 official items)
+  const [disabledMenuIds, setDisabledMenuIds] = useState<(string | number)[]>(() => {
+    try {
+      const saved = localStorage.getItem("beef_and_buns_disabled_menu_ids");
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  // Slot Controls State (available / full / closed)
+  const [slotsState, setSlotsState] = useState<Record<string, "available" | "full" | "closed">>(() => {
+    try {
+      const saved = localStorage.getItem("beef_and_buns_slots_state");
+      return saved ? JSON.parse(saved) : {};
+    } catch {
+      return {};
+    }
+  });
+
+  // Filters & Tabs
+  const [selectedDayTab, setSelectedDayTab] = useState<"today" | "week" | "all">("today");
+  const [selectedWeekDayDate, setSelectedWeekDayDate] = useState<string>("all-week");
+  const [selectedStatusTab, setSelectedStatusTab] = useState<"all" | "new" | "preparing" | "ready" | "completed">("all");
+  const [selectedSlotDate, setSelectedSlotDate] = useState(() => getDateString(0));
+  const [currentTimeStr, setCurrentTimeStr] = useState("");
+
+  // REAL VISITOR METRICS STATE
+  const [realVisits, setRealVisits] = useState<{ day: number; week: number; month: number; year: number }>({
+    day: 0,
+    week: 0,
+    month: 0,
+    year: 0
+  });
+  const [visitorPeriod, setVisitorPeriod] = useState<"day" | "week" | "month" | "year">("day");
+  const [isVisitorHovered, setIsVisitorHovered] = useState(false);
+
+  // 2. ALL UTILITY FUNCTIONS & EVENT HANDLERS (BEFORE ANY useEffect)
+  const playSound = () => {
+    if (isSoundEnabledRef.current) {
+      playKitchenChime();
+    }
+  };
+
+  const loadOrders = async () => {
+    try {
+      const res = await fetch("https://ntfy.sh/beef_buns_sousse_orders_2026/json?poll=1");
+      if (res.ok) {
+        const text = await res.text();
+        setOrders(prev => {
+          const merged = parseNtfyMessages(text, prev);
+          try {
+            localStorage.setItem("beef_and_buns_host_orders", JSON.stringify(merged));
+          } catch {}
+          return merged;
+        });
+      }
+    } catch (err) {
+      console.warn("Could not poll ntfy orders", err);
+    }
+  };
+
+  const computeVisits = () => {
+    try {
+      const today = new Date().toISOString().slice(0, 10);
+      const currentMonth = today.slice(0, 7);
+      const currentYear = today.slice(0, 4);
+
+      const raw = localStorage.getItem("beef_and_buns_real_visits");
+      const history = raw ? JSON.parse(raw) : {};
+
+      let dayCount = Number(history[today]) || 0;
+      let weekCount = 0;
+      let monthCount = 0;
+      let yearCount = 0;
+
+      for (const [dateStr, count] of Object.entries(history)) {
+        const num = Number(count) || 0;
+        if (dateStr.startsWith(currentYear)) yearCount += num;
+        if (dateStr.startsWith(currentMonth)) monthCount += num;
+        const diffDays = Math.abs((new Date(today).getTime() - new Date(dateStr).getTime()) / (1000 * 60 * 60 * 24));
+        if (diffDays <= 7) weekCount += num;
+      }
+
+      setRealVisits(prev => ({
+        day: Math.max(prev.day, dayCount),
+        week: Math.max(prev.week, weekCount, dayCount),
+        month: Math.max(prev.month, monthCount, dayCount),
+        year: Math.max(prev.year, yearCount, dayCount)
+      }));
+    } catch {}
+  };
+
+  const handleUnlock = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (pinInput.trim() === "2026") {
+      sessionStorage.setItem("beef-and-buns-host-unlocked", "true");
+      setIsUnlocked(true);
+      setPinError(false);
+      playSound();
+      toast.success("Bienvenue dans l'espace hôte Beef & Buns Sousse !");
+    } else {
+      setPinError(true);
+      toast.error("Code PIN incorrect. Veuillez réessayer.");
+    }
+  };
+
+  const handleLock = () => {
+    sessionStorage.removeItem("beef-and-buns-host-unlocked");
+    setIsUnlocked(false);
+    setPinInput("");
+    toast.info("Espace hôte verrouillé.");
+  };
+
+  const handleUpdateOrderStatus = (orderId: number, newStatus: HostOrder["status"]) => {
+    setOrders(prev => {
+      const updated = prev.map(o => o.id === orderId ? sanitizeOrder({ ...o, status: newStatus }) : o);
+      try {
+        localStorage.setItem("beef_and_buns_host_orders", JSON.stringify(updated));
+      } catch {}
+      return updated;
+    });
+
+    try {
+      fetch("https://ntfy.sh/beef_buns_sousse_orders_2026", {
+        method: "POST",
+        headers: {
+          "Title": `Statut Commande #${orderId} -> ${newStatus}`,
+          "Priority": "default"
+        },
+        body: JSON.stringify({
+          type: "status_update",
+          orderId,
+          status: newStatus
+        })
+      }).catch(err => console.error("Failed to sync status update to ntfy", err));
+    } catch {}
+
+    playSound();
+    const labels = {
+      new: "Nouvelle",
+      preparing: "En préparation sur plancha 🔥",
+      ready: "Prête pour remise / livraison 🥡",
+      completed: "Terminée & Archivée ✅",
+      cancelled: "Annulée ❌"
+    };
+    toast.success(`Commande #${orderId} : ${labels[newStatus]}`);
+  };
+
+  const handleToggleMenuItem = (itemId: string | number, itemName: string) => {
+    setDisabledMenuIds(prev => {
+      const isCurrentlyDisabled = prev.includes(itemId);
+      const updated = isCurrentlyDisabled ? prev.filter(id => id !== itemId) : [...prev, itemId];
+      toast.info(isCurrentlyDisabled ? `"${itemName}" remis en vente` : `"${itemName}" marqué en rupture / masqué`);
+      return updated;
+    });
+  };
+
+  const handleToggleSlot = (time: string) => {
+    const key = `${selectedSlotDate}_${time}`;
+    const current = slotsState[key] || "available";
+    const next = current === "available" ? "full" : current === "full" ? "closed" : "available";
+    setSlotsState(prev => ({ ...prev, [key]: next }));
+  };
+
+  // 3. ALL useEffect HOOKS (Strictly after state, refs, and functions)
+  useEffect(() => {
+    isSoundEnabledRef.current = isSoundEnabled;
+  }, [isSoundEnabled]);
 
   // Clean out legacy fake orders on mount
   useEffect(() => {
@@ -204,79 +437,67 @@ export default function HostDashboard() {
       const saved = localStorage.getItem("beef_and_buns_host_orders");
       if (saved) {
         const parsed = JSON.parse(saved);
-        const hasDummy = parsed.some((o: any) => o.id === 4892 || o.id === 4891 || o.id === 4890 || o.customerName === "Client Test Sousse");
-        if (hasDummy) {
-          const cleaned = parsed.filter((o: any) => o.id !== 4892 && o.id !== 4891 && o.id !== 4890 && o.customerName !== "Client Test Sousse");
-          localStorage.setItem("beef_and_buns_host_orders", JSON.stringify(cleaned));
-          setOrders(cleaned);
+        if (Array.isArray(parsed)) {
+          const hasDummy = parsed.some((o: any) => o && (o.id === 4892 || o.id === 4891 || o.id === 4890 || o.customerName === "Client Test Sousse"));
+          if (hasDummy) {
+            const cleaned = parsed
+              .filter((o: any) => o && o.id !== 4892 && o.id !== 4891 && o.id !== 4890 && o.customerName !== "Client Test Sousse")
+              .map(sanitizeOrder);
+            localStorage.setItem("beef_and_buns_host_orders", JSON.stringify(cleaned));
+            setOrders(cleaned);
+          }
         }
       }
     } catch {}
   }, []);
 
-  // Keep isSoundEnabled in a ref for EventSource callback
-  const isSoundEnabledRef = useRef(isSoundEnabled);
-  useEffect(() => {
-    isSoundEnabledRef.current = isSoundEnabled;
-  }, [isSoundEnabled]);
-
   // Listen to new orders placed on phones & PCs via ntfy.sh cloud in real time + localStorage
   useEffect(() => {
-    // 1. Initial load from ntfy.sh poll
-    const loadNtfyOrders = async () => {
-      try {
-        const res = await fetch("https://ntfy.sh/beef_buns_sousse_orders_2026/json?poll=1");
-        if (res.ok) {
-          const text = await res.text();
-          setOrders(prev => {
-            const merged = parseNtfyMessages(text, prev);
-            localStorage.setItem("beef_and_buns_host_orders", JSON.stringify(merged));
-            return merged;
-          });
-        }
-      } catch (err) {
-        console.warn("Could not poll ntfy orders", err);
-      }
-    };
+    loadOrders();
 
-    loadNtfyOrders();
-
-    // 2. Real-time EventSource listener for instant incoming orders from any device
     let es: EventSource | null = null;
     try {
       es = new EventSource("https://ntfy.sh/beef_buns_sousse_orders_2026/sse");
 
       es.onmessage = (event) => {
         try {
+          if (!event || !event.data) return;
           const evt = JSON.parse(event.data);
-          if (evt.event === "message" && evt.message) {
-            const data = JSON.parse(evt.message);
+          if (evt && evt.event === "message" && evt.message) {
+            try {
+              const data = JSON.parse(evt.message);
+              if (!data) return;
 
-            if (data.type === "status_update" && data.orderId) {
-              setOrders(prev => {
-                const updated = prev.map(o => o.id === data.orderId ? { ...o, status: data.status } : o);
-                localStorage.setItem("beef_and_buns_host_orders", JSON.stringify(updated));
-                return updated;
-              });
-            } else if (data.id && typeof data.id === "number" && data.customerName) {
-              setOrders(prev => {
-                const exists = prev.some(o => o.id === data.id);
-                if (exists) {
-                  return prev.map(o => o.id === data.id ? { ...o, ...data } : o);
-                }
-
-                // New incoming order from mobile!
-                if (isSoundEnabledRef.current) {
-                  playKitchenChime();
-                }
-                toast.success(`🔔 Nouvelle commande reçue ! #${data.id} (${data.customerName})`, {
-                  duration: 6000
+              if (data.type === "status_update" && data.orderId) {
+                setOrders(prev => {
+                  const updated = prev.map(o => o.id === data.orderId ? sanitizeOrder({ ...o, status: data.status }) : o);
+                  try {
+                    localStorage.setItem("beef_and_buns_host_orders", JSON.stringify(updated));
+                  } catch {}
+                  return updated;
                 });
+              } else if (data.id && typeof data.id === "number") {
+                const safeOrder = sanitizeOrder(data);
+                setOrders(prev => {
+                  const exists = prev.some(o => o.id === safeOrder.id);
+                  if (exists) {
+                    return prev.map(o => o.id === safeOrder.id ? { ...o, ...safeOrder } : o);
+                  }
 
-                const updated = [data as HostOrder, ...prev];
-                localStorage.setItem("beef_and_buns_host_orders", JSON.stringify(updated));
-                return updated;
-              });
+                  playSound();
+                  toast.success(`🔔 Nouvelle commande reçue ! #${safeOrder.id} (${safeOrder.customerName})`, {
+                    duration: 6000
+                  });
+
+                  const updated = [safeOrder, ...prev];
+                  try {
+                    localStorage.setItem("beef_and_buns_host_orders", JSON.stringify(updated));
+                  } catch {}
+                  return updated;
+                });
+              }
+            } catch (innerErr) {
+              console.error("Error parsing inner ntfy message", innerErr);
             }
           }
         } catch (e) {
@@ -291,14 +512,17 @@ export default function HostDashboard() {
       console.error("EventSource initialization error", err);
     }
 
-    // 3. Keep localStorage change listener for local browser tabs
     const handleStorageChange = () => {
       try {
         const saved = localStorage.getItem("beef_and_buns_host_orders");
         if (saved) {
           const parsed = JSON.parse(saved);
-          const cleaned = parsed.filter((o: any) => o.id !== 4892 && o.id !== 4891 && o.id !== 4890 && o.customerName !== "Client Test Sousse");
-          setOrders(cleaned);
+          if (Array.isArray(parsed)) {
+            const cleaned = parsed
+              .filter((o: any) => o && o.id !== 4892 && o.id !== 4891 && o.id !== 4890 && o.customerName !== "Client Test Sousse")
+              .map(sanitizeOrder);
+            setOrders(cleaned);
+          }
         }
       } catch {}
     };
@@ -312,70 +536,8 @@ export default function HostDashboard() {
     };
   }, []);
 
-  // Menu Active Items State (27 official items)
-  const [disabledMenuIds, setDisabledMenuIds] = useState<(string | number)[]>(() => {
-    const saved = localStorage.getItem("beef_and_buns_disabled_menu_ids");
-    return saved ? JSON.parse(saved) : [];
-  });
-
-  // Slot Controls State (available / full / closed)
-  const [slotsState, setSlotsState] = useState<Record<string, "available" | "full" | "closed">>(() => {
-    const saved = localStorage.getItem("beef_and_buns_slots_state");
-    return saved ? JSON.parse(saved) : {};
-  });
-
-  // Filters & Tabs
-  // Day filter: "today" | "week" | "all"
-  const [selectedDayTab, setSelectedDayTab] = useState<"today" | "week" | "all">("today");
-  // Sub-filter for specific day in week: "all-week" or specific YYYY-MM-DD
-  const [selectedWeekDayDate, setSelectedWeekDayDate] = useState<string>("all-week");
-  // Status filter: "all" | "new" | "preparing" | "ready" | "completed"
-  const [selectedStatusTab, setSelectedStatusTab] = useState<"all" | "new" | "preparing" | "ready" | "completed">("all");
-  const [selectedSlotDate, setSelectedSlotDate] = useState(() => getDateString(0));
-  const [isSoundEnabled, setIsSoundEnabled] = useState(true);
-  const [currentTimeStr, setCurrentTimeStr] = useState("");
-
-  // REAL VISITOR METRICS STATE (NO FAKE NUMBERS: TRUE REAL SITE VISITS)
-  const [realVisits, setRealVisits] = useState<{ day: number; week: number; month: number; year: number }>({
-    day: 0,
-    week: 0,
-    month: 0,
-    year: 0
-  });
-
   // Compute real visits from genuine local logs and serverless /api/visit
   useEffect(() => {
-    const computeVisits = () => {
-      try {
-        const todayStr = new Date().toISOString().slice(0, 10);
-        const currentMonth = todayStr.slice(0, 7);
-        const currentYear = todayStr.slice(0, 4);
-
-        const raw = localStorage.getItem("beef_and_buns_real_visits");
-        const history = raw ? JSON.parse(raw) : {};
-
-        let dayCount = Number(history[todayStr]) || 0;
-        let weekCount = 0;
-        let monthCount = 0;
-        let yearCount = 0;
-
-        for (const [dateStr, count] of Object.entries(history)) {
-          const num = Number(count) || 0;
-          if (dateStr.startsWith(currentYear)) yearCount += num;
-          if (dateStr.startsWith(currentMonth)) monthCount += num;
-          const diffDays = Math.abs((new Date(todayStr).getTime() - new Date(dateStr).getTime()) / (1000 * 60 * 60 * 24));
-          if (diffDays <= 7) weekCount += num;
-        }
-
-        setRealVisits(prev => ({
-          day: Math.max(prev.day, dayCount),
-          week: Math.max(prev.week, weekCount, dayCount),
-          month: Math.max(prev.month, monthCount, dayCount),
-          year: Math.max(prev.year, yearCount, dayCount)
-        }));
-      } catch {}
-    };
-
     computeVisits();
 
     const fetchApiVisits = async () => {
@@ -404,10 +566,6 @@ export default function HostDashboard() {
     return () => clearInterval(interval);
   }, []);
 
-  // VISITOR TRACKER STATE (AUTO-ROTATES EVERY 3 SECONDS: Jour -> Semaine -> Mois -> Année)
-  const [visitorPeriod, setVisitorPeriod] = useState<"day" | "week" | "month" | "year">("day");
-  const [isVisitorHovered, setIsVisitorHovered] = useState(false);
-
   // Auto-cycle visitor period every 3.5 seconds if not paused
   useEffect(() => {
     if (isVisitorHovered) return;
@@ -434,91 +592,24 @@ export default function HostDashboard() {
 
   // Save Orders
   useEffect(() => {
-    localStorage.setItem("beef_and_buns_host_orders", JSON.stringify(orders));
+    try {
+      localStorage.setItem("beef_and_buns_host_orders", JSON.stringify(orders));
+    } catch {}
   }, [orders]);
 
   // Save Menu
   useEffect(() => {
-    localStorage.setItem("beef_and_buns_disabled_menu_ids", JSON.stringify(disabledMenuIds));
+    try {
+      localStorage.setItem("beef_and_buns_disabled_menu_ids", JSON.stringify(disabledMenuIds));
+    } catch {}
   }, [disabledMenuIds]);
 
   // Save Slots
   useEffect(() => {
-    localStorage.setItem("beef_and_buns_slots_state", JSON.stringify(slotsState));
+    try {
+      localStorage.setItem("beef_and_buns_slots_state", JSON.stringify(slotsState));
+    } catch {}
   }, [slotsState]);
-
-  // Unlock Handler
-  const handleUnlock = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (pinInput.trim() === "2026") {
-      sessionStorage.setItem("beef-and-buns-host-unlocked", "true");
-      setIsUnlocked(true);
-      setPinError(false);
-      if (isSoundEnabled) playKitchenChime();
-      toast.success("Bienvenue dans l'espace hôte Beef & Buns Sousse !");
-    } else {
-      setPinError(true);
-      toast.error("Code PIN incorrect. Veuillez réessayer.");
-    }
-  };
-
-  const handleLock = () => {
-    sessionStorage.removeItem("beef-and-buns-host-unlocked");
-    setIsUnlocked(false);
-    setPinInput("");
-    toast.info("Espace hôte verrouillé.");
-  };
-
-  // Change Order Status
-  const handleUpdateOrderStatus = (orderId: number, newStatus: HostOrder["status"]) => {
-    setOrders(prev => {
-      const updated = prev.map(o => o.id === orderId ? { ...o, status: newStatus } : o);
-      localStorage.setItem("beef_and_buns_host_orders", JSON.stringify(updated));
-      return updated;
-    });
-
-    // Synchronize status update to ntfy cloud
-    fetch("https://ntfy.sh/beef_buns_sousse_orders_2026", {
-      method: "POST",
-      headers: {
-        "Title": `Statut Commande #${orderId} -> ${newStatus}`,
-        "Priority": "default"
-      },
-      body: JSON.stringify({
-        type: "status_update",
-        orderId,
-        status: newStatus
-      })
-    }).catch(err => console.error("Failed to sync status update to ntfy", err));
-
-    if (isSoundEnabled) playKitchenChime();
-    const labels = {
-      new: "Nouvelle",
-      preparing: "En préparation sur plancha 🔥",
-      ready: "Prête pour remise / livraison 🥡",
-      completed: "Terminée & Archivée ✅",
-      cancelled: "Annulée ❌"
-    };
-    toast.success(`Commande #${orderId} : ${labels[newStatus]}`);
-  };
-
-  // Toggle Menu Item
-  const handleToggleMenuItem = (itemId: string | number, itemName: string) => {
-    setDisabledMenuIds(prev => {
-      const isCurrentlyDisabled = prev.includes(itemId);
-      const updated = isCurrentlyDisabled ? prev.filter(id => id !== itemId) : [...prev, itemId];
-      toast.info(isCurrentlyDisabled ? `"${itemName}" remis en vente` : `"${itemName}" marqué en rupture / masqué`);
-      return updated;
-    });
-  };
-
-  // Toggle Slot
-  const handleToggleSlot = (time: string) => {
-    const key = `${selectedSlotDate}_${time}`;
-    const current = slotsState[key] || "available";
-    const next = current === "available" ? "full" : current === "full" ? "closed" : "available";
-    setSlotsState(prev => ({ ...prev, [key]: next }));
-  };
 
   // 1. Filter orders by Day Tab (Aujourd'hui / Semaine / Toutes)
   const ordersForSelectedDay = useMemo(() => {
