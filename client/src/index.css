@@ -127,6 +127,15 @@ button, a { -webkit-tap-highlight-color: transparent; }
 }
 
 /* 3D BURGER STAGE & EXPLODED VIEW */
+@keyframes spin360 {
+  from {
+    transform: rotateY(0deg);
+  }
+  to {
+    transform: rotateY(360deg);
+  }
+}
+
 .burger-3d-stage {
   perspective: 1200px;
   perspective-origin: 50% 50%;
@@ -136,7 +145,15 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .burger-3d-model {
   transform-style: preserve-3d;
   will-change: transform;
-  transform: rotateX(0deg);
+}
+
+.burger-3d-model.spin-active {
+  animation: spin360 14s linear infinite;
+  animation-play-state: running;
+}
+
+.burger-3d-model.spin-active.spin-paused {
+  animation-play-state: paused !important;
 }
 
 /* 3D Contact Shadow */

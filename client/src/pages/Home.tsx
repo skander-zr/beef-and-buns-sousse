@@ -1020,41 +1020,7 @@ export default function Home() {
     isExplodedRef.current = isExploded;
   }, [isExploded]);
 
-  // Butter-smooth 60/120fps continuous 360 rotation loop directly on DOM (0 React re-renders)
-  useEffect(() => {
-    let animId: number;
-    let lastTime = performance.now();
-
-    const loop = (now: number) => {
-      const dt = Math.min((now - lastTime) / 1000, 0.1);
-      lastTime = now;
-
-      // Continuous 360 spin when auto-rotating and not actively dragging
-      if (autoRotateRef.current && !isDragging.current) {
-        if (!isExplodedRef.current) {
-          // Oscillation 3D fluide de gauche à droite (-22deg à 22deg) parfaitement horizontale (rotateX = 0deg)
-          currentTilt.current.y = Math.sin(now * 0.0014) * 22;
-          currentTilt.current.x = 0;
-        } else {
-          // Léger balancement subtil en vue éclatée
-          currentTilt.current.y = -10 + Math.sin(now * 0.001) * 12;
-          currentTilt.current.x = 10;
-        }
-      }
-
-      if (modelRef.current) {
-        // Léger flottement vertical translateY pour garder le volume 4K sans écrasement
-        const floatY = !isExplodedRef.current ? Math.sin(now * 0.0022) * 6 : 0;
-        const rotX = !isExplodedRef.current ? 0 : currentTilt.current.x;
-        modelRef.current.style.transform = `translateY(${floatY}px) rotateX(${rotX}deg) rotateY(${currentTilt.current.y}deg)`;
-      }
-
-      animId = requestAnimationFrame(loop);
-    };
-
-    animId = requestAnimationFrame(loop);
-    return () => cancelAnimationFrame(animId);
-  }, []);
+  // 100% pure hardware-accelerated CSS @keyframes spin360 (0% CPU on Safari iOS)
 
   // Universal Touch & Mouse pointer handlers
   const handlePointerDown = (e: React.PointerEvent) => {
@@ -1073,13 +1039,10 @@ export default function Home() {
     const deltaY = e.clientY - lastPointerPos.current.y;
     lastPointerPos.current = { x: e.clientX, y: e.clientY };
 
-    // Update 3D tilt instantaneously (rotateX = 0deg strictly in continuous 360 mode)
-    currentTilt.current.x = !isExplodedRef.current ? 0 : Math.max(-15, Math.min(25, currentTilt.current.x - deltaY * 0.25));
-    currentTilt.current.y = Math.max(-28, Math.min(28, currentTilt.current.y + deltaX * 0.35));
-
-    if (modelRef.current) {
-      const rotX = !isExplodedRef.current ? 0 : currentTilt.current.x;
-      modelRef.current.style.transform = `rotateX(${rotX}deg) rotateY(${currentTilt.current.y}deg)`;
+    if (isExplodedRef.current && modelRef.current) {
+      currentTilt.current.x = Math.max(-15, Math.min(25, currentTilt.current.x - deltaY * 0.25));
+      currentTilt.current.y = Math.max(-28, Math.min(28, currentTilt.current.y + deltaX * 0.35));
+      modelRef.current.style.transform = `rotateX(${currentTilt.current.x}deg) rotateY(${currentTilt.current.y}deg)`;
     }
   };
 
@@ -1518,7 +1481,7 @@ export default function Home() {
               </h1>
 
               <p className="text-base text-[#a1a1aa] leading-relaxed mb-6 max-w-xl mx-auto lg:mx-0">
-                Découvrez nos 7 recettes artisanales : bœuf smashé minute sur acier brûlant à 240°C pour une croûte caramélisée incomparable, et suprême de poulet mariné pané ultra-croustillant.
+                Découvrez nos 11 recettes artisanales : bœuf smashé minute sur acier brûlant à 240°C pour une croûte caramélisée incomparable, et suprême de poulet mariné pané ultra-croustillant.
               </p>
 
               {/* ACTION BUTTONS */}
@@ -1700,6 +1663,10 @@ export default function Home() {
                   <div
                     ref={modelRef}
                     className={`burger-3d-model relative flex items-center justify-center cursor-pointer ${
+                      !isExploded ? "spin-active" : ""
+                    } ${
+                      !isAutoRotating ? "spin-paused" : ""
+                    } ${
                       isExploded ? (activeBurger?.id === "og-triple" || activeBurger?.id === "kids-chicken" ? "w-full max-w-[480px] h-[350px] sm:h-[380px]" : "w-full max-w-[480px] h-[330px] sm:h-[360px]") : "w-[280px] sm:w-[320px] h-[280px] sm:h-[320px]"
                     } ${
                       isExploded ? "exploded" : ""
@@ -1713,6 +1680,7 @@ export default function Home() {
                           src={activeBurger.image}
                           alt={activeBurger.name}
                           className="w-full h-full object-contain filter drop-shadow-[0_20px_35px_rgba(0,0,0,0.85)] pointer-events-none transition-all duration-300 scale-105 animate-in fade-in zoom-in-95 duration-200"
+                          style={activeBurger.id === "kids-chicken" || activeBurger.name === "Kids Chicken" ? { transform: "rotate(10deg)" } : undefined}
                         />
                         {/* INSTRUCTION PILL ON HOVER */}
                         
@@ -2109,6 +2077,7 @@ export default function Home() {
                         src={item.image}
                         alt={item.name}
                         className="max-h-full max-w-full object-contain filter drop-shadow-[0_10px_20px_rgba(0,0,0,0.7)] group-hover:scale-108 transition-transform duration-300 pointer-events-none"
+                        style={item.id === "kids-chicken" || item.name === "Kids Chicken" ? { transform: "rotate(10deg)" } : undefined}
                       />
                     </div>
                   ) : (
@@ -2487,6 +2456,7 @@ export default function Home() {
                     src={customizerItem.image}
                     alt={customizerItem.name}
                     className="w-16 h-16 object-contain filter drop-shadow-md"
+                    style={customizerItem.id === "kids-chicken" || customizerItem.name === "Kids Chicken" ? { transform: "rotate(10deg)" } : undefined}
                   />
                 )}
                 <div>
