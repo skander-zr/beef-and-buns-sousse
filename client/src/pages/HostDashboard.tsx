@@ -272,16 +272,6 @@ export default function HostDashboard() {
     }
   });
 
-  // Slot Controls State (available / full / closed)
-  const [slotsState, setSlotsState] = useState<Record<string, "available" | "full" | "closed">>(() => {
-    try {
-      const saved = localStorage.getItem("beef_and_buns_slots_state");
-      return saved ? JSON.parse(saved) : {};
-    } catch {
-      return {};
-    }
-  });
-
   // Filters & Tabs
   const [selectedDayTab, setSelectedDayTab] = useState<"today" | "week" | "all">("today");
   const [selectedWeekDayDate, setSelectedWeekDayDate] = useState<string>("all-week");
@@ -558,13 +548,6 @@ export default function HostDashboard() {
     } catch {}
   }, [disabledMenuIds]);
 
-  // Save Slots
-  useEffect(() => {
-    try {
-      localStorage.setItem("beef_and_buns_slots_state", JSON.stringify(slotsState));
-    } catch {}
-  }, [slotsState]);
-
   // 1. Filter orders by Day Tab (Aujourd'hui / Semaine / Toutes)
   const ordersForSelectedDay = useMemo(() => {
     if (selectedDayTab === "today") {
@@ -825,7 +808,7 @@ export default function HostDashboard() {
       {/* DASHBOARD MAIN CONTAINER */}
       <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-8">
         
-        {/* KPI OVERVIEW CARDS WITH LIVE AUTO-TICKING VISITOR STATS */}
+        {/* KPI OVERVIEW CARDS */}
         <section className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 sm:gap-4">
           
           {/* Card 1: Commandes Cette Semaine (avec sous-détail aujourd'hui) */}
@@ -850,7 +833,7 @@ export default function HostDashboard() {
             </div>
           </div>
 
-          {/* Card 3: En Cours de Préparation sur Plancha */}
+          {/* Card 2: En Cours de Préparation sur Plancha */}
           <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-[#14141a] to-[#0e0e12] border border-white/10 flex flex-col justify-between shadow-lg">
             <div>
               <div className="flex items-center justify-between mb-2">
@@ -871,7 +854,7 @@ export default function HostDashboard() {
             <p className="text-[10px] text-zinc-500 mt-2">Smash minute à la presse d'acier</p>
           </div>
 
-          {/* Card 4: Chiffre d'Affaires Semaine */}
+          {/* Card 3: Chiffre d'Affaires Semaine */}
           <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-[#14141a] to-[#0e0e12] border border-white/10 flex flex-col justify-between shadow-lg">
             <div>
               <div className="flex items-center justify-between mb-2">
