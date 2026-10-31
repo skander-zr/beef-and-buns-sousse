@@ -18,8 +18,6 @@ import {
   PackageCheck,
   CalendarDays,
   History,
-  Users,
-  Activity,
   Check,
   Trash2
 } from "lucide-react";
@@ -47,13 +45,6 @@ export interface HostOrder {
   createdAt: string; // HH:mm
 }
 
-const SERVICE_HOURS = [
-  "12:00", "12:30", "13:00", "13:30", "14:00", "14:30",
-  "15:00", "15:30", "16:00", "16:30", "17:00", "17:30",
-  "18:00", "18:30", "19:00", "19:30", "20:00", "20:30",
-  "21:00", "21:30", "22:00", "22:30", "23:00", "23:30",
-  "00:00", "00:30", "01:00"
-];
 
 // Helper to get formatted date string YYYY-MM-DD
 function getDateString(offsetDays = 0): string {
@@ -295,19 +286,9 @@ export default function HostDashboard() {
   const [selectedDayTab, setSelectedDayTab] = useState<"today" | "week" | "all">("today");
   const [selectedWeekDayDate, setSelectedWeekDayDate] = useState<string>("all-week");
   const [selectedStatusTab, setSelectedStatusTab] = useState<"all" | "new" | "preparing" | "ready" | "completed">("all");
-  const [selectedSlotDate, setSelectedSlotDate] = useState(() => getDateString(0));
-  const [currentTimeStr, setCurrentTimeStr] = useState("");
+    const [currentTimeStr, setCurrentTimeStr] = useState("");
 
-  // REAL VISITOR METRICS STATE
-  const [realVisits, setRealVisits] = useState<{ day: number; week: number; month: number; year: number }>({
-    day: 0,
-    week: 0,
-    month: 0,
-    year: 0
-  });
-  const [visitorPeriod, setVisitorPeriod] = useState<"day" | "week" | "month" | "year">("day");
-  const [isVisitorHovered, setIsVisitorHovered] = useState(false);
-
+  
   // 2. ALL UTILITY FUNCTIONS & EVENT HANDLERS (BEFORE ANY useEffect)
   const playSound = () => {
     if (isSoundEnabledRef.current) {
@@ -333,37 +314,7 @@ export default function HostDashboard() {
     }
   };
 
-  const computeVisits = () => {
-    try {
-      const today = new Date().toISOString().slice(0, 10);
-      const currentMonth = today.slice(0, 7);
-      const currentYear = today.slice(0, 4);
-
-      const raw = localStorage.getItem("beef_and_buns_real_visits");
-      const history = raw ? JSON.parse(raw) : {};
-
-      let dayCount = Number(history[today]) || 0;
-      let weekCount = 0;
-      let monthCount = 0;
-      let yearCount = 0;
-
-      for (const [dateStr, count] of Object.entries(history)) {
-        const num = Number(count) || 0;
-        if (dateStr.startsWith(currentYear)) yearCount += num;
-        if (dateStr.startsWith(currentMonth)) monthCount += num;
-        const diffDays = Math.abs((new Date(today).getTime() - new Date(dateStr).getTime()) / (1000 * 60 * 60 * 24));
-        if (diffDays <= 7) weekCount += num;
-      }
-
-      setRealVisits(prev => ({
-        day: Math.max(prev.day, dayCount),
-        week: Math.max(prev.week, weekCount, dayCount),
-        month: Math.max(prev.month, monthCount, dayCount),
-        year: Math.max(prev.year, yearCount, dayCount)
-      }));
-    } catch {}
-  };
-
+  
   const handleUnlock = (e: React.FormEvent) => {
     e.preventDefault();
     if (pinInput.trim() === "2026") {
@@ -457,13 +408,7 @@ export default function HostDashboard() {
     });
   };
 
-  const handleToggleSlot = (time: string) => {
-    const key = `${selectedSlotDate}_${time}`;
-    const current = slotsState[key] || "available";
-    const next = current === "available" ? "full" : current === "full" ? "closed" : "available";
-    setSlotsState(prev => ({ ...prev, [key]: next }));
-  };
-
+  
   // 3. ALL useEffect HOOKS (Strictly after state, refs, and functions)
   useEffect(() => {
     isSoundEnabledRef.current = isSoundEnabled;
@@ -587,50 +532,8 @@ export default function HostDashboard() {
     };
   }, []);
 
-  // Compute real visits from genuine local logs and serverless /api/visit
-  useEffect(() => {
-    computeVisits();
-
-    const fetchApiVisits = async () => {
-      try {
-        const res = await fetch("/api/visit");
-        if (res.ok) {
-          const data = await res.json();
-          if (data && data.stats) {
-            setRealVisits(prev => ({
-              day: Math.max(prev.day, data.stats.day || 0),
-              week: Math.max(prev.week, data.stats.week || 0),
-              month: Math.max(prev.month, data.stats.month || 0),
-              year: Math.max(prev.year, data.stats.year || 0)
-            }));
-          }
-        }
-      } catch {}
-    };
-
-    fetchApiVisits();
-    const interval = setInterval(() => {
-      computeVisits();
-      fetchApiVisits();
-    }, 6000);
-
-    return () => clearInterval(interval);
-  }, []);
-
-  // Auto-cycle visitor period every 3.5 seconds if not paused
-  useEffect(() => {
-    if (isVisitorHovered) return;
-    const interval = setInterval(() => {
-      setVisitorPeriod((prev) => {
-        if (prev === "day") return "week";
-        if (prev === "week") return "month";
-        if (prev === "month") return "year";
-        return "day";
-      });
-    }, 3500);
-    return () => clearInterval(interval);
-  }, [isVisitorHovered]);
-
+  
+  
   // Live Clock
   useEffect(() => {
     const updateTime = () => {
@@ -701,17 +604,7 @@ export default function HostDashboard() {
   const activeNewCount = orders.filter(o => o.status === "new").length;
 
   // VISITOR METRICS (100% REAL LIVE TRACKING - ZERO FAKE NUMBERS)
-  const visitorStats = useMemo(() => {
-    return {
-      day: { value: realVisits.day, label: "Aujourd'hui", sub: "visiteurs réels uniques" },
-      week: { value: realVisits.week, label: "Cette Semaine", sub: "7 derniers jours réels" },
-      month: { value: realVisits.month, label: "Ce Mois-ci", sub: "mois en cours" },
-      year: { value: realVisits.year, label: "Cette Année", sub: "année en cours" },
-    };
-  }, [realVisits]);
-
-  const currentVisitorMetric = visitorStats[visitorPeriod];
-
+  
   // Grouped Menu
   const groupedMenu = useMemo(() => {
     const groups: Record<string, typeof FULL_MENU_ITEMS> = {};
@@ -933,81 +826,9 @@ export default function HostDashboard() {
       <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-8">
         
         {/* KPI OVERVIEW CARDS WITH LIVE AUTO-TICKING VISITOR STATS */}
-        <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4">
+        <section className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 sm:gap-4">
           
-          {/* Card 1: VISITEURS DU SITE WEB (AUTO-ROTATING TICKER: JOUR / SEMAINE / MOIS / ANNÉE) */}
-          <div
-            onMouseEnter={() => setIsVisitorHovered(true)}
-            onMouseLeave={() => setIsVisitorHovered(false)}
-            className="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-[#14141a] to-[#0e0e12] border border-white/10 flex flex-col justify-between shadow-lg relative overflow-hidden group/vis"
-          >
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-xs font-bold uppercase tracking-wider text-[#a1a1aa] flex items-center gap-1.5">
-                  <Users className="w-3.5 h-3.5 text-[#f59e0b]" /> Visites du Site
-                </span>
-                <span className="flex items-center gap-1 text-[9px] font-bold text-[#22c55e] bg-[#22c55e]/10 px-2 py-0.5 rounded-full border border-[#22c55e]/30">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#22c55e] animate-ping" />
-                  <span>Suivi Réel</span>
-                </span>
-              </div>
-
-              {/* Live Ticker Value */}
-              <div className="flex items-baseline gap-2 mt-1">
-                <span className="font-display text-3xl sm:text-4xl text-white transition-all duration-300">
-                  {currentVisitorMetric.value.toLocaleString("fr-FR")}
-                </span>
-                <span className="text-xs font-semibold text-[#f59e0b] capitalize">
-                  {currentVisitorMetric.label}
-                </span>
-              </div>
-              <p className="text-[10px] text-zinc-500 mt-1">
-                {currentVisitorMetric.sub} (défilement automatique)
-              </p>
-            </div>
-
-            {/* Period Switcher Buttons */}
-            <div className="flex items-center rounded-xl bg-black/60 p-1 mt-3 border border-white/5 text-[10px] font-semibold text-zinc-400">
-              <button
-                type="button"
-                onClick={() => setVisitorPeriod("day")}
-                className={`flex-1 py-1 rounded-lg text-center transition-all cursor-pointer ${
-                  visitorPeriod === "day" ? "bg-[#f59e0b] text-black font-bold shadow-sm" : "hover:text-white"
-                }`}
-              >
-                Jour
-              </button>
-              <button
-                type="button"
-                onClick={() => setVisitorPeriod("week")}
-                className={`flex-1 py-1 rounded-lg text-center transition-all cursor-pointer ${
-                  visitorPeriod === "week" ? "bg-[#f59e0b] text-black font-bold shadow-sm" : "hover:text-white"
-                }`}
-              >
-                Sem.
-              </button>
-              <button
-                type="button"
-                onClick={() => setVisitorPeriod("month")}
-                className={`flex-1 py-1 rounded-lg text-center transition-all cursor-pointer ${
-                  visitorPeriod === "month" ? "bg-[#f59e0b] text-black font-bold shadow-sm" : "hover:text-white"
-                }`}
-              >
-                Mois
-              </button>
-              <button
-                type="button"
-                onClick={() => setVisitorPeriod("year")}
-                className={`flex-1 py-1 rounded-lg text-center transition-all cursor-pointer ${
-                  visitorPeriod === "year" ? "bg-[#f59e0b] text-black font-bold shadow-sm" : "hover:text-white"
-                }`}
-              >
-                An
-              </button>
-            </div>
-          </div>
-
-          {/* Card 2: Commandes Cette Semaine (avec sous-détail aujourd'hui) */}
+          {/* Card 1: Commandes Cette Semaine (avec sous-détail aujourd'hui) */}
           <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-[#14141a] to-[#0e0e12] border border-white/10 flex flex-col justify-between shadow-lg">
             <div>
               <div className="flex items-center justify-between mb-2">
@@ -1464,80 +1285,7 @@ export default function HostDashboard() {
           )}
         </section>
 
-        {/* SECTION 2: GESTION DES DISPONIBILITÉS & CRÉNEAUX */}
-        <section className="p-5 sm:p-6 rounded-3xl bg-gradient-to-b from-[#14141a] to-[#0d0d12] border border-white/10 shadow-2xl">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pb-4 border-b border-white/10">
-            <div>
-              <div className="flex items-center gap-2 mb-1">
-                <Clock className="w-4 h-4 text-[#f59e0b]" />
-                <h2 className="font-display text-xl sm:text-2xl uppercase tracking-wide text-white">
-                  Créneaux & Horaires de Service
-                </h2>
-              </div>
-              <p className="text-xs text-[#a1a1aa]">
-                Fermez une heure d'affluence en un clic ou marquez-la complète. Le restaurant fonctionne 7j/7 en continu de 12h à 01h.
-              </p>
-            </div>
-
-            {/* Date Selector */}
-            <div className="flex items-center gap-2">
-              <input
-                type="date"
-                value={selectedSlotDate}
-                onChange={(e) => setSelectedSlotDate(e.target.value)}
-                className="bg-black/60 border border-white/15 rounded-xl px-3 py-1.5 text-xs text-white outline-none focus:border-[#ff3b30]"
-              />
-            </div>
-          </div>
-
-          {/* Time Slots Grid */}
-          <div className="grid grid-cols-3 sm:grid-cols-6 lg:grid-cols-8 gap-2">
-            {SERVICE_HOURS.map((hour) => {
-              const key = `${selectedSlotDate}_${hour}`;
-              const state = slotsState[key] || "available";
-              const isAvail = state === "available";
-              const isFull = state === "full";
-
-              return (
-                <button
-                  key={hour}
-                  type="button"
-                  onClick={() => handleToggleSlot(hour)}
-                  className={`p-2.5 rounded-xl border text-center transition-all cursor-pointer ${
-                    isAvail
-                      ? "bg-[#22c55e]/10 border-[#22c55e]/40 hover:bg-[#22c55e]/20 text-white"
-                      : isFull
-                      ? "bg-[#f59e0b]/15 border-[#f59e0b]/50 text-white"
-                      : "bg-red-500/10 border-red-500/30 text-zinc-500 line-through"
-                  }`}
-                >
-                  <span className="block text-xs font-mono font-bold">{hour}</span>
-                  <span
-                    className={`block text-[9px] font-black uppercase mt-0.5 ${
-                      isAvail ? "text-[#22c55e]" : isFull ? "text-[#f59e0b]" : "text-red-400"
-                    }`}
-                  >
-                    {isAvail ? "Ouvert" : isFull ? "Complet" : "Fermé"}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-
-          <div className="flex items-center gap-4 text-xs text-zinc-400 mt-4 pt-3 border-t border-white/5">
-            <span className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-[#22c55e]" /> Ouvert
-            </span>
-            <span className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-[#f59e0b]" /> Complet
-            </span>
-            <span className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-red-500" /> Fermé
-            </span>
-          </div>
-        </section>
-
-        {/* SECTION 3: GESTION DE LA CARTE (27 ARTICLES OFFICIELS) */}
+        {/* SECTION 2: GESTION DE LA CARTE (27 ARTICLES OFFICIELS) */}
         <section className="p-5 sm:p-6 rounded-3xl bg-gradient-to-b from-[#14141a] to-[#0d0d12] border border-white/10 shadow-2xl">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pb-4 border-b border-white/10">
             <div>
